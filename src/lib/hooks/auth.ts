@@ -85,3 +85,24 @@ export const useResetPassword = () => {
     mutationFn: authApi.resetPassword,
   });
 };
+
+export const useVerifyEmail = () => {
+  const queryClient = useQueryClient();
+  const router = useRouter();
+  return useMutation({
+    mutationFn: (data: { otp: string; email: string }) => 
+      authApi.verifyEmail(data),
+    onSuccess: (data) => {
+      // Update user profile in cache to reflect verified status
+      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.profile });
+      router.replace("/dashboard");
+      router.refresh();
+    },
+  });
+};
+
+export const useSendVerificationEmail = () => {
+  return useMutation({
+    mutationFn: (email: string) => authApi.sendVerificationEmail(email),
+  });
+};

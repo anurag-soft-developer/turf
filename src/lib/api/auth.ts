@@ -4,7 +4,6 @@ import type { AuthResponse, User } from '@/types/auth';
 import type { RegisterFormData, LoginFormData } from '@/lib/schemas/auth';
 
 export const authApi = {
-  // Register new user
   register: async (data: RegisterFormData): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>(
       API_CONFIG.ENDPOINTS.AUTH.REGISTER,
@@ -13,7 +12,6 @@ export const authApi = {
     return response.data;
   },
 
-  // Login user
   login: async (data: LoginFormData): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>(
       API_CONFIG.ENDPOINTS.AUTH.LOGIN,
@@ -22,13 +20,11 @@ export const authApi = {
     return response.data;
   },
 
-  // Logout user
   logout: async (): Promise<{ message: string }> => {
     const response = await api.post('/auth/logout');
     return response.data;
   },
 
-  // Refresh token
   refreshToken: async (refreshToken: string): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>(
       API_CONFIG.ENDPOINTS.AUTH.REFRESH,
@@ -37,19 +33,16 @@ export const authApi = {
     return response.data;
   },
 
-  // Get user profile
   getProfile: async () => {
     const response = await api.get<User>(API_CONFIG.ENDPOINTS.AUTH.PROFILE);
     return response.data;
   },
 
-  // Update profile
   updateProfile: async (data: Partial<User>) => {
     const response = await api.patch<User>('/auth/profile', data);
     return response.data;
   },
 
-  // Change password
   changePassword: async (data: {
     currentPassword: string;
     newPassword: string;
@@ -61,7 +54,6 @@ export const authApi = {
     return response.data;
   },
 
-  // Forgot password
   forgotPassword: async (email: string) => {
     const response = await api.post(API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD, {
       email,
@@ -69,7 +61,6 @@ export const authApi = {
     return response.data;
   },
 
-  // Reset password
   resetPassword: async (data: { token: string; newPassword: string }) => {
     const response = await api.post(
       API_CONFIG.ENDPOINTS.AUTH.RESET_PASSWORD,
@@ -78,13 +69,11 @@ export const authApi = {
     return response.data;
   },
 
-  // Verify email
-  verifyEmail: async (data: { token: string; email: string }) => {
+  verifyEmail: async (data: { otp: string; email: string }) => {
     const response = await api.post(API_CONFIG.ENDPOINTS.AUTH.VERIFY_EMAIL, data);
     return response.data;
   },
 
-  // Send verification email
   sendVerificationEmail: async (email: string) => {
     const response = await api.post(
       API_CONFIG.ENDPOINTS.AUTH.SEND_VERIFICATION,

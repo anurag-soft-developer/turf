@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { decodeJwt } from "jose";
+import { IJwtPayload } from "./types/auth";
 
 const authRoutes = ["login", "register"];
 const protectedRoutes = ["dashboard", "profile"];
@@ -8,20 +9,23 @@ const protectedRoutes = ["dashboard", "profile"];
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const sessionToken = request.cookies.get("accessToken")?.value;
-  const isValidToken = isTokenValid(sessionToken);
+  const { isValid, payload } = isTokenValid(sessionToken);
+  const isProtectedRoute = protectedRoutes.some((route) =>
+    pathname.includes(`${route}`),
+  );
+  const isAuthRoute = authRoutes.some((route) => pathname.includes(`${route}`));
 
-  if (
-    !isValidToken &&
-    protectedRoutes.some((route) => pathname.includes(`${route}`))
-  ) {
+  if (!isValid && isProtectedRoute) {
     const loginUrl = new URL("/auth/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
 
-  if (
-    isValidToken &&
-    authRoutes.some((route) => pathname.includes(`${route}`))
-  ) {
+  if (isValid && !payload?.isEmailVerified && isProtectedRoute) {
+    const verifyEmailUrl = new URL("/auth/verify-email", request.url);
+    return NextResponse.redirect(verifyEmailUrl);
+  }
+
+  if (isValid && isAuthRoute) {
     const dashboardUrl = new URL("/dashboard", request.url);
     return NextResponse.redirect(dashboardUrl);
   }
@@ -33,13 +37,14 @@ export const config = {
   matcher: ["/dashboard/:path*", "/profile/:path*", "/auth/:path*"],
 };
 
-function isTokenValid(token: string | undefined): boolean {
-  if (!token) return false;
+function isTokenValid(token: string | undefined) {
+  if (!token) return { isValid: false };
   try {
-    const payload = decodeJwt(token);
-    return !!payload.exp && payload.exp > Date.now() / 1000;
+    const payload = decodeJwt<IJwtPayload>(token);
+    const isValid = !!payload.exp && payload.exp > Date.now() / 1000;
+    return { isValid, payload };
   } catch (error) {
     console.error("Invalid token:", error);
-    return false;
+    return { isValid: false };
   }
 }

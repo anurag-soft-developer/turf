@@ -101,16 +101,15 @@ const ProfileDropdown = () => {
         <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50">
           {linkButtons.map(({ href, icon, label }) => {
             return (
-              <>
-                <Link
-                  href={href}
-                  className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
-                  onClick={() => setIsDropdownOpen(false)}
-                >
-                  {icon}
-                  {label}
-                </Link>
-              </>
+              <Link
+                key={href}
+                href={href}
+                className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                onClick={() => setIsDropdownOpen(false)}
+              >
+                {icon}
+                {label}
+              </Link>
             );
           })}
           <hr className="my-1 border-gray-200" />

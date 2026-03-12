@@ -20,3 +20,12 @@ export interface AuthResponse {
   accessToken: string;
   refreshToken: string;
 }
+
+export interface IJwtPayload {
+  sub: string;
+  email: string;
+  isEmailVerified: boolean;
+  role: string;
+  iat?: number;
+  exp?: number;
+}

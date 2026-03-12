@@ -18,6 +18,7 @@ import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import GoogleLoginButton from "../auth/GoogleLoginButton";
+import { getErrorMessage } from "@/lib/utils";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -92,9 +93,10 @@ export default function LoginForm() {
 
           {loginMutation.error && (
             <div className="text-sm text-red-600">
-              {loginMutation.error instanceof Error
-                ? loginMutation.error.message
-                : "Login failed. Please check your credentials."}
+              {getErrorMessage(
+                loginMutation.error,
+                "Login failed. Please check your credentials.",
+              )}
             </div>
           )}
 

@@ -4,7 +4,7 @@ import { decodeJwt } from "jose";
 import { IJwtPayload } from "./types/auth";
 
 const authRoutes = ["login", "register"];
-const protectedRoutes = ["dashboard", "profile"];
+const protectedRoutes = ["dashboard", "profile", "notifications", "settings"];
 
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -14,6 +14,15 @@ export function proxy(request: NextRequest) {
     pathname.includes(`${route}`),
   );
   const isAuthRoute = authRoutes.some((route) => pathname.includes(`${route}`));
+
+  console.log("Proxy Middleware:", {
+    pathname,
+    isValid,
+    isProtectedRoute,
+    isAuthRoute,
+    payload,
+    sessionToken,
+  });
 
   if (!isValid && isProtectedRoute) {
     const loginUrl = new URL("/auth/login", request.url);
@@ -34,7 +43,13 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/dashboard/:path*", "/profile/:path*", "/auth/:path*"],
+  matcher: [
+    "/dashboard/:path*",
+    "/profile/:path*",
+    "/auth/:path*",
+    "/notifications/:path*",
+    "/settings/:path*",
+  ],
 };
 
 function isTokenValid(token: string | undefined) {

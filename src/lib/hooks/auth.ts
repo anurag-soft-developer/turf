@@ -4,6 +4,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import type { LoginFormData, RegisterFormData } from "@/lib/schemas/auth";
 import { useRouter } from "next/navigation";
+import { removeAuthToken, setAuthToken } from "../utils/auth.util";
 
 export const AUTH_QUERY_KEYS = {
   profile: ["auth", "profile"],
@@ -17,7 +18,8 @@ export const useLogin = () => {
     mutationFn: (data: LoginFormData) => authApi.login(data),
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
-      router.replace("/dashboard");
+      setAuthToken(data.accessToken);
+      router.push("/dashboard");
       router.refresh();
     },
   });
@@ -30,7 +32,8 @@ export const useRegister = () => {
     mutationFn: (data: RegisterFormData) => authApi.register(data),
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
-      router.replace("/dashboard");
+      setAuthToken(data.accessToken);
+      router.push("/dashboard");
       router.refresh();
     },
   });
@@ -43,7 +46,8 @@ export const useLogout = () => {
     mutationFn: authApi.logout,
     onSuccess: () => {
       queryClient.clear();
-      router.replace("/auth/login");
+      removeAuthToken();
+      router.push("/auth/login");
       router.refresh();
     },
   });
@@ -90,12 +94,13 @@ export const useVerifyEmail = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
   return useMutation({
-    mutationFn: (data: { otp: string; email: string }) => 
+    mutationFn: (data: { otp: string; email: string }) =>
       authApi.verifyEmail(data),
     onSuccess: (data) => {
       // Update user profile in cache to reflect verified status
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.profile });
-      router.replace("/dashboard");
+      setAuthToken(data.accessToken);
+      router.push("/dashboard");
       router.refresh();
     },
   });

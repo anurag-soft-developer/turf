@@ -1,9 +1,12 @@
-"use client";
-
 import ComingSoon from "@/components/features/ComingSoon";
+import ProtectedPage from "@/guards/ProtectedPage";
 
 const page = () => {
-  return <ComingSoon pageName="Dashboard" />;
+  return (
+    <ProtectedPage>
+      <ComingSoon pageName="Dashboard" />
+    </ProtectedPage>
+  );
 };
 
 export default page;

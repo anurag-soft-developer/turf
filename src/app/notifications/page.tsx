@@ -1,7 +1,12 @@
 import ComingSoon from "@/components/features/ComingSoon";
+import ProtectedPage from "@/guards/ProtectedPage";
 
 const page = () => {
-  return <ComingSoon pageName="Notifications" />;
+  return (
+    <ProtectedPage>
+      <ComingSoon pageName="Notifications" />
+    </ProtectedPage>
+  );
 };
 
 export default page;

@@ -21,14 +21,14 @@ export default function Home() {
               Cricket, Football, Basketball and more!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/locations">
+              <Link href="/auth/register">
                 <Button size="lg" className="text-lg px-8 py-3">
-                  Find Turfs Near You
+                  Get Started Free
                 </Button>
               </Link>
-              <Link href="/auth/register">
+              <Link href="/auth/login">
                 <Button size="lg" variant="outline" className="text-lg px-8 py-3">
-                  Get Started Free
+                  Sign In
                 </Button>
               </Link>
             </div>
@@ -80,8 +80,7 @@ export default function Home() {
               </CardHeader>
               <CardContent>
                 <CardDescription>
-                  Organize matches, join events, and connect with other sports enthusiasts 
-                  in your community.
+                  Connect with other sports enthusiasts in your community and play together.
                 </CardDescription>
               </CardContent>
             </Card>

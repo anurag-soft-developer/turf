@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { setAuthToken } from "@/lib/utils/auth.util";
+import { setAuthToken, setRefreshToken } from "@/lib/utils/auth.util";
 import { Suspense } from "react";
 
 export default function AuthCallback() {
@@ -17,15 +17,18 @@ function Component() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
+  const refresh = searchParams.get("refresh");
   const err = searchParams.get("error");
 
   useEffect(() => {
     if (token) {
       setAuthToken(token);
+      if (refresh) {
+        setRefreshToken(refresh);
+      }
       router.replace("/dashboard");
-    } else {
     }
-  }, [router]);
+  }, [token, refresh, router]);
 
   if (err && !token) {
     return (

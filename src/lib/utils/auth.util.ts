@@ -2,6 +2,7 @@ import { IJwtPayload } from "@/types/auth";
 import { decodeJwt } from "jose";
 
 export const authTokenKey = "accessToken";
+export const refreshTokenKey = "refreshToken";
 
 export const setAuthToken = (token: string) => {
   localStorage.setItem(authTokenKey, token);
@@ -13,6 +14,18 @@ export const getAuthToken = (): string | null => {
 
 export const removeAuthToken = () => {
   localStorage.removeItem(authTokenKey);
+};
+
+export const setRefreshToken = (token: string) => {
+  localStorage.setItem(refreshTokenKey, token);
+};
+
+export const getRefreshToken = (): string | null => {
+  return localStorage.getItem(refreshTokenKey);
+};
+
+export const removeRefreshToken = () => {
+  localStorage.removeItem(refreshTokenKey);
 };
 
 export function isTokenValid(

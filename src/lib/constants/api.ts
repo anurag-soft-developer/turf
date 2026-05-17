@@ -6,51 +6,24 @@ export const API_CONFIG = {
     AUTH: {
       REGISTER: "/auth/register",
       LOGIN: "/auth/login",
+      LOGIN_VERIFY_OTP: "/auth/login/verify-otp",
       LOGOUT: "/auth/logout",
       REFRESH: "/auth/refresh",
+      STATUS: "/auth/status",
       GOOGLE: "/auth/google",
-      PROFILE: "/auth/profile",
       CHANGE_PASSWORD: "/auth/change-password",
+      CHANGE_PASSWORD_SEND_OTP: "/auth/change-password/send-otp",
+      TWO_FACTOR_SEND_OTP: "/auth/2fa-setting/send-otp",
+      TWO_FACTOR_SETTING: "/auth/2fa-setting",
       FORGOT_PASSWORD: "/auth/forgot-password",
       RESET_PASSWORD: "/auth/reset-password",
       VERIFY_EMAIL: "/auth/verify-email",
       SEND_VERIFICATION: "/auth/send-verification-email",
     },
-    TURFS: {
-      LIST: "/turfs",
-      DETAILS: "/turfs",
-      SEARCH: "/turfs/search",
-      NEARBY: "/turfs/nearby",
-    },
-    BOOKINGS: {
-      CREATE: "/bookings",
-      LIST: "/bookings",
-      DETAILS: "/bookings",
-      CANCEL: "/bookings",
-    },
-    SPORTS: {
-      LIST: "/sports",
-    },
-    REVIEWS: {
-      CREATE: "/reviews",
-      LIST: "/reviews",
-    },
-    EVENTS: {
-      CREATE: "/events",
-      LIST: "/events",
-      DETAILS: "/events",
-      REGISTER: "/events",
+    USERS: {
+      PROFILE: "/users/profile",
+      NOTIFICATION_SETTINGS: "/users/notification-settings",
     },
   },
 } as const;
 
-export const HTTP_STATUS = {
-  OK: 200,
-  CREATED: 201,
-  BAD_REQUEST: 400,
-  UNAUTHORIZED: 401,
-  FORBIDDEN: 403,
-  NOT_FOUND: 404,
-  CONFLICT: 409,
-  INTERNAL_SERVER_ERROR: 500,
-} as const;

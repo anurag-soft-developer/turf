@@ -12,40 +12,40 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { useLogin } from "@/lib/hooks/auth";
-import { loginSchema, type LoginFormData } from "@/lib/schemas/auth";
+import { useRegister } from "@/lib/hooks/auth";
+import { registerSchema, type RegisterFormData } from "@/lib/schemas/auth";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import GoogleLoginButton from "../auth/GoogleLoginButton";
 import { getErrorMessage } from "@/lib/utils";
+import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
-  const loginMutation = useLogin();
+  const registerMutation = useRegister();
 
   const {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-  } = useForm<LoginFormData>({
-    resolver: zodResolver(loginSchema),
+  } = useForm<RegisterFormData>({
+    resolver: zodResolver(registerSchema),
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (data: RegisterFormData) => {
     try {
-      await loginMutation.mutateAsync(data);
+      await registerMutation.mutateAsync(data);
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("Registration failed:", error);
     }
   };
 
   return (
     <Card className="w-full max-w-md">
       <CardHeader>
-        <CardTitle>Welcome Back</CardTitle>
+        <CardTitle>Create Account</CardTitle>
         <CardDescription>
-          Sign in to your account to book amazing sports venues
+          Join TurfBooking to find and book amazing sports venues
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -64,12 +64,38 @@ export default function LoginForm() {
           </div>
 
           <div className="space-y-2">
+            <Label htmlFor="fullName">Full Name</Label>
+            <Input
+              id="fullName"
+              type="text"
+              placeholder="Enter your full name"
+              {...register("fullName")}
+            />
+            {errors.fullName && (
+              <p className="text-sm text-red-600">{errors.fullName.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="phone">Phone Number (Optional)</Label>
+            <Input
+              id="phone"
+              type="tel"
+              placeholder="Enter your phone number"
+              {...register("phone")}
+            />
+            {errors.phone && (
+              <p className="text-sm text-red-600">{errors.phone.message}</p>
+            )}
+          </div>
+
+          <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
             <div className="relative">
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                placeholder="Enter your password"
+                placeholder="Create a strong password"
                 {...register("password")}
               />
               <Button
@@ -91,11 +117,11 @@ export default function LoginForm() {
             )}
           </div>
 
-          {loginMutation.error && (
+          {registerMutation.error && (
             <div className="text-sm text-red-600">
               {getErrorMessage(
-                loginMutation.error,
-                "Login failed. Please check your credentials.",
+                registerMutation.error,
+                "Registration failed. Please try again.",
               )}
             </div>
           )}
@@ -103,9 +129,11 @@ export default function LoginForm() {
           <Button
             type="submit"
             className="w-full bg-green-600 hover:bg-green-700 text-white cursor-pointer"
-            disabled={isSubmitting || loginMutation.isPending}
+            disabled={isSubmitting || registerMutation.isPending}
           >
-            {loginMutation.isPending ? "Signing in..." : "Sign In"}
+            {registerMutation.isPending
+              ? "Creating Account..."
+              : "Create Account"}
           </Button>
         </form>
 
@@ -122,19 +150,10 @@ export default function LoginForm() {
 
         <GoogleLoginButton />
 
-        <div className="mt-4 text-center">
-          <Link
-            href="/auth/forgot-password"
-            className="text-sm text-blue-600 hover:underline"
-          >
-            Forgot your password?
-          </Link>
-        </div>
-
         <div className="mt-6 text-center text-sm">
-          <span className="text-gray-600">Don't have an account? </span>
-          <Link href="/auth/register" className="text-blue-600 hover:underline">
-            Create one
+          <span className="text-gray-600">Already have an account? </span>
+          <Link href="/auth/login" className="text-blue-600 hover:underline">
+            Sign in
           </Link>
         </div>
       </CardContent>

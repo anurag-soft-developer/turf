@@ -1,4 +1,4 @@
-import LoginForm from '@/components/forms/login-form';
+import LoginForm from "./components/login-form";
 import AnonymousPage from '@/guards/AnonymousPage';
 
 export default function LoginPage() {

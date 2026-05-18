@@ -24,6 +24,21 @@ export const API_CONFIG = {
       PROFILE: "/users/profile",
       NOTIFICATION_SETTINGS: "/users/notification-settings",
     },
+    TURF: {
+      BASE: "/turf",
+      OWNER_MY: "/turf/owner/my",
+      STATS: "/turf/stats",
+      BY_ID: (id: string) => `/turf/${id}`,
+    },
+    TURF_BOOKINGS: {
+      OWNER_BOOKINGS: "/turf-bookings/owner-bookings",
+      OWNER_STATS: "/turf-bookings/owner-bookings/stats",
+      BY_ID: (id: string) => `/turf-bookings/${id}`,
+    },
+    STORAGE: {
+      UPLOAD_URL: "/storage/upload-url",
+      OBJECTS: "/storage/objects",
+    },
   },
 } as const;
 

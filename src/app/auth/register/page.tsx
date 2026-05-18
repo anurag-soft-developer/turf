@@ -1,4 +1,4 @@
-import RegisterForm from "./components/register-form";
+import RegisterForm from "./_components/register-form";
 import AnonymousPage from "@/guards/AnonymousPage";
 
 export default function RegisterPage() {

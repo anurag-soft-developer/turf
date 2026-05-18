@@ -7,6 +7,7 @@ import {
   Bell,
   LogOut,
   Loader,
+  Store,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -28,7 +29,11 @@ const ProfileDropdown = () => {
       icon: <Settings className="w-4 h-4" />,
       label: "Settings",
     },
-
+    {
+      href: "/host",
+      icon: <Store className="w-4 h-4" />,
+      label: "Host portal",
+    },
     {
       href: "/notifications",
       icon: <Bell className="w-4 h-4" />,

@@ -1,16 +1,12 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import Navbar from "@/components/layout/navbar/navbar";
-import Footer from "@/components/layout/footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { MapPin, Calendar, Users} from "lucide-react";
 
 export default function Home() {
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      
-      <section className="pt-20 pb-16 bg-gradient-to-br from-green-50 to-blue-50">
+    <>
+      <section className="bg-gradient-to-br from-green-50 to-blue-50 pb-16 pt-8">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center pt-10">
             <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
@@ -135,8 +131,6 @@ export default function Home() {
           </Link>
         </div>
       </section>
-
-      <Footer />
-    </div>
+    </>
   );
 }

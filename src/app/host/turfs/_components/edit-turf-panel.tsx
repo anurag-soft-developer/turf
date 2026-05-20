@@ -1,17 +1,15 @@
 "use client";
 
-import TurfForm from "../../_components/turf-form";
+import TurfForm from "./turf-form";
 import { useHostTurf } from "@/modules/host/hooks/use-my-turfs";
 import { useUpdateTurf } from "@/modules/host/hooks/use-turf-mutations";
 import { Loader2 } from "lucide-react";
-import { use } from "react";
 
-export default function EditTurfPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+interface EditTurfPanelProps {
+  id: string;
+}
+
+export default function EditTurfPanel({ id }: EditTurfPanelProps) {
   const { data: turf, isLoading, isError } = useHostTurf(id);
   const updateMutation = useUpdateTurf(id);
 
@@ -28,14 +26,11 @@ export default function EditTurfPage({
   }
 
   return (
-    <div className="space-y-6">
-      <h2 className="text-xl font-bold text-gray-900">Edit turf</h2>
-      <TurfForm
-        turf={turf}
-        submitLabel="Update turf"
-        isSubmitting={updateMutation.isPending}
-        onSubmit={(payload) => updateMutation.mutate(payload)}
-      />
-    </div>
+    <TurfForm
+      turf={turf}
+      submitLabel="Update turf"
+      isSubmitting={updateMutation.isPending}
+      onSubmit={(payload) => updateMutation.mutate(payload)}
+    />
   );
 }

@@ -1,12 +1,15 @@
 "use client";
 
+import { MyDrawer } from "@/components/my-drawer";
+import BookingDetailPanel from "./_components/booking-detail-panel";
 import OwnerBookingCard from "./_components/owner-booking-card";
 import QrCheckInScanner from "./_components/qr-check-in-scanner";
 import { Button } from "@/components/ui/button";
 import { useOwnerBookings } from "@/modules/host/hooks/use-owner-bookings";
 import type { TurfBookingStatus } from "@/modules/host/types/owner-booking";
 import { Loader2, QrCode } from "lucide-react";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
 const TABS: { label: string; status?: TurfBookingStatus }[] = [
   { label: "All" },
@@ -16,7 +19,24 @@ const TABS: { label: string; status?: TurfBookingStatus }[] = [
   { label: "Completed", status: "completed" },
 ];
 
-export default function HostBookingsPage() {
+function BookingsDrawer() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  const drawer = searchParams.get("drawer");
+
+  if (!drawer) return null;
+
+  return (
+    <MyDrawer
+      title="Booking details"
+      onClose={() => router.push("/host/bookings")}
+    >
+      <BookingDetailPanel id={drawer} />
+    </MyDrawer>
+  );
+}
+
+function HostBookingsPageContent() {
   const [activeStatus, setActiveStatus] = useState<TurfBookingStatus | undefined>();
   const [showScanner, setShowScanner] = useState(false);
 
@@ -81,12 +101,28 @@ export default function HostBookingsPage() {
           No bookings in this category yet.
         </p>
       ) : (
-        <div className="space-y-3">
+        <div className="flex flex-col gap-4">
           {bookings.map((booking) => (
             <OwnerBookingCard key={booking._id} booking={booking} />
           ))}
         </div>
       )}
+
+      <BookingsDrawer />
     </div>
+  );
+}
+
+export default function HostBookingsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        </div>
+      }
+    >
+      <HostBookingsPageContent />
+    </Suspense>
   );
 }

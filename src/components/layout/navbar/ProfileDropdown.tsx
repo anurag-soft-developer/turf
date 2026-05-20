@@ -30,11 +30,6 @@ const ProfileDropdown = () => {
       label: "Settings",
     },
     {
-      href: "/host",
-      icon: <Store className="w-4 h-4" />,
-      label: "Host portal",
-    },
-    {
       href: "/notifications",
       icon: <Bell className="w-4 h-4" />,
       label: "Notifications",

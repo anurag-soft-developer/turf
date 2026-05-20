@@ -29,7 +29,7 @@ export function useUpdateTurf(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["host", "turfs"] });
       queryClient.invalidateQueries({ queryKey: HOST_QUERY_KEYS.turf(id) });
-      router.push(`/host/turfs/${id}`);
+      router.push(`/host/turfs?drawer=${encodeURIComponent(id)}`);
     },
   });
 }

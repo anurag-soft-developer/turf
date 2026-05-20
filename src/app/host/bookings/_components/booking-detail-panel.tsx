@@ -1,24 +1,21 @@
 "use client";
 
-import BookingActions from "./_components/booking-action-dialogs";
+import BookingActions from "./booking-action-dialogs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOwnerBooking } from "@/modules/host/hooks/use-owner-bookings";
 import type { Turf } from "@/modules/host/types/turf";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
-import Link from "next/link";
-import { use } from "react";
 
 function turfName(turf: Turf | string) {
   return typeof turf === "string" ? turf : turf?.name;
 }
 
-export default function HostBookingDetailPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+interface BookingDetailPanelProps {
+  id: string;
+}
+
+export default function BookingDetailPanel({ id }: BookingDetailPanelProps) {
   const { data: booking, isLoading, isError } = useOwnerBooking(id);
 
   if (isLoading) {
@@ -30,14 +27,7 @@ export default function HostBookingDetailPage({
   }
 
   if (isError || !booking) {
-    return (
-      <p className="text-muted-foreground">
-        Booking not found.{" "}
-        <Link href="/host/bookings" className="text-emerald-600 underline">
-          Back to bookings
-        </Link>
-      </p>
-    );
+    return <p className="text-muted-foreground">Booking not found.</p>;
   }
 
   const bookedBy =
@@ -47,18 +37,6 @@ export default function HostBookingDetailPage({
 
   return (
     <div className="space-y-6">
-      <div>
-        <Link
-          href="/host/bookings"
-          className="text-sm text-emerald-600 hover:underline"
-        >
-          ← Back to bookings
-        </Link>
-        <h2 className="mt-2 text-2xl font-bold text-gray-900">
-          Booking details
-        </h2>
-      </div>
-
       <Card>
         <CardHeader>
           <CardTitle>{turfName(booking.turf)}</CardTitle>

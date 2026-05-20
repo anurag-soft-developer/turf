@@ -4,16 +4,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useHostTurf } from "@/modules/host/hooks/use-my-turfs";
 import { useDeleteTurf } from "@/modules/host/hooks/use-turf-mutations";
-import Link from "next/link";
 import { Loader2, Pencil, Trash2 } from "lucide-react";
-import { use, useState } from "react";
+import { turfDrawerUrl } from "@/app/host/_lib/drawer-urls";
+import Link from "next/link";
+import { useState } from "react";
 
-export default function ManageTurfPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+interface TurfDetailPanelProps {
+  id: string;
+}
+
+export default function TurfDetailPanel({ id }: TurfDetailPanelProps) {
   const { data: turf, isLoading, isError } = useHostTurf(id);
   const deleteMutation = useDeleteTurf();
   const [confirmDelete, setConfirmDelete] = useState(false);
@@ -34,12 +34,12 @@ export default function ManageTurfPage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">{turf?.name}</h2>
-          <p className="text-muted-foreground">{turf?.location?.address}</p>
+          <h2 className="text-2xl font-bold text-gray-900">{turf.name}</h2>
+          <p className="text-muted-foreground">{turf.location?.address}</p>
         </div>
-        <div className="flex gap-2">  
+        <div className="flex gap-2">
           <Link
-            href={`/host/turfs/${id}/edit`}
+            href={turfDrawerUrl(id, "edit")}
             className="inline-flex h-8 items-center gap-1.5 rounded-lg border px-2.5 text-sm"
           >
             <Pencil className="h-4 w-4" />

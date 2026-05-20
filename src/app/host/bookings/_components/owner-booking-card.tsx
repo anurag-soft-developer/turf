@@ -1,5 +1,6 @@
 "use client";
 
+import { bookingDrawerUrl } from "@/app/host/_lib/drawer-urls";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -39,7 +40,7 @@ export default function OwnerBookingCard({ booking }: { booking: OwnerBooking })
     : "—";
 
   return (
-    <Link href={`/host/bookings/${booking._id}`}>
+    <Link href={bookingDrawerUrl(booking._id)} className="block">
       <Card className="transition-shadow hover:shadow-md">
         <CardContent className="flex items-center justify-between gap-4 pt-4">
           <div className="min-w-0 flex-1">

@@ -23,6 +23,7 @@ export const API_CONFIG = {
     USERS: {
       PROFILE: "/users/profile",
       NOTIFICATION_SETTINGS: "/users/notification-settings",
+      HOST_ONBOARDING_APPLY: "/users/host-onboarding/apply",
     },
     TURF: {
       BASE: "/turf",

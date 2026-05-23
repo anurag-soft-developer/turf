@@ -8,21 +8,18 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { CalendarDays, LayoutDashboard, MapPin, Menu } from "lucide-react";
+import {
+  CalendarDays,
+  LayoutDashboard,
+  MapPin,
+  Menu,
+  Wallet,
+} from "lucide-react";
+import { useHostOnboardingStatus } from "@/modules/host/hooks/use-host-onboarding";
+import { isHostOnboardingComplete } from "@/modules/host/types/host-onboarding";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-
-const links = [
-  { href: "/host", label: "Dashboard", icon: LayoutDashboard, exact: true },
-  { href: "/host/turfs", label: "My Turfs", icon: MapPin, exact: false },
-  {
-    href: "/host/bookings",
-    label: "Bookings",
-    icon: CalendarDays,
-    exact: false,
-  },
-];
 
 function HostSidebarLinks({
   className,
@@ -32,31 +29,66 @@ function HostSidebarLinks({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
+  const { data: onboarding } = useHostOnboardingStatus();
+  const canPublish = isHostOnboardingComplete(onboarding);
+
+  const links = [
+    {
+      href: "/host",
+      label: "Dashboard",
+      icon: LayoutDashboard,
+      exact: true,
+      disabled: !canPublish,
+    },
+    {
+      href: "/host/turfs",
+      label: "My Turfs",
+      icon: MapPin,
+      exact: false,
+      disabled: !canPublish,
+    },
+    {
+      href: "/host/bookings",
+      label: "Bookings",
+      icon: CalendarDays,
+      exact: false,
+      disabled: !canPublish,
+    },
+    {
+      href: "/host/onboarding",
+      label: "Payout setup",
+      icon: Wallet,
+      exact: true,
+      disabled: canPublish,
+    },
+  ];
 
   return (
     <nav className={cn("flex flex-col gap-1", className)}>
-      {links.map(({ href, label, icon: Icon, exact }) => {
-        const active = exact
-          ? pathname === href
-          : pathname === href || pathname.startsWith(`${href}/`);
+      {links
+        .filter((l) => !l.disabled)
+        .map(({ href, label, icon: Icon, exact }) => {
+          const active = exact
+            ? pathname === href
+            : pathname === href || pathname.startsWith(`${href}/`);
 
-        return (
-          <Link
-            key={href}
-            href={href}
-            onClick={onNavigate}
-            className={cn(
-              "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
-              active
-                ? "bg-emerald-600 text-white"
-                : "text-gray-700 hover:bg-white hover:ring-1 hover:ring-gray-200",
-            )}
-          >
-            <Icon className="h-4 w-4 shrink-0" />
-            {label}
-          </Link>
-        );
-      })}
+          return (
+            <Link
+              key={href}
+              href={href}
+              onClick={onNavigate}
+              className={cn(
+                "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
+                active
+                  ? "bg-emerald-600 text-white"
+                  : "text-gray-700 hover:bg-white hover:ring-1 hover:ring-gray-200",
+              )}
+            >
+              <Icon className="h-4 w-4 shrink-0" />
+              {label}
+            </Link>
+          );
+        })}
     </nav>
   );
 }

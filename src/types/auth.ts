@@ -1,3 +1,5 @@
+import type { HostOnboardingStatus } from "@/modules/host/types/host-onboarding";
+
 /** Matches turf-services Profile (UsersService.sanitizeProfile). */
 export interface User {
   _id: string;
@@ -16,6 +18,7 @@ export interface User {
   notificationModules?: Record<string, boolean>;
   isPasswordExists?: boolean;
   phone?: string;
+  hostOnboarding?: HostOnboardingStatus;
   lastLogin?: string;
   createdAt: string;
   updatedAt: string;

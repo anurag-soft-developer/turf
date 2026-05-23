@@ -6,7 +6,9 @@ import EditTurfPanel from "./_components/edit-turf-panel";
 import NewTurfPanel from "./_components/new-turf-panel";
 import TurfDetailPanel from "./_components/turf-detail-panel";
 import { Card, CardContent } from "@/components/ui/card";
+import { useHostOnboardingStatus } from "@/modules/host/hooks/use-host-onboarding";
 import { useMyTurfs } from "@/modules/host/hooks/use-my-turfs";
+import { isHostOnboardingComplete } from "@/modules/host/types/host-onboarding";
 import { Loader2, MapPin, Plus } from "lucide-react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -41,6 +43,8 @@ function TurfsDrawer() {
 }
 
 function HostTurfsPageContent() {
+  const { data: onboarding } = useHostOnboardingStatus();
+  const canPublish = isHostOnboardingComplete(onboarding);
   const { data, isLoading, isError, refetch, isFetching } = useMyTurfs({
     limit: 50,
   });
@@ -51,13 +55,22 @@ function HostTurfsPageContent() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-xl font-bold text-gray-900">My Turfs</h2>
-        <Link
-          href={turfDrawerUrl("new")}
-          className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground"
-        >
-          <Plus className="h-4 w-4" />
-          Add turf
-        </Link>
+        {canPublish ? (
+          <Link
+            href={turfDrawerUrl("new")}
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground"
+          >
+            <Plus className="h-4 w-4" />
+            Add turf
+          </Link>
+        ) : (
+          <Link
+            href="/host/onboarding"
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground"
+          >
+            Complete payout setup
+          </Link>
+        )}
       </div>
 
       {isLoading ? (
@@ -87,12 +100,21 @@ function HostTurfsPageContent() {
                 Start by adding your first turf listing.
               </p>
             </div>
-            <Link
-              href={turfDrawerUrl("new")}
-              className="inline-flex h-8 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
-            >
-              Add your first turf
-            </Link>
+            {canPublish ? (
+              <Link
+                href={turfDrawerUrl("new")}
+                className="inline-flex h-8 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
+              >
+                Add your first turf
+              </Link>
+            ) : (
+              <Link
+                href="/host/onboarding"
+                className="inline-flex h-8 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
+              >
+                Complete payout setup
+              </Link>
+            )}
           </CardContent>
         </Card>
       ) : (

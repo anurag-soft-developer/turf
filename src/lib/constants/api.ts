@@ -23,7 +23,6 @@ export const API_CONFIG = {
     USERS: {
       PROFILE: "/users/profile",
       NOTIFICATION_SETTINGS: "/users/notification-settings",
-      HOST_ONBOARDING_APPLY: "/users/host-onboarding/apply",
     },
     TURF: {
       BASE: "/turf",
@@ -39,6 +38,20 @@ export const API_CONFIG = {
     STORAGE: {
       UPLOAD_URL: "/storage/upload-url",
       OBJECTS: "/storage/objects",
+    },
+    WALLET: {
+      ME: "/wallet/me",
+      PAYOUT_DETAILS: "/wallet/payout-details",
+    },
+    WITHDRAWALS: {
+      REQUEST: "/withdrawals/request",
+      MY_REQUESTS: "/withdrawals/my-requests",
+      BY_ID: (id: string) => `/withdrawals/${id}`,
+      CANCEL: (id: string) => `/withdrawals/${id}/cancel`,
+      ADMIN_REQUESTS: "/withdrawals/admin/requests",
+      ADMIN_STATUS: (id: string) => `/withdrawals/admin/${id}/status`,
+      COMMENTS: (id: string) => `/withdrawals/${id}/comments`,
+      ATTACHMENTS: (id: string) => `/withdrawals/${id}/attachments`,
     },
   },
 } as const;

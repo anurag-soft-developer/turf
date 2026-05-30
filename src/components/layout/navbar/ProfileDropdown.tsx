@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useLogout, useProfile } from "@/lib/hooks/auth";
+import { isPlatformAdmin } from "@/types/auth";
 import {
   User,
   ChevronDown,
@@ -7,7 +8,7 @@ import {
   Bell,
   LogOut,
   Loader,
-  Store,
+  Shield,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -34,6 +35,15 @@ const ProfileDropdown = () => {
       icon: <Bell className="w-4 h-4" />,
       label: "Notifications",
     },
+    ...(isPlatformAdmin(data)
+      ? [
+          {
+            href: "/platform-admin/withdrawals",
+            icon: <Shield className="w-4 h-4" />,
+            label: "Platform Admin",
+          },
+        ]
+      : []),
   ];
 
   useEffect(() => {

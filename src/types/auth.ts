@@ -1,10 +1,17 @@
-import type { HostOnboardingStatus } from "@/modules/host/types/host-onboarding";
-
 /** Matches turf-services Profile (UsersService.sanitizeProfile). */
+export const UserRole = {
+  PLATFORM_ADMIN: "platform_admin",
+  ADMIN: "admin",
+  USER: "user",
+  MODERATOR: "moderator",
+} as const;
+
+export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
+
 export interface User {
   _id: string;
   email: string;
-  role: string;
+  role: UserRoleType | string;
   fullName?: string;
   bio?: string;
   avatar?: string;
@@ -18,7 +25,6 @@ export interface User {
   notificationModules?: Record<string, boolean>;
   isPasswordExists?: boolean;
   phone?: string;
-  hostOnboarding?: HostOnboardingStatus;
   lastLogin?: string;
   createdAt: string;
   updatedAt: string;
@@ -75,4 +81,8 @@ export function isAuthResponse(
   response: AuthResponse | AuthOtpChallengeResponse,
 ): response is AuthResponse {
   return "accessToken" in response;
+}
+
+export function isPlatformAdmin(user: User | undefined): boolean {
+  return user?.role === UserRole.PLATFORM_ADMIN;
 }

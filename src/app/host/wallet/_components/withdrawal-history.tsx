@@ -1,6 +1,5 @@
 "use client";
 
-import { walletDrawerUrl } from "@/app/host/_lib/wallet-drawer-urls";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +15,6 @@ import {
 import type { Withdrawal, WithdrawalStatus } from "@/types/withdrawal";
 import { format } from "date-fns";
 import { ChevronRight, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 const STATUS_TABS: { label: string; status?: WithdrawalStatus }[] = [
@@ -29,12 +27,17 @@ const STATUS_TABS: { label: string; status?: WithdrawalStatus }[] = [
   { label: "Cancelled", status: "cancelled" },
 ];
 
-function WithdrawalRow({ withdrawal }: { withdrawal: Withdrawal }) {
+function WithdrawalRow({
+  withdrawal,
+  onSelect,
+}: {
+  withdrawal: Withdrawal;
+  onSelect: (id: string) => void;
+}) {
   const cancelMutation = useCancelWithdrawal();
   const [confirmCancel, setConfirmCancel] = useState(false);
 
   const handleCancel = async (e: React.MouseEvent) => {
-    e.preventDefault();
     e.stopPropagation();
     if (!confirmCancel) {
       setConfirmCancel(true);
@@ -45,7 +48,11 @@ function WithdrawalRow({ withdrawal }: { withdrawal: Withdrawal }) {
   };
 
   return (
-    <Link href={walletDrawerUrl(withdrawal._id)} className="block">
+    <button
+      type="button"
+      onClick={() => onSelect(withdrawal._id)}
+      className="block w-full text-left"
+    >
       <Card className="transition-shadow hover:shadow-md">
         <CardContent className="flex items-center justify-between gap-4 pt-4">
           <div className="min-w-0 flex-1">
@@ -87,11 +94,15 @@ function WithdrawalRow({ withdrawal }: { withdrawal: Withdrawal }) {
           </div>
         </CardContent>
       </Card>
-    </Link>
+    </button>
   );
 }
 
-export default function WithdrawalHistory() {
+export default function WithdrawalHistory({
+  onSelectWithdrawal,
+}: {
+  onSelectWithdrawal: (id: string) => void;
+}) {
   const [activeStatus, setActiveStatus] = useState<WithdrawalStatus | undefined>();
   const [page, setPage] = useState(1);
   const limit = 20;
@@ -150,7 +161,11 @@ export default function WithdrawalHistory() {
       ) : (
         <div className="flex flex-col gap-3">
           {withdrawals.map((w) => (
-            <WithdrawalRow key={w._id} withdrawal={w} />
+            <WithdrawalRow
+              key={w._id}
+              withdrawal={w}
+              onSelect={onSelectWithdrawal}
+            />
           ))}
         </div>
       )}

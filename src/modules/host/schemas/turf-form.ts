@@ -2,25 +2,30 @@ import { z } from "zod";
 
 const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
-export const turfFormSchema = z.object({
-  name: z.string().min(1, "Name is required"),
-  description: z.string().min(1, "Description is required"),
-  address: z.string().min(1, "Address is required"),
-  latitude: z.number(),
-  longitude: z.number(),
-  sportTypes: z.array(z.string()).min(1, "Select at least one sport"),
-  amenities: z.array(z.string()).optional(),
-  images: z.array(z.string()).optional(),
-  basePricePerHour: z.number().min(0, "Price must be 0 or more"),
-  weekendSurge: z.number().min(0).max(1),
-  openTime: z.string().regex(timeRegex, "Use HH:MM format"),
-  closeTime: z.string().regex(timeRegex, "Use HH:MM format"),
-  length: z.number().min(0).optional(),
-  width: z.number().min(0).optional(),
-  dimensionUnit: z.enum(["meters", "feet"]),
-  isAvailable: z.boolean(),
-  slotBufferMins: z.number().min(0).max(120),
-});
+export const turfFormSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    description: z.string().min(1, "Description is required"),
+    address: z.string().min(1, "Address is required"),
+    latitude: z.number(),
+    longitude: z.number(),
+    sportTypes: z.array(z.string()).min(1, "Select at least one sport"),
+    amenities: z.array(z.string()).optional(),
+    images: z.array(z.string()).optional(),
+    basePricePerHour: z.number().min(0, "Price must be 0 or more"),
+    weekendSurge: z.number().min(0).max(1),
+    openTime: z.string().regex(timeRegex, "Use HH:MM format"),
+    closeTime: z.string().regex(timeRegex, "Use HH:MM format"),
+    length: z.number().min(0).optional(),
+    width: z.number().min(0).optional(),
+    dimensionUnit: z.enum(["meters", "feet"]),
+    isAvailable: z.boolean(),
+    slotBufferMins: z.number().min(0).max(120),
+  })
+  .refine((data) => !(data.latitude === 0 && data.longitude === 0), {
+    message: "Select a location from the address suggestions",
+    path: ["address"],
+  });
 
 export type TurfFormValues = z.infer<typeof turfFormSchema>;
 

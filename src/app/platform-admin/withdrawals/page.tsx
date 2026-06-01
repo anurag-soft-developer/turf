@@ -1,43 +1,42 @@
 "use client";
 
 import { MyDrawer } from "@/components/my-drawer";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useState } from "react";
 import {
   AdminWithdrawalDetailPanel,
   default as AdminWithdrawalsList,
 } from "./_components/admin-withdrawals-content";
 
-function AdminWithdrawalsDrawer() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const drawer = searchParams.get("drawer");
+export default function PlatformAdminWithdrawalsPage() {
+  const [selectedWithdrawalId, setSelectedWithdrawalId] = useState<
+    string | null
+  >(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  if (!drawer) return null;
+  const openWithdrawal = (id: string) => {
+    setSelectedWithdrawalId(id);
+    setDrawerOpen(true);
+  };
 
-  return (
-    <MyDrawer
-      title="Withdrawal request"
-      onClose={() => router.push("/platform-admin/withdrawals")}
-    >
-      <AdminWithdrawalDetailPanel id={drawer} />
-    </MyDrawer>
-  );
-}
+  const handleDrawerClose = () => {
+    setSelectedWithdrawalId(null);
+    setDrawerOpen(false);
+  };
 
-function AdminWithdrawalsPageContent() {
   return (
     <>
-      <AdminWithdrawalsList />
-      <AdminWithdrawalsDrawer />
-    </>
-  );
-}
+      <AdminWithdrawalsList onSelectWithdrawal={openWithdrawal} />
 
-export default function PlatformAdminWithdrawalsPage() {
-  return (
-    <Suspense fallback={null}>
-      <AdminWithdrawalsPageContent />
-    </Suspense>
+      <MyDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title="Withdrawal request"
+        onClose={handleDrawerClose}
+      >
+        {selectedWithdrawalId ? (
+          <AdminWithdrawalDetailPanel id={selectedWithdrawalId} />
+        ) : null}
+      </MyDrawer>
+    </>
   );
 }

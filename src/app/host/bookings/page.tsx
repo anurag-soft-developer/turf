@@ -8,8 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useOwnerBookings } from "@/modules/host/hooks/use-owner-bookings";
 import type { TurfBookingStatus } from "@/modules/host/types/owner-booking";
 import { Loader2, QrCode } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { useState } from "react";
 
 const TABS: { label: string; status?: TurfBookingStatus }[] = [
   { label: "All" },
@@ -19,26 +18,13 @@ const TABS: { label: string; status?: TurfBookingStatus }[] = [
   { label: "Completed", status: "completed" },
 ];
 
-function BookingsDrawer() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const drawer = searchParams.get("drawer");
-
-  if (!drawer) return null;
-
-  return (
-    <MyDrawer
-      title="Booking details"
-      onClose={() => router.push("/host/bookings")}
-    >
-      <BookingDetailPanel id={drawer} />
-    </MyDrawer>
-  );
-}
-
-function HostBookingsPageContent() {
+export default function HostBookingsPage() {
   const [activeStatus, setActiveStatus] = useState<TurfBookingStatus | undefined>();
   const [showScanner, setShowScanner] = useState(false);
+  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
+    null,
+  );
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
   const { data, isLoading, isError, refetch } = useOwnerBookings({
     status: activeStatus,
@@ -47,6 +33,16 @@ function HostBookingsPageContent() {
   });
 
   const bookings = data?.data ?? [];
+
+  const openBooking = (id: string) => {
+    setSelectedBookingId(id);
+    setDrawerOpen(true);
+  };
+
+  const handleDrawerClose = () => {
+    setSelectedBookingId(null);
+    setDrawerOpen(false);
+  };
 
   return (
     <div className="space-y-6">
@@ -103,26 +99,25 @@ function HostBookingsPageContent() {
       ) : (
         <div className="flex flex-col gap-4">
           {bookings.map((booking) => (
-            <OwnerBookingCard key={booking._id} booking={booking} />
+            <OwnerBookingCard
+              key={booking._id}
+              booking={booking}
+              onSelect={openBooking}
+            />
           ))}
         </div>
       )}
 
-      <BookingsDrawer />
+      <MyDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title="Booking details"
+        onClose={handleDrawerClose}
+      >
+        {selectedBookingId ? (
+          <BookingDetailPanel id={selectedBookingId} />
+        ) : null}
+      </MyDrawer>
     </div>
-  );
-}
-
-export default function HostBookingsPage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
-        </div>
-      }
-    >
-      <HostBookingsPageContent />
-    </Suspense>
   );
 }

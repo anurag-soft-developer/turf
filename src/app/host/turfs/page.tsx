@@ -1,63 +1,117 @@
 "use client";
 
 import { MyDrawer } from "@/components/my-drawer";
-import { turfDrawerUrl } from "../_lib/drawer-urls";
 import EditTurfPanel from "./_components/edit-turf-panel";
 import NewTurfPanel from "./_components/new-turf-panel";
 import TurfDetailPanel from "./_components/turf-detail-panel";
 import { Card, CardContent } from "@/components/ui/card";
 import { useMyTurfs } from "@/modules/host/hooks/use-my-turfs";
 import { Loader2, MapPin, Plus } from "lucide-react";
-import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 
-function TurfsDrawer() {
+type TurfDrawerView =
+  | { kind: "new" }
+  | { kind: "detail"; id: string }
+  | { kind: "edit"; id: string };
+
+function turfDrawerTitle(view: TurfDrawerView | null) {
+  if (!view) return "Turf details";
+  if (view.kind === "new") return "Add new turf";
+  if (view.kind === "edit") return "Edit turf";
+  return "Turf details";
+}
+
+function TurfDrawerQuerySync({ onOpenNew }: { onOpenNew: () => void }) {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const drawer = searchParams.get("drawer");
-  const mode = searchParams.get("mode");
 
-  if (!drawer) return null;
+  useEffect(() => {
+    if (searchParams.get("drawer") === "new") {
+      onOpenNew();
+      router.replace("/host/turfs");
+    }
+  }, [searchParams, onOpenNew, router]);
 
-  const close = () => router.push("/host/turfs");
-
-  let title = "Turf details";
-  let content: React.ReactNode = <TurfDetailPanel id={drawer} />;
-
-  if (drawer === "new") {
-    title = "Add new turf";
-    content = <NewTurfPanel />;
-  } else if (mode === "edit") {
-    title = "Edit turf";
-    content = <EditTurfPanel id={drawer} />;
-  }
-
-  return (
-    <MyDrawer title={title} onClose={close}>
-      {content}
-    </MyDrawer>
-  );
+  return null;
 }
 
 function HostTurfsPageContent() {
+  const [view, setView] = useState<TurfDrawerView | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const openDrawerNew = useCallback(() => {
+    setView({ kind: "new" });
+    setDrawerOpen(true);
+  }, []);
+
+  const openDrawerDetail = useCallback((id: string) => {
+    setView({ kind: "detail", id });
+    setDrawerOpen(true);
+  }, []);
+
+  const openDrawerEdit = useCallback((id: string) => {
+    setView({ kind: "edit", id });
+    setDrawerOpen(true);
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setView(null);
+    setDrawerOpen(false);
+  }, []);
+
   const { data, isLoading, isError, refetch, isFetching } = useMyTurfs({
     limit: 50,
   });
 
   const turfs = data?.data ?? [];
 
+  const handleDrawerClose = () => {
+    closeDrawer();
+  };
+
+  let drawerContent: React.ReactNode = null;
+  if (view?.kind === "new") {
+    drawerContent = (
+      <NewTurfPanel
+        onSuccess={() => setDrawerOpen(false)}
+        onCancel={() => setDrawerOpen(false)}
+      />
+    );
+  } else if (view?.kind === "edit") {
+    drawerContent = (
+      <EditTurfPanel
+        id={view.id}
+        onSuccess={() => openDrawerDetail(view.id)}
+        onCancel={() => openDrawerDetail(view.id)}
+      />
+    );
+  } else if (view?.kind === "detail") {
+    drawerContent = (
+      <TurfDetailPanel
+        id={view.id}
+        onEdit={() => openDrawerEdit(view.id)}
+        onDeleteSuccess={() => setDrawerOpen(false)}
+      />
+    );
+  }
+
   return (
     <div className="space-y-6">
+      <Suspense fallback={null}>
+        <TurfDrawerQuerySync onOpenNew={openDrawerNew} />
+      </Suspense>
+
       <div className="flex flex-wrap items-center justify-between gap-4">
         <h2 className="text-xl font-bold text-gray-900">My Turfs</h2>
-        <Link
-          href={turfDrawerUrl("new")}
+        <button
+          type="button"
+          onClick={openDrawerNew}
           className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground"
         >
           <Plus className="h-4 w-4" />
           Add turf
-        </Link>
+        </button>
       </div>
 
       {isLoading ? (
@@ -87,12 +141,13 @@ function HostTurfsPageContent() {
                 Start by adding your first turf listing.
               </p>
             </div>
-            <Link
-              href={turfDrawerUrl("new")}
+            <button
+              type="button"
+              onClick={openDrawerNew}
               className="inline-flex h-8 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
             >
               Add your first turf
-            </Link>
+            </button>
           </CardContent>
         </Card>
       ) : (
@@ -101,14 +156,26 @@ function HostTurfsPageContent() {
             <p className="text-sm text-muted-foreground">Refreshing…</p>
           ) : null}
           {turfs.map((turf) => (
-            <Link
+            <button
               key={turf._id}
-              href={turfDrawerUrl(turf._id)}
-              className="block"
+              type="button"
+              onClick={() => openDrawerDetail(turf._id)}
+              className="block w-full text-left"
             >
               <Card className="transition-shadow hover:shadow-md">
-                <CardContent className="flex items-center justify-between gap-4 pt-4">
-                  <div>
+                <CardContent className="flex items-center gap-4 pt-4">
+                  {turf.images?.[0] ? (
+                    <img
+                      src={turf.images[0]}
+                      alt=""
+                      className="h-16 w-16 shrink-0 rounded-lg object-cover ring-1 ring-gray-200"
+                    />
+                  ) : (
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 ring-1 ring-gray-200">
+                      <MapPin className="h-6 w-6 text-gray-400" />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
                     <p className="font-semibold text-gray-900">{turf?.name}</p>
                     <p className="text-sm text-muted-foreground line-clamp-1">
                       {turf?.location?.address}
@@ -118,15 +185,21 @@ function HostTurfsPageContent() {
                       {turf?.isAvailable === false ? " · Unavailable" : ""}
                     </p>
                   </div>
-                  <MapPin className="h-5 w-5 text-gray-400" />
                 </CardContent>
               </Card>
-            </Link>
+            </button>
           ))}
         </div>
       )}
 
-      <TurfsDrawer />
+      <MyDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title={turfDrawerTitle(view)}
+        onClose={handleDrawerClose}
+      >
+        {drawerContent}
+      </MyDrawer>
     </div>
   );
 }

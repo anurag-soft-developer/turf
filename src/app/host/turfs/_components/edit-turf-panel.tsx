@@ -7,9 +7,11 @@ import { Loader2 } from "lucide-react";
 
 interface EditTurfPanelProps {
   id: string;
+  onSuccess?: () => void;
+  onCancel?: () => void;
 }
 
-export default function EditTurfPanel({ id }: EditTurfPanelProps) {
+export default function EditTurfPanel({ id, onSuccess, onCancel }: EditTurfPanelProps) {
   const { data: turf, isLoading, isError } = useHostTurf(id);
   const updateMutation = useUpdateTurf(id);
 
@@ -30,7 +32,12 @@ export default function EditTurfPanel({ id }: EditTurfPanelProps) {
       turf={turf}
       submitLabel="Update turf"
       isSubmitting={updateMutation.isPending}
-      onSubmit={(payload) => updateMutation.mutate(payload)}
+      onCancel={onCancel}
+      onSubmit={(payload) =>{
+        console.log(payload);
+        updateMutation.mutate(payload, { onSuccess: () => onSuccess?.() })
+      }
+      }
     />
   );
 }

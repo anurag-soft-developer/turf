@@ -1,6 +1,5 @@
 "use client";
 
-import { adminWithdrawalDrawerUrl } from "@/app/host/_lib/wallet-drawer-urls";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -26,7 +25,6 @@ import {
 import type { Withdrawal, WithdrawalStatus } from "@/types/withdrawal";
 import { format } from "date-fns";
 import { ChevronRight, Loader2 } from "lucide-react";
-import Link from "next/link";
 import { useState } from "react";
 
 const STATUS_TABS: { label: string; status?: WithdrawalStatus }[] = [
@@ -39,9 +37,19 @@ const STATUS_TABS: { label: string; status?: WithdrawalStatus }[] = [
   { label: "Cancelled", status: "cancelled" },
 ];
 
-function AdminWithdrawalRow({ withdrawal }: { withdrawal: Withdrawal }) {
+function AdminWithdrawalRow({
+  withdrawal,
+  onSelect,
+}: {
+  withdrawal: Withdrawal;
+  onSelect: (id: string) => void;
+}) {
   return (
-    <Link href={adminWithdrawalDrawerUrl(withdrawal._id)} className="block">
+    <button
+      type="button"
+      onClick={() => onSelect(withdrawal._id)}
+      className="block w-full text-left"
+    >
       <Card className="transition-shadow hover:shadow-md">
         <CardContent className="flex items-center justify-between gap-4 pt-4">
           <div className="min-w-0 flex-1">
@@ -66,7 +74,7 @@ function AdminWithdrawalRow({ withdrawal }: { withdrawal: Withdrawal }) {
           <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
         </CardContent>
       </Card>
-    </Link>
+    </button>
   );
 }
 
@@ -278,7 +286,11 @@ export function AdminWithdrawalDetailPanel({ id }: { id: string }) {
   );
 }
 
-export default function AdminWithdrawalsList() {
+export default function AdminWithdrawalsList({
+  onSelectWithdrawal,
+}: {
+  onSelectWithdrawal: (id: string) => void;
+}) {
   const [activeStatus, setActiveStatus] = useState<WithdrawalStatus | undefined>();
   const [userId, setUserId] = useState("");
   const [userIdFilter, setUserIdFilter] = useState<string | undefined>();
@@ -364,7 +376,11 @@ export default function AdminWithdrawalsList() {
       ) : (
         <div className="flex flex-col gap-3">
           {withdrawals.map((w) => (
-            <AdminWithdrawalRow key={w._id} withdrawal={w} />
+            <AdminWithdrawalRow
+              key={w._id}
+              withdrawal={w}
+              onSelect={onSelectWithdrawal}
+            />
           ))}
         </div>
       )}

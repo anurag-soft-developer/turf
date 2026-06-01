@@ -1,7 +1,5 @@
 "use client";
 
-import { bookingDrawerUrl } from "@/app/host/_lib/drawer-urls";
-import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import type { OwnerBooking } from "@/modules/host/types/owner-booking";
@@ -33,14 +31,24 @@ function statusVariant(
   }
 }
 
-export default function OwnerBookingCard({ booking }: { booking: OwnerBooking }) {
+export default function OwnerBookingCard({
+  booking,
+  onSelect,
+}: {
+  booking: OwnerBooking;
+  onSelect: (id: string) => void;
+}) {
   const firstSlot = booking.timeSlots?.[0];
   const dateLabel = firstSlot?.startTime
     ? format(new Date(firstSlot.startTime), "MMM d, yyyy · HH:mm")
     : "—";
 
   return (
-    <Link href={bookingDrawerUrl(booking._id)} className="block">
+    <button
+      type="button"
+      onClick={() => onSelect(booking._id)}
+      className="block w-full text-left"
+    >
       <Card className="transition-shadow hover:shadow-md">
         <CardContent className="flex items-center justify-between gap-4 pt-4">
           <div className="min-w-0 flex-1">
@@ -64,6 +72,6 @@ export default function OwnerBookingCard({ booking }: { booking: OwnerBooking })
           <ChevronRight className="h-5 w-5 shrink-0 text-gray-400" />
         </CardContent>
       </Card>
-    </Link>
+    </button>
   );
 }

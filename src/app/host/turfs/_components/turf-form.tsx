@@ -1,9 +1,12 @@
 "use client";
 
+import { ConfirmDialog } from "@/components/confirm-dialog";
+import { PlacesAutocomplete } from "@/components/places-autocomplete";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { TimePicker } from "@/components/ui/time-picker";
 import { hostStorageApi } from "@/modules/host/api/storage";
 import {
   AMENITIES,
@@ -42,6 +45,7 @@ function turfToDefaultValues(turf?: Turf): TurfFormValues {
 interface TurfFormProps {
   turf?: Turf;
   onSubmit: (payload: ReturnType<typeof turfFormToCreatePayload>) => void;
+  onCancel?: () => void;
   isSubmitting?: boolean;
   submitLabel?: string;
 }
@@ -49,26 +53,36 @@ interface TurfFormProps {
 export default function TurfForm({
   turf,
   onSubmit,
+  onCancel,
   isSubmitting,
   submitLabel = "Save turf",
 }: TurfFormProps) {
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
+  const mapsError = !process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    ? "Google Maps API key is not configured"
+    : null;
 
   const {
     register,
     handleSubmit,
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useForm<TurfFormValues>({
     resolver: zodResolver(turfFormSchema),
     defaultValues: turfToDefaultValues(turf),
   });
-
   const sportTypes = watch("sportTypes") ?? [];
   const amenities = watch("amenities") ?? [];
   const images = watch("images") ?? [];
+  const address = watch("address") ?? "";
+  const latitude = watch("latitude");
+  const longitude = watch("longitude");
+  const openTime = watch("openTime") ?? "06:00";
+  const closeTime = watch("closeTime") ?? "22:00";
+  console.log(errors,watch());
 
   const toggleItem = (
     field: "sportTypes" | "amenities",
@@ -94,11 +108,21 @@ export default function TurfForm({
     }
   };
 
+  const handleCancel = () => {
+    if (!onCancel) return;
+    if (isDirty) {
+      setDiscardDialogOpen(true);
+      return;
+    }
+    onCancel();
+  };
+
   return (
     <form
-      className="space-y-8"
+      className="-mx-4 flex min-h-full flex-col"
       onSubmit={handleSubmit((values) => onSubmit(turfFormToCreatePayload(values)))}
     >
+      <div className="space-y-8 px-4 py-4 pb-2">
       <section className="space-y-4">
         <h3 className="text-lg font-semibold">Basic info</h3>
         <div className="space-y-2">
@@ -123,18 +147,62 @@ export default function TurfForm({
         <h3 className="text-lg font-semibold">Location</h3>
         <div className="space-y-2">
           <Label htmlFor="address">Address</Label>
-          <Input id="address" {...register("address")} />
+          <PlacesAutocomplete
+            key={turf?._id ?? "new"}
+            id="address"
+            value={address}
+            onAddressChange={(next) =>
+              setValue("address", next, { shouldValidate: true, shouldDirty: true })
+            }
+            onPlaceSelect={({ address: nextAddress, latitude: lat, longitude: lng }) => {
+              setValue("address", nextAddress, { shouldValidate: true, shouldDirty: true });
+              setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+              setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
+            }}
+          />
+          {errors.address ? (
+            <p className="text-sm text-destructive">{errors.address.message}</p>
+          ) : null}
+          {!mapsError && (latitude !== 0 || longitude !== 0) ? (
+            <p className="text-xs text-muted-foreground">
+              Coordinates: {latitude.toFixed(6)}, {longitude.toFixed(6)}
+            </p>
+          ) : null}
         </div>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-2">
-            <Label htmlFor="latitude">Latitude</Label>
-            <Input id="latitude" type="number" step="any" {...register("latitude")} />
+        {mapsError ? (
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="latitude">Latitude</Label>
+              <Input
+                id="latitude"
+                type="number"
+                step="any"
+                value={latitude}
+                onChange={(e) =>
+                  setValue("latitude", Number(e.target.value), {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="longitude">Longitude</Label>
+              <Input
+                id="longitude"
+                type="number"
+                step="any"
+                value={longitude}
+                onChange={(e) =>
+                  setValue("longitude", Number(e.target.value), {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
+              />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="longitude">Longitude</Label>
-            <Input id="longitude" type="number" step="any" {...register("longitude")} />
-          </div>
-        </div>
+        ) : null}
       </section>
 
       <section className="space-y-4">
@@ -192,7 +260,7 @@ export default function TurfForm({
             <Input
               id="basePricePerHour"
               type="number"
-              {...register("basePricePerHour")}
+              {...register("basePricePerHour", { valueAsNumber: true })}
             />
           </div>
           <div className="space-y-2">
@@ -201,16 +269,34 @@ export default function TurfForm({
               id="weekendSurge"
               type="number"
               step="0.01"
-              {...register("weekendSurge")}
+              {...register("weekendSurge", { valueAsNumber: true })}
             />
           </div>
           <div className="space-y-2">
             <Label htmlFor="openTime">Opens</Label>
-            <Input id="openTime" {...register("openTime")} placeholder="06:00" />
+            <TimePicker
+              id="openTime"
+              value={openTime}
+              onChange={(value) =>
+                setValue("openTime", value, { shouldValidate: true, shouldDirty: true })
+              }
+            />
+            {errors.openTime ? (
+              <p className="text-sm text-destructive">{errors.openTime.message}</p>
+            ) : null}
           </div>
           <div className="space-y-2">
             <Label htmlFor="closeTime">Closes</Label>
-            <Input id="closeTime" {...register("closeTime")} placeholder="22:00" />
+            <TimePicker
+              id="closeTime"
+              value={closeTime}
+              onChange={(value) =>
+                setValue("closeTime", value, { shouldValidate: true, shouldDirty: true })
+              }
+            />
+            {errors.closeTime ? (
+              <p className="text-sm text-destructive">{errors.closeTime.message}</p>
+            ) : null}
           </div>
         </div>
         <label className="flex items-center gap-2 text-sm">
@@ -249,10 +335,44 @@ export default function TurfForm({
           </div>
         ) : null}
       </section>
+      </div>
 
-      <Button type="submit" disabled={isSubmitting || uploading} className="w-full sm:w-auto">
-        {isSubmitting ? "Saving…" : submitLabel}
-      </Button>
+      <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
+        <div className="flex justify-end gap-2">
+          {onCancel ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handleCancel}
+              disabled={isSubmitting || uploading}
+            >
+              Cancel
+            </Button>
+          ) : null}
+          <Button
+            type="submit"
+            size="sm"
+            disabled={isSubmitting || uploading}
+            className="bg-emerald-600 hover:bg-emerald-700"
+          >
+            {isSubmitting ? "Saving…" : submitLabel}
+          </Button>
+        </div>
+      </div>
+
+      <ConfirmDialog
+        open={discardDialogOpen}
+        onOpenChange={setDiscardDialogOpen}
+        title="Discard changes?"
+        description="You have unsaved changes. Are you sure you want to leave?"
+        confirmLabel="Discard"
+        destructive
+        onConfirm={() => {
+          setDiscardDialogOpen(false);
+          onCancel?.();
+        }}
+      />
     </form>
   );
 }

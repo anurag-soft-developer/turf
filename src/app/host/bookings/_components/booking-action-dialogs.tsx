@@ -25,28 +25,37 @@ export default function BookingActions({ booking }: BookingActionsProps) {
 
   return (
     <div className="flex flex-col gap-3">
-      {isPending ? (
-        <Button
-          onClick={() => confirmMutation.mutate(booking._id)}
-          disabled={confirmMutation.isPending}
-        >
-          {confirmMutation.isPending ? "Confirming…" : "Confirm booking"}
-        </Button>
-      ) : null}
-
-      {isConfirmed ? (
-        <Button
-          onClick={() => completeMutation.mutate(booking._id)}
-          disabled={completeMutation.isPending}
-        >
-          {completeMutation.isPending ? "Completing…" : "Mark completed"}
-        </Button>
-      ) : null}
-
       {(isPending || isConfirmed) && !showCancel ? (
-        <Button variant="destructive" onClick={() => setShowCancel(true)}>
-          Decline / cancel
-        </Button>
+        <div className="flex justify-end gap-2">
+          {isPending ? (
+            <Button
+              size="sm"
+              onClick={() => confirmMutation.mutate(booking._id)}
+              disabled={confirmMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              {confirmMutation.isPending ? "Confirming…" : "Confirm booking"}
+            </Button>
+          ) : null}
+          {isConfirmed ? (
+            <Button
+              size="sm"
+              onClick={() => completeMutation.mutate(booking._id)}
+              disabled={completeMutation.isPending}
+              className="bg-emerald-600 hover:bg-emerald-700"
+            >
+              {completeMutation.isPending ? "Completing…" : "Mark completed"}
+            </Button>
+          ) : null}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowCancel(true)}
+            className="text-destructive hover:bg-destructive/5 hover:text-destructive"
+          >
+            Decline / cancel
+          </Button>
+        </div>
       ) : null}
 
       {showCancel ? (

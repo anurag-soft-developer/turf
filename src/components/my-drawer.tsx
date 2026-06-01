@@ -10,9 +10,11 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 
 interface MyDrawerProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
   title: string;
   onClose: () => void;
   children: React.ReactNode;
@@ -21,24 +23,29 @@ interface MyDrawerProps {
 }
 
 export function MyDrawer({
+  open,
+  onOpenChange,
   title,
   onClose,
   children,
   direction = "right",
   className,
 }: MyDrawerProps) {
-  const [open, setOpen] = useState(true);
   const canDismissRef = useRef(false);
 
   useEffect(() => {
+    if (!open) {
+      canDismissRef.current = false;
+      return;
+    }
     const frame = requestAnimationFrame(() => {
       canDismissRef.current = true;
     });
     return () => cancelAnimationFrame(frame);
-  }, []);
+  }, [open]);
 
   const requestClose = () => {
-    if (canDismissRef.current) setOpen(false);
+    if (canDismissRef.current) onOpenChange(false);
   };
 
   return (
@@ -47,7 +54,8 @@ export function MyDrawer({
       direction={direction}
       handleOnly
       onOpenChange={(nextOpen) => {
-        if (!nextOpen && canDismissRef.current) setOpen(false);
+        if (!nextOpen && canDismissRef.current) onOpenChange(false);
+        if (nextOpen) onOpenChange(true);
       }}
       onAnimationEnd={(isOpen) => {
         if (!isOpen) onClose();

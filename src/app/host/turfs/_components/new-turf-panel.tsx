@@ -3,16 +3,22 @@
 import TurfForm from "./turf-form";
 import { useCreateTurf } from "@/modules/host/hooks/use-turf-mutations";
 
-export default function NewTurfPanel() {
+interface NewTurfPanelProps {
+  onSuccess?: () => void;
+  onCancel?: () => void;
+}
+
+export default function NewTurfPanel({ onSuccess, onCancel }: NewTurfPanelProps) {
   const createMutation = useCreateTurf();
 
   return (
-    <div className="space-y-6">
-      <TurfForm
-        submitLabel="Create turf"
-        isSubmitting={createMutation.isPending}
-        onSubmit={(payload) => createMutation.mutate(payload)}
-      />
-    </div>
+    <TurfForm
+      submitLabel="Create turf"
+      isSubmitting={createMutation.isPending}
+      onCancel={onCancel}
+      onSubmit={(payload) =>
+        createMutation.mutate(payload, { onSuccess: () => onSuccess?.() })
+      }
+    />
   );
 }

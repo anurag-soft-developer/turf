@@ -1,32 +1,29 @@
 "use client";
 
 import { MyDrawer } from "@/components/my-drawer";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import { useState } from "react";
 import PayoutDetailsForm from "./_components/payout-details-form";
 import RequestWithdrawalForm from "./_components/request-withdrawal-form";
 import WalletBalanceCards from "./_components/wallet-balance-cards";
 import WithdrawalDetailPanel from "./_components/withdrawal-detail-panel";
 import WithdrawalHistory from "./_components/withdrawal-history";
 
-function WalletDrawer() {
-  const searchParams = useSearchParams();
-  const router = useRouter();
-  const drawer = searchParams.get("drawer");
+export default function HostWalletPage() {
+  const [selectedWithdrawalId, setSelectedWithdrawalId] = useState<
+    string | null
+  >(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
 
-  if (!drawer) return null;
+  const openWithdrawal = (id: string) => {
+    setSelectedWithdrawalId(id);
+    setDrawerOpen(true);
+  };
 
-  return (
-    <MyDrawer
-      title="Withdrawal details"
-      onClose={() => router.push("/host/wallet")}
-    >
-      <WithdrawalDetailPanel id={drawer} />
-    </MyDrawer>
-  );
-}
+  const handleDrawerClose = () => {
+    setSelectedWithdrawalId(null);
+    setDrawerOpen(false);
+  };
 
-function HostWalletPageContent() {
   return (
     <div className="space-y-8">
       <div>
@@ -39,16 +36,18 @@ function HostWalletPageContent() {
       <WalletBalanceCards />
       <PayoutDetailsForm />
       <RequestWithdrawalForm />
-      <WithdrawalHistory />
-      <WalletDrawer />
-    </div>
-  );
-}
+      <WithdrawalHistory onSelectWithdrawal={openWithdrawal} />
 
-export default function HostWalletPage() {
-  return (
-    <Suspense fallback={null}>
-      <HostWalletPageContent />
-    </Suspense>
+      <MyDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title="Withdrawal details"
+        onClose={handleDrawerClose}
+      >
+        {selectedWithdrawalId ? (
+          <WithdrawalDetailPanel id={selectedWithdrawalId} />
+        ) : null}
+      </MyDrawer>
+    </div>
   );
 }

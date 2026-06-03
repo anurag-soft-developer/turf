@@ -12,9 +12,12 @@ import {
   turfStatusVariant,
 } from "@/lib/utils/turf-display";
 import type { Turf } from "@/modules/host/types/turf";
+import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
+import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
+import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import {
-  useAdminPendingTurfs,
   useAdminTurf,
+  useInfiniteAdminPendingTurfs,
   useReviewTurf,
 } from "@/modules/platform-admin/hooks/use-admin-turf-approval";
 import { format } from "date-fns";
@@ -301,63 +304,81 @@ export default function AdminTurfApprovalsList({
 }: {
   onSelectTurf: (id: string) => void;
 }) {
-  const { data, isLoading, isError, refetch, isFetching } =
-    useAdminPendingTurfs({ limit: 50 });
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteAdminPendingTurfs();
 
-  const turfs = data?.data ?? [];
+  const turfs = flattenPaginatedPages(data?.pages);
 
   return (
-    <div className="space-y-6">
-      <div>
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="shrink-0">
         <h1 className="text-2xl font-bold text-gray-900">Turf approvals</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Review turf listings submitted by hosts for publication.
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-        </div>
-      ) : isError ? (
-        <Card>
-          <CardContent className="py-8 text-center text-muted-foreground">
-            Failed to load pending turfs.{" "}
-            <button
-              type="button"
-              className="text-indigo-600 underline"
-              onClick={() => refetch()}
-            >
-              Retry
-            </button>
-          </CardContent>
-        </Card>
-      ) : turfs.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
-            <MapPin className="h-12 w-12 text-gray-300" />
-            <div>
-              <p className="font-semibold text-gray-900">No pending turfs</p>
-              <p className="text-sm text-muted-foreground">
-                All submitted listings have been reviewed.
-              </p>
-            </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {isFetching && !isLoading ? (
-            <p className="text-sm text-muted-foreground">Refreshing…</p>
-          ) : null}
-          {turfs.map((turf) => (
-            <AdminPendingTurfRow
-              key={turf._id}
-              turf={turf}
-              onSelect={onSelectTurf}
+      <ScrollableListPanel className="mt-6 min-h-0 flex-1">
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+          </div>
+        ) : isError ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              Failed to load pending turfs.{" "}
+              <button
+                type="button"
+                className="text-indigo-600 underline"
+                onClick={() => refetch()}
+              >
+                Retry
+              </button>
+            </CardContent>
+          </Card>
+        ) : turfs.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+              <MapPin className="h-12 w-12 text-gray-300" />
+              <div>
+                <p className="font-semibold text-gray-900">No pending turfs</p>
+                <p className="text-sm text-muted-foreground">
+                  All submitted listings have been reviewed.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="flex flex-col gap-4 pb-4">
+            {isFetching && !isLoading && !isFetchingNextPage ? (
+              <p className="text-sm text-muted-foreground">Refreshing…</p>
+            ) : null}
+            {turfs.map((turf) => (
+              <AdminPendingTurfRow
+                key={turf._id}
+                turf={turf}
+                onSelect={onSelectTurf}
+              />
+            ))}
+            <InfiniteScrollSentinel
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={() => fetchNextPage()}
+              isError={isFetchNextPageError}
+              onRetry={() => fetchNextPage()}
             />
-          ))}
-        </div>
-      )}
+          </div>
+        )}
+      </ScrollableListPanel>
     </div>
   );
 }

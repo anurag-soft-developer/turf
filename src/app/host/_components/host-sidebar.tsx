@@ -113,7 +113,7 @@ export default function HostSideBar() {
         </DrawerContent>
       </Drawer>
 
-      <HostSidebarLinks className="hidden w-52 shrink-0 border-r border-gray-200 pr-6 md:flex" />
+      <HostSidebarLinks className="sticky top-0 hidden max-h-full w-52 shrink-0 self-start overflow-y-auto border-r border-gray-200 pr-6 md:flex" />
     </>
   );
 }

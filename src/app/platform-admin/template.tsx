@@ -8,10 +8,12 @@ export default function PlatformAdminTemplate({
 }) {
   return (
     <PlatformAdminPage>
-      <div className="min-h-[calc(100vh-4rem)] bg-slate-50 py-8">
-        <div className="mx-auto flex max-w-6xl flex-col gap-4 px-4 sm:px-6 md:flex-row md:gap-8 lg:px-8">
+      <div className="flex h-[calc(100dvh-4rem)] flex-col overflow-hidden bg-slate-50 py-8">
+        <div className="mx-auto flex min-h-0 w-full max-w-6xl flex-1 flex-col gap-4 px-4 sm:px-6 md:flex-row md:gap-8 lg:px-8">
           <PlatformAdminSidebar />
-          <main className="min-w-0 flex-1">{children}</main>
+          <main className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto">
+            {children}
+          </main>
         </div>
       </div>
     </PlatformAdminPage>

@@ -105,7 +105,7 @@ export default function PlatformAdminSidebar() {
         </DrawerContent>
       </Drawer>
 
-      <AdminSidebarLinks className="hidden w-52 shrink-0 border-r border-gray-200 pr-6 md:flex" />
+      <AdminSidebarLinks className="sticky top-0 hidden max-h-full w-52 shrink-0 self-start overflow-y-auto border-r border-gray-200 pr-6 md:flex" />
     </>
   );
 }

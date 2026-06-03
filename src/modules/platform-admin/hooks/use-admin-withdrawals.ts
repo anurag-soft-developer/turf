@@ -1,6 +1,12 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { getNextPageParamFromPaginated } from "@/lib/query/paginated-infinite";
 import { adminWithdrawalsApi } from "../api/withdrawals";
 import { PLATFORM_ADMIN_QUERY_KEYS } from "../constants/query-keys";
 import type {
@@ -10,10 +16,20 @@ import type {
   WithdrawalsFilter,
 } from "@/types/withdrawal";
 
-export function useAdminWithdrawals(params: WithdrawalsFilter = {}) {
-  return useQuery({
-    queryKey: PLATFORM_ADMIN_QUERY_KEYS.adminWithdrawals(params),
-    queryFn: () => adminWithdrawalsApi.listAdminRequests(params),
+const DEFAULT_WITHDRAWALS_LIMIT = 20;
+
+export function useInfiniteAdminWithdrawals(
+  params: Omit<WithdrawalsFilter, "page"> = {},
+) {
+  const limit = params.limit ?? DEFAULT_WITHDRAWALS_LIMIT;
+  const filters = { ...params, limit };
+
+  return useInfiniteQuery({
+    queryKey: PLATFORM_ADMIN_QUERY_KEYS.adminWithdrawals(filters),
+    queryFn: ({ pageParam }) =>
+      adminWithdrawalsApi.listAdminRequests({ ...filters, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: getNextPageParamFromPaginated,
   });
 }
 

@@ -34,41 +34,49 @@ export default function HostWalletPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-xl font-bold text-gray-900">Wallet</h2>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Manage earnings, payout details, and withdrawal requests.
-        </p>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {TABS.map((tab) => (
-          <button
-            key={tab.id}
-            type="button"
-            onClick={() => setActiveTab(tab.id)}
-            className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
-              activeTab === tab.id
-                ? "bg-emerald-600 text-white ring-emerald-600"
-                : "bg-white text-gray-700 ring-gray-200"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {activeTab === "analytics" ? <WalletBalanceCards /> : null}
-
-      {activeTab === "payout-details" ? <PayoutDetailsSection /> : null}
-
-      {activeTab === "withdrawals" ? (
-        <div className="space-y-6">
-          <RequestWithdrawalForm onGoToPayout={() => setActiveTab("payout-details")} />
-          <WithdrawalHistory onSelectWithdrawal={openWithdrawal} />
+    <div className="flex h-full min-h-0 flex-col overflow-y-auto">
+      <div className="shrink-0 space-y-6">
+        <div>
+          <h2 className="text-xl font-bold text-gray-900">Wallet</h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Manage earnings, payout details, and withdrawal requests.
+          </p>
         </div>
-      ) : null}
+
+        <div className="flex flex-wrap gap-2">
+          {TABS.map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveTab(tab.id)}
+              className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
+                activeTab === tab.id
+                  ? "bg-emerald-600 text-white ring-emerald-600"
+                  : "bg-white text-gray-700 ring-gray-200"
+              }`}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mt-6 min-h-0 flex-1 overflow-y-auto">
+        {activeTab === "analytics" ? <WalletBalanceCards /> : null}
+
+        {activeTab === "payout-details" ? <PayoutDetailsSection /> : null}
+
+        {activeTab === "withdrawals" ? (
+          <div className="flex flex-col gap-6">
+            <div className="shrink-0">
+              <RequestWithdrawalForm
+                onGoToPayout={() => setActiveTab("payout-details")}
+              />
+            </div>
+            <WithdrawalHistory onSelectWithdrawal={openWithdrawal} />
+          </div>
+        ) : null}
+      </div>
 
       <MyDrawer
         open={drawerOpen}

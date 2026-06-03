@@ -1,16 +1,17 @@
 "use client";
 
+import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
+import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { formatInr } from "@/lib/utils/currency";
-import {
-  userDisplayName,
-  withdrawalStatusVariant,
-} from "@/lib/utils/withdrawal-display";
+import { cn } from "@/lib/utils";
+import { withdrawalStatusVariant } from "@/lib/utils/withdrawal-display";
 import {
   useCancelWithdrawal,
-  useMyWithdrawals,
+  useInfiniteMyWithdrawals,
 } from "@/modules/host/hooks/use-withdrawals";
 import type { Withdrawal, WithdrawalStatus } from "@/types/withdrawal";
 import { format } from "date-fns";
@@ -107,45 +108,54 @@ function WithdrawalRow({
 
 export default function WithdrawalHistory({
   onSelectWithdrawal,
+  className,
 }: {
   onSelectWithdrawal: (id: string) => void;
+  className?: string;
 }) {
   const [activeStatus, setActiveStatus] = useState<WithdrawalStatus | undefined>();
-  const [page, setPage] = useState(1);
-  const limit = 20;
 
-  const { data, isLoading, isError, refetch } = useMyWithdrawals({
-    status: activeStatus,
-    page,
-    limit,
-  });
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteMyWithdrawals({ status: activeStatus });
 
-  const withdrawals = data?.data ?? [];
+  const withdrawals = flattenPaginatedPages(data?.pages);
 
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold text-gray-900">Withdrawal history</h3>
+    <ScrollableListPanel
+      className={cn("shrink-0", className)}
+      header={
+        <div className="space-y-4 pb-4">
+          <h3 className="text-lg font-semibold text-gray-900">
+            Withdrawal history
+          </h3>
 
-      <div className="flex flex-wrap gap-2">
-        {STATUS_TABS.map((tab) => (
-          <button
-            key={tab.label}
-            type="button"
-            onClick={() => {
-              setActiveStatus(tab.status);
-              setPage(1);
-            }}
-            className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
-              activeStatus === tab.status
-                ? "bg-emerald-600 text-white ring-emerald-600"
-                : "bg-white text-gray-700 ring-gray-200"
-            }`}
-          >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
+          <div className="flex flex-wrap gap-2">
+            {STATUS_TABS.map((tab) => (
+              <button
+                key={tab.label}
+                type="button"
+                onClick={() => setActiveStatus(tab.status)}
+                className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
+                  activeStatus === tab.status
+                    ? "bg-emerald-600 text-white ring-emerald-600"
+                    : "bg-white text-gray-700 ring-gray-200"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+        </div>
+      }
+    >
       {isLoading ? (
         <div className="flex justify-center py-12">
           <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
@@ -166,7 +176,7 @@ export default function WithdrawalHistory({
           No withdrawal requests yet.
         </p>
       ) : (
-        <div className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3 pb-4">
           {withdrawals.map((w) => (
             <WithdrawalRow
               key={w._id}
@@ -174,34 +184,15 @@ export default function WithdrawalHistory({
               onSelect={onSelectWithdrawal}
             />
           ))}
+          <InfiniteScrollSentinel
+            hasNextPage={hasNextPage}
+            isFetchingNextPage={isFetchingNextPage}
+            fetchNextPage={() => fetchNextPage()}
+            isError={isFetchNextPageError}
+            onRetry={() => fetchNextPage()}
+          />
         </div>
       )}
-
-      {data && data.totalPages > 1 ? (
-        <div className="flex items-center justify-center gap-4 pt-2">
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
-          >
-            Previous
-          </Button>
-          <span className="text-sm text-muted-foreground">
-            Page {page} of {data.totalPages}
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={page >= data.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
-        </div>
-      ) : null}
-    </div>
+    </ScrollableListPanel>
   );
 }

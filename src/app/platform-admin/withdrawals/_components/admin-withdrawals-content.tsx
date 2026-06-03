@@ -22,11 +22,14 @@ import {
   payoutMethodLabel,
   resolvePrimaryMethod,
 } from "@/modules/host/schemas/wallet-form";
+import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
+import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
+import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import {
   useAddWithdrawalAttachments,
   useAddWithdrawalComment,
   useAdminWithdrawal,
-  useAdminWithdrawals,
+  useInfiniteAdminWithdrawals,
   useUpdateWithdrawalStatus,
 } from "@/modules/platform-admin/hooks/use-admin-withdrawals";
 import {
@@ -768,169 +771,152 @@ export default function AdminWithdrawalsList({
   const [activeStatus, setActiveStatus] = useState<WithdrawalStatus | undefined>();
   const [userId, setUserId] = useState("");
   const [userIdFilter, setUserIdFilter] = useState<string | undefined>();
-  const [page, setPage] = useState(1);
-  const limit = 20;
 
-  const { data, isLoading, isError, refetch } = useAdminWithdrawals({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteAdminWithdrawals({
     status: activeStatus,
     userId: userIdFilter,
-    page,
-    limit,
   });
 
-  const withdrawals = data?.data ?? [];
+  const withdrawals = flattenPaginatedPages(data?.pages);
+  const totalDocuments = data?.pages[0]?.totalDocuments;
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h2 className="text-2xl font-bold tracking-tight text-foreground">
-            Withdrawal requests
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Review and process host payout requests.
-          </p>
-        </div>
-        {data && !isLoading ? (
-          <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">
-              {data.totalDocuments}
-            </span>{" "}
-            total
-            {userIdFilter ? " (filtered)" : ""}
-          </p>
-        ) : null}
-      </div>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-        <div className="relative flex-1 sm:max-w-sm">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <Input
-            placeholder="Filter by host user ID"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter") {
-                setUserIdFilter(userId.trim() || undefined);
-                setPage(1);
-              }
-            }}
-            className="pl-9"
-          />
-        </div>
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={() => {
-            setUserIdFilter(userId.trim() || undefined);
-            setPage(1);
-          }}
-        >
-          Apply filter
-        </Button>
-        {userIdFilter ? (
-          <Button
-            type="button"
-            variant="ghost"
-            size="sm"
-            onClick={() => {
-              setUserId("");
-              setUserIdFilter(undefined);
-              setPage(1);
-            }}
-          >
-            Clear
-          </Button>
-        ) : null}
-      </div>
-
-      <div className="inline-flex max-w-full flex-wrap gap-1 rounded-xl border border-border/60 bg-muted/30 p-1">
-        {STATUS_TABS.map((tab) => (
-          <StatusPill
-            key={tab.label}
-            active={activeStatus === tab.status}
-            onClick={() => {
-              setActiveStatus(tab.status);
-              setPage(1);
-            }}
-          >
-            {tab.label}
-          </StatusPill>
-        ))}
-      </div>
-
-      {isLoading ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-muted/20 py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
-          <p className="text-sm text-muted-foreground">Loading requests…</p>
-        </div>
-      ) : isError ? (
-        <div className="rounded-2xl border border-dashed bg-muted/20 px-6 py-12 text-center">
-          <p className="text-muted-foreground">Failed to load withdrawals.</p>
-          <Button
-            type="button"
-            variant="link"
-            className="mt-2 text-indigo-600"
-            onClick={() => refetch()}
-          >
-            Retry
-          </Button>
-        </div>
-      ) : withdrawals.length === 0 ? (
-        <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-muted/20 px-6 py-16 text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
-            <Inbox className="h-7 w-7" />
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="shrink-0 space-y-6">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-2xl font-bold tracking-tight text-foreground">
+              Withdrawal requests
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              Review and process host payout requests.
+            </p>
           </div>
-          <p className="mt-4 font-medium text-foreground">
-            No withdrawal requests
-          </p>
-          <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            {activeStatus || userIdFilter
-              ? "Try a different filter or status tab."
-              : "New host withdrawal requests will appear here."}
-          </p>
+          {totalDocuments !== undefined && !isLoading ? (
+            <p className="text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">
+                {totalDocuments}
+              </span>{" "}
+              total
+              {userIdFilter ? " (filtered)" : ""}
+            </p>
+          ) : null}
         </div>
-      ) : (
-        <Card className="overflow-hidden border-border/60 py-0 shadow-sm">
-          <CardContent className="p-0">
-            {withdrawals.map((w) => (
-              <AdminWithdrawalRow
-                key={w._id}
-                withdrawal={w}
-                onSelect={onSelectWithdrawal}
-              />
-            ))}
-          </CardContent>
-        </Card>
-      )}
 
-      {data && data.totalPages > 1 ? (
-        <div className="flex items-center justify-between gap-4 rounded-xl border border-border/60 bg-muted/20 px-4 py-3">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div className="relative flex-1 sm:max-w-sm">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              placeholder="Filter by host user ID"
+              value={userId}
+              onChange={(e) => setUserId(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  setUserIdFilter(userId.trim() || undefined);
+                }
+              }}
+              className="pl-9"
+            />
+          </div>
           <Button
             type="button"
-            variant="outline"
-            size="sm"
-            disabled={page <= 1}
-            onClick={() => setPage((p) => p - 1)}
+            variant="secondary"
+            onClick={() => setUserIdFilter(userId.trim() || undefined)}
           >
-            Previous
+            Apply filter
           </Button>
-          <span className="text-sm text-muted-foreground">
-            Page{" "}
-            <span className="font-medium text-foreground">{page}</span> of{" "}
-            <span className="font-medium text-foreground">{data.totalPages}</span>
-          </span>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            disabled={page >= data.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            Next
-          </Button>
+          {userIdFilter ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={() => {
+                setUserId("");
+                setUserIdFilter(undefined);
+              }}
+            >
+              Clear
+            </Button>
+          ) : null}
         </div>
-      ) : null}
+
+        <div className="inline-flex max-w-full flex-wrap gap-1 rounded-xl border border-border/60 bg-muted/30 p-1">
+          {STATUS_TABS.map((tab) => (
+            <StatusPill
+              key={tab.label}
+              active={activeStatus === tab.status}
+              onClick={() => setActiveStatus(tab.status)}
+            >
+              {tab.label}
+            </StatusPill>
+          ))}
+        </div>
+      </div>
+
+      <ScrollableListPanel className="mt-6 min-h-0 flex-1">
+        {isLoading ? (
+          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed bg-muted/20 py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-indigo-600" />
+            <p className="text-sm text-muted-foreground">Loading requests…</p>
+          </div>
+        ) : isError ? (
+          <div className="rounded-2xl border border-dashed bg-muted/20 px-6 py-12 text-center">
+            <p className="text-muted-foreground">Failed to load withdrawals.</p>
+            <Button
+              type="button"
+              variant="link"
+              className="mt-2 text-indigo-600"
+              onClick={() => refetch()}
+            >
+              Retry
+            </Button>
+          </div>
+        ) : withdrawals.length === 0 ? (
+          <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed bg-muted/20 px-6 py-16 text-center">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-500">
+              <Inbox className="h-7 w-7" />
+            </div>
+            <p className="mt-4 font-medium text-foreground">
+              No withdrawal requests
+            </p>
+            <p className="mt-1 max-w-sm text-sm text-muted-foreground">
+              {activeStatus || userIdFilter
+                ? "Try a different filter or status tab."
+                : "New host withdrawal requests will appear here."}
+            </p>
+          </div>
+        ) : (
+          <div className="pb-4">
+            <Card className="overflow-hidden border-border/60 py-0 shadow-sm">
+              <CardContent className="p-0">
+                {withdrawals.map((w) => (
+                  <AdminWithdrawalRow
+                    key={w._id}
+                    withdrawal={w}
+                    onSelect={onSelectWithdrawal}
+                  />
+                ))}
+              </CardContent>
+            </Card>
+            <InfiniteScrollSentinel
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={() => fetchNextPage()}
+              isError={isFetchNextPageError}
+              onRetry={() => fetchNextPage()}
+            />
+          </div>
+        )}
+      </ScrollableListPanel>
     </div>
   );
 }

@@ -1,14 +1,30 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { getNextPageParamFromPaginated } from "@/lib/query/paginated-infinite";
 import { hostBookingsApi } from "../api/bookings";
 import { HOST_QUERY_KEYS } from "../constants/query-keys";
 import type { OwnerBookingsFilter } from "../types/owner-booking";
 
-export function useOwnerBookings(params: OwnerBookingsFilter = {}) {
-  return useQuery({
-    queryKey: HOST_QUERY_KEYS.ownerBookings(params),
-    queryFn: () => hostBookingsApi.getOwnerBookings(params),
+const DEFAULT_BOOKINGS_LIMIT = 20;
+
+export function useInfiniteOwnerBookings(
+  params: Omit<OwnerBookingsFilter, "page"> = {},
+) {
+  const limit = params.limit ?? DEFAULT_BOOKINGS_LIMIT;
+  const filters = { ...params, limit };
+
+  return useInfiniteQuery({
+    queryKey: HOST_QUERY_KEYS.ownerBookings(filters),
+    queryFn: ({ pageParam }) =>
+      hostBookingsApi.getOwnerBookings({ ...filters, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: getNextPageParamFromPaginated,
   });
 }
 

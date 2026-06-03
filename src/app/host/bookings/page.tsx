@@ -1,11 +1,14 @@
 "use client";
 
 import { MyDrawer } from "@/components/my-drawer";
+import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
+import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
 import BookingDetailPanel from "./_components/booking-detail-panel";
 import OwnerBookingCard from "./_components/owner-booking-card";
 import QrCheckInScanner from "./_components/qr-check-in-scanner";
 import { Button } from "@/components/ui/button";
-import { useOwnerBookings } from "@/modules/host/hooks/use-owner-bookings";
+import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
+import { useInfiniteOwnerBookings } from "@/modules/host/hooks/use-owner-bookings";
 import type { TurfBookingStatus } from "@/modules/host/types/owner-booking";
 import { Loader2, QrCode } from "lucide-react";
 import { useState } from "react";
@@ -26,13 +29,21 @@ export default function HostBookingsPage() {
   );
   const [drawerOpen, setDrawerOpen] = useState(false);
 
-  const { data, isLoading, isError, refetch } = useOwnerBookings({
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteOwnerBookings({
     status: activeStatus,
-    limit: 50,
     sortOrder: "desc",
   });
 
-  const bookings = data?.data ?? [];
+  const bookings = flattenPaginatedPages(data?.pages);
 
   const openBooking = (id: string) => {
     setSelectedBookingId(id);
@@ -45,68 +56,81 @@ export default function HostBookingsPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <h2 className="text-xl font-bold text-gray-900">Turf bookings</h2>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => setShowScanner((v) => !v)}
-        >
-          <QrCode className="mr-2 h-4 w-4" />
-          {showScanner ? "Hide scanner" : "Scan QR check-in"}
-        </Button>
-      </div>
-
-      {showScanner ? <QrCheckInScanner onClose={() => setShowScanner(false)} /> : null}
-
-      <div className="flex flex-wrap gap-2">
-        {TABS.map((tab) => (
-          <button
-            key={tab.label}
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="shrink-0 space-y-6">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h2 className="text-xl font-bold text-gray-900">Turf bookings</h2>
+          <Button
             type="button"
-            onClick={() => setActiveStatus(tab.status)}
-            className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
-              activeStatus === tab.status
-                ? "bg-emerald-600 text-white ring-emerald-600"
-                : "bg-white text-gray-700 ring-gray-200"
-            }`}
+            variant="outline"
+            onClick={() => setShowScanner((v) => !v)}
           >
-            {tab.label}
-          </button>
-        ))}
-      </div>
-
-      {isLoading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+            <QrCode className="mr-2 h-4 w-4" />
+            {showScanner ? "Hide scanner" : "Scan QR check-in"}
+          </Button>
         </div>
-      ) : isError ? (
-        <p className="text-center text-muted-foreground">
-          Failed to load bookings.{" "}
-          <button
-            type="button"
-            className="text-emerald-600 underline"
-            onClick={() => refetch()}
-          >
-            Retry
-          </button>
-        </p>
-      ) : bookings.length === 0 ? (
-        <p className="py-12 text-center text-muted-foreground">
-          No bookings in this category yet.
-        </p>
-      ) : (
-        <div className="flex flex-col gap-4">
-          {bookings.map((booking) => (
-            <OwnerBookingCard
-              key={booking._id}
-              booking={booking}
-              onSelect={openBooking}
-            />
+
+        {showScanner ? (
+          <QrCheckInScanner onClose={() => setShowScanner(false)} />
+        ) : null}
+
+        <div className="flex flex-wrap gap-2">
+          {TABS.map((tab) => (
+            <button
+              key={tab.label}
+              type="button"
+              onClick={() => setActiveStatus(tab.status)}
+              className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
+                activeStatus === tab.status
+                  ? "bg-emerald-600 text-white ring-emerald-600"
+                  : "bg-white text-gray-700 ring-gray-200"
+              }`}
+            >
+              {tab.label}
+            </button>
           ))}
         </div>
-      )}
+      </div>
+
+      <ScrollableListPanel className="mt-6 min-h-0 flex-1">
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          </div>
+        ) : isError ? (
+          <p className="text-center text-muted-foreground">
+            Failed to load bookings.{" "}
+            <button
+              type="button"
+              className="text-emerald-600 underline"
+              onClick={() => refetch()}
+            >
+              Retry
+            </button>
+          </p>
+        ) : bookings.length === 0 ? (
+          <p className="py-12 text-center text-muted-foreground">
+            No bookings in this category yet.
+          </p>
+        ) : (
+          <div className="flex flex-col gap-4 pb-4">
+            {bookings.map((booking) => (
+              <OwnerBookingCard
+                key={booking._id}
+                booking={booking}
+                onSelect={openBooking}
+              />
+            ))}
+            <InfiniteScrollSentinel
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={() => fetchNextPage()}
+              isError={isFetchNextPageError}
+              onRetry={() => fetchNextPage()}
+            />
+          </div>
+        )}
+      </ScrollableListPanel>
 
       <MyDrawer
         open={drawerOpen}

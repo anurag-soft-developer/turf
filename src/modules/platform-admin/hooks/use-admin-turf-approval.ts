@@ -1,7 +1,13 @@
 "use client";
 
 import { toastError } from "@/lib/toast";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { getNextPageParamFromPaginated } from "@/lib/query/paginated-infinite";
 import {
   adminTurfApprovalApi,
   type PendingTurfsParams,
@@ -9,10 +15,20 @@ import {
 import { PLATFORM_ADMIN_QUERY_KEYS } from "../constants/query-keys";
 import type { ReviewTurfPayload } from "@/types/turf";
 
-export function useAdminPendingTurfs(params: PendingTurfsParams = {}) {
-  return useQuery({
-    queryKey: PLATFORM_ADMIN_QUERY_KEYS.adminPendingTurfs(params),
-    queryFn: () => adminTurfApprovalApi.listPending(params),
+const DEFAULT_PENDING_TURFS_LIMIT = 20;
+
+export function useInfiniteAdminPendingTurfs(
+  params: Omit<PendingTurfsParams, "page"> = {},
+) {
+  const limit = params.limit ?? DEFAULT_PENDING_TURFS_LIMIT;
+  const filters = { ...params, limit };
+
+  return useInfiniteQuery({
+    queryKey: PLATFORM_ADMIN_QUERY_KEYS.adminPendingTurfs(filters),
+    queryFn: ({ pageParam }) =>
+      adminTurfApprovalApi.listPending({ ...filters, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: getNextPageParamFromPaginated,
   });
 }
 

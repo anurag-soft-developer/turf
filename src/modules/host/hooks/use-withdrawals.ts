@@ -1,6 +1,12 @@
 "use client";
 
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { getNextPageParamFromPaginated } from "@/lib/query/paginated-infinite";
 import { hostWithdrawalsApi } from "../api/withdrawals";
 import { HOST_QUERY_KEYS } from "../constants/query-keys";
 import type {
@@ -8,10 +14,20 @@ import type {
   WithdrawalsFilter,
 } from "@/types/withdrawal";
 
-export function useMyWithdrawals(params: WithdrawalsFilter = {}) {
-  return useQuery({
-    queryKey: HOST_QUERY_KEYS.myWithdrawals(params),
-    queryFn: () => hostWithdrawalsApi.listMyRequests(params),
+const DEFAULT_WITHDRAWALS_LIMIT = 1;
+
+export function useInfiniteMyWithdrawals(
+  params: Omit<WithdrawalsFilter, "page"> = {},
+) {
+  const limit = params.limit ?? DEFAULT_WITHDRAWALS_LIMIT;
+  const filters = { ...params, limit };
+
+  return useInfiniteQuery({
+    queryKey: HOST_QUERY_KEYS.myWithdrawals(filters),
+    queryFn: ({ pageParam }) =>
+      hostWithdrawalsApi.listMyRequests({ ...filters, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: getNextPageParamFromPaginated,
   });
 }
 

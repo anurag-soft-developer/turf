@@ -3,4 +3,7 @@ export const PLATFORM_ADMIN_QUERY_KEYS = {
     ["platform-admin", "withdrawals", params] as const,
   adminWithdrawal: (id: string) =>
     ["platform-admin", "withdrawal", id] as const,
+  adminPendingTurfs: (params?: object) =>
+    ["platform-admin", "pending-turfs", params] as const,
+  adminTurf: (id: string) => ["platform-admin", "turf", id] as const,
 } as const;

@@ -58,4 +58,18 @@ export const hostTurfApi = {
   delete: async (id: string): Promise<void> => {
     await api.delete(API_CONFIG.ENDPOINTS.TURF.BY_ID(id));
   },
+
+  submitForApproval: async (id: string): Promise<Turf> => {
+    const response = await api.post<Turf>(
+      API_CONFIG.ENDPOINTS.TURF.SUBMIT(id),
+    );
+    return response.data;
+  },
+
+  withdrawSubmission: async (id: string): Promise<Turf> => {
+    const response = await api.post<Turf>(
+      API_CONFIG.ENDPOINTS.TURF.WITHDRAW(id),
+    );
+    return response.data;
+  },
 };

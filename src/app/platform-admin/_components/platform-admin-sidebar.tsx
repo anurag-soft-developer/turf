@@ -8,7 +8,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
-import { Banknote, Menu } from "lucide-react";
+import { Banknote, LayoutDashboard, MapPin, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,17 +24,29 @@ function AdminSidebarLinks({
 
   const links = [
     {
+      href: "/platform-admin",
+      label: "Overview",
+      icon: LayoutDashboard,
+      exact: true,
+    },
+    {
       href: "/platform-admin/withdrawals",
       label: "Withdrawals",
       icon: Banknote,
+    },
+    {
+      href: "/platform-admin/turfs",
+      label: "Turf approvals",
+      icon: MapPin,
     },
   ];
 
   return (
     <nav className={cn("flex flex-col gap-1", className)}>
-      {links.map(({ href, label, icon: Icon }) => {
-        const active =
-          pathname === href || pathname.startsWith(`${href}/`);
+      {links.map(({ href, label, icon: Icon, exact }) => {
+        const active = exact
+          ? pathname === href
+          : pathname === href || pathname.startsWith(`${href}/`);
 
         return (
           <Link

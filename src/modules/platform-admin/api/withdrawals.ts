@@ -4,6 +4,7 @@ import type { PaginatedResponse } from "@/types/common";
 import type {
   AddWithdrawalAttachmentsPayload,
   AddWithdrawalCommentPayload,
+  AdminWithdrawal,
   UpdateWithdrawalStatusPayload,
   Withdrawal,
   WithdrawalsFilter,
@@ -20,8 +21,8 @@ export const adminWithdrawalsApi = {
     return response.data;
   },
 
-  getById: async (id: string): Promise<Withdrawal> => {
-    const response = await api.get<Withdrawal>(
+  getById: async (id: string): Promise<AdminWithdrawal> => {
+    const response = await api.get<AdminWithdrawal>(
       API_CONFIG.ENDPOINTS.WITHDRAWALS.BY_ID(id),
     );
     return response.data;
@@ -30,8 +31,8 @@ export const adminWithdrawalsApi = {
   updateStatus: async (
     id: string,
     payload: UpdateWithdrawalStatusPayload,
-  ): Promise<Withdrawal> => {
-    const response = await api.patch<Withdrawal>(
+  ): Promise<AdminWithdrawal> => {
+    const response = await api.patch<AdminWithdrawal>(
       API_CONFIG.ENDPOINTS.WITHDRAWALS.ADMIN_STATUS(id),
       payload,
     );

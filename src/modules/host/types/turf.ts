@@ -1,4 +1,8 @@
 import type { GeoLocation } from "../../../types/common";
+import type { User } from "@/types/auth";
+import type { TurfStatus } from "@/types/turf";
+
+export type { TurfStatus } from "@/types/turf";
 
 export interface TurfDimensions {
   length?: number;
@@ -31,6 +35,12 @@ export interface Turf {
   slotBufferMins?: number;
   rating?: number;
   reviewCount?: number;
+  status?: TurfStatus;
+  rejectionReason?: string;
+  submittedAt?: string;
+  reviewedAt?: string;
+  postedBy?: User | string;
+  reviewedBy?: User | string;
   createdAt?: string;
   updatedAt?: string;
 }

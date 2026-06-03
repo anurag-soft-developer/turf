@@ -29,6 +29,10 @@ export const API_CONFIG = {
       OWNER_MY: "/turf/owner/my",
       STATS: "/turf/stats",
       BY_ID: (id: string) => `/turf/${id}`,
+      SUBMIT: (id: string) => `/turf/${id}/submit`,
+      WITHDRAW: (id: string) => `/turf/${id}/withdraw`,
+      ADMIN_PENDING: "/turf/admin/pending",
+      ADMIN_REVIEW: (id: string) => `/turf/admin/${id}/review`,
     },
     TURF_BOOKINGS: {
       OWNER_BOOKINGS: "/turf-bookings/owner-bookings",

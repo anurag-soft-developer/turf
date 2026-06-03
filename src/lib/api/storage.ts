@@ -5,7 +5,8 @@ export type MediaUploadPurpose =
   | "postMedia"
   | "avatar"
   | "turfMedia"
-  | "teamMedia";
+  | "teamMedia"
+  | "withdrawalAttachment";
 
 export interface PresignedUploadInfo {
   uploadUrl: string;
@@ -13,7 +14,23 @@ export interface PresignedUploadInfo {
   objectKey: string;
 }
 
-export const hostStorageApi = {
+interface PresignedUploadApiResponse {
+  uploadUrl: string;
+  fileUrl: string;
+  objectKey: string;
+}
+
+function toPresignedUploadInfo(
+  data: PresignedUploadApiResponse,
+): PresignedUploadInfo {
+  return {
+    uploadUrl: data.uploadUrl,
+    publicUrl: data.fileUrl,
+    objectKey: data.objectKey,
+  };
+}
+
+export const storageApi = {
   requestUploadUrl: async (params: {
     fileName: string;
     mimeType: string;
@@ -21,18 +38,18 @@ export const hostStorageApi = {
     purpose: MediaUploadPurpose;
     idempotencyKey?: string;
   }): Promise<PresignedUploadInfo> => {
-    const response = await api.post<PresignedUploadInfo>(
+    const response = await api.post<PresignedUploadApiResponse>(
       API_CONFIG.ENDPOINTS.STORAGE.UPLOAD_URL,
       params,
     );
-    return response.data;
+    return toPresignedUploadInfo(response.data);
   },
 
   uploadFile: async (
     file: File,
     purpose: MediaUploadPurpose = "turfMedia",
   ): Promise<string> => {
-    const presigned = await hostStorageApi.requestUploadUrl({
+    const presigned = await storageApi.requestUploadUrl({
       fileName: file.name,
       mimeType: file.type || "application/octet-stream",
       sizeBytes: file.size,

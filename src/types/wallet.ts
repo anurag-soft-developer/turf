@@ -1,4 +1,7 @@
+export type PayoutMethod = "upi" | "bank";
+
 export interface PayoutDetails {
+  primaryMethod?: PayoutMethod;
   accountHolderName?: string;
   bankName?: string;
   accountNumber?: string;
@@ -21,6 +24,7 @@ export interface Wallet {
 }
 
 export interface UpdatePayoutDetailsPayload {
+  primaryMethod?: PayoutMethod;
   accountHolderName?: string;
   bankName?: string;
   accountNumber?: string;

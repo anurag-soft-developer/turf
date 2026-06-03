@@ -22,6 +22,7 @@ export interface ConfirmDialogProps {
   onConfirm?: () => void;
   loading?: boolean;
   destructive?: boolean;
+  children?: React.ReactNode;
 }
 
 export function ConfirmDialog({
@@ -34,6 +35,7 @@ export function ConfirmDialog({
   onConfirm,
   loading = false,
   destructive = false,
+  children,
 }: ConfirmDialogProps) {
   return (
     <Dialog
@@ -48,6 +50,7 @@ export function ConfirmDialog({
             <DialogDescription>{description}</DialogDescription>
           ) : null}
         </DialogHeader>
+        {children}
         <DialogFooter>
           <DialogClose disabled={loading}>{cancelLabel}</DialogClose>
           <Button

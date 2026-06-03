@@ -1,3 +1,4 @@
+import type { PayoutDetails, PayoutMethod } from "@/types/wallet";
 import { z } from "zod";
 
 const bankPayoutSchema = z.object({
@@ -41,29 +42,73 @@ export type WithdrawalRequestFormData = z.infer<
   typeof withdrawalRequestFormSchema
 >;
 
-export function hasCompletePayoutDetails(
-  payoutDetails?: {
-    accountHolderName?: string;
-    bankName?: string;
-    accountNumber?: string;
-    ifscCode?: string;
-    upiId?: string;
-  },
-): boolean {
-  if (!payoutDetails) return false;
+export function hasUpiData(payoutDetails?: PayoutDetails): boolean {
+  return Boolean(payoutDetails?.upiId?.trim());
+}
 
-  const hasUpi =
+export function hasBankData(payoutDetails?: PayoutDetails): boolean {
+  if (!payoutDetails) return false;
+  return (
+    Boolean(payoutDetails.accountHolderName?.trim()) ||
+    Boolean(payoutDetails.bankName?.trim()) ||
+    Boolean(payoutDetails.accountNumber?.trim()) ||
+    Boolean(payoutDetails.ifscCode?.trim())
+  );
+}
+
+export function hasCompleteUpiDetails(payoutDetails?: PayoutDetails): boolean {
+  if (!payoutDetails) return false;
+  return (
     typeof payoutDetails.upiId === "string" &&
-    /^[a-z0-9.\-_]{2,256}@[a-z]{2,64}$/.test(payoutDetails.upiId);
+    /^[a-z0-9.\-_]{2,256}@[a-z]{2,64}$/.test(payoutDetails.upiId)
+  );
+}
+
+export function hasCompleteBankDetails(payoutDetails?: PayoutDetails): boolean {
+  if (!payoutDetails) return false;
 
   const accountNumber = payoutDetails.accountNumber?.trim();
   const ifscCode = payoutDetails.ifscCode?.trim();
 
-  const hasBank =
+  return (
     Boolean(payoutDetails.accountHolderName?.trim()) &&
     Boolean(payoutDetails.bankName?.trim()) &&
     Boolean(accountNumber) &&
-    Boolean(ifscCode);
+    Boolean(ifscCode) &&
+    /^[0-9]+$/.test(accountNumber!) &&
+    /^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode!.toUpperCase())
+  );
+}
 
-  return hasUpi || hasBank;
+export function resolvePrimaryMethod(
+  payoutDetails?: PayoutDetails,
+): PayoutMethod | undefined {
+  if (!payoutDetails) return undefined;
+
+  if (payoutDetails.primaryMethod) {
+    return payoutDetails.primaryMethod;
+  }
+
+  const hasUpi = hasCompleteUpiDetails(payoutDetails);
+  const hasBank = hasCompleteBankDetails(payoutDetails);
+
+  if (hasUpi && !hasBank) return "upi";
+  if (hasBank && !hasUpi) return "bank";
+
+  return undefined;
+}
+
+export function hasCompletePayoutDetails(
+  payoutDetails?: PayoutDetails,
+): boolean {
+  const method = resolvePrimaryMethod(payoutDetails);
+  if (!method) return false;
+
+  return method === "upi"
+    ? hasCompleteUpiDetails(payoutDetails)
+    : hasCompleteBankDetails(payoutDetails);
+}
+
+export function payoutMethodLabel(method: PayoutMethod): string {
+  return method === "upi" ? "UPI" : "Bank account";
 }

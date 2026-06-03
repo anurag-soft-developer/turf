@@ -38,7 +38,7 @@ const ProfileDropdown = () => {
     ...(isPlatformAdmin(data)
       ? [
           {
-            href: "/platform-admin/withdrawals",
+            href: "/platform-admin",
             icon: <Shield className="w-4 h-4" />,
             label: "Platform Admin",
           },

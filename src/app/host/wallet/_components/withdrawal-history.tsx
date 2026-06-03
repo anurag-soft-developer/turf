@@ -48,53 +48,60 @@ function WithdrawalRow({
   };
 
   return (
-    <button
-      type="button"
+    <Card
+      className="cursor-pointer transition-shadow hover:shadow-md"
       onClick={() => onSelect(withdrawal._id)}
-      className="block w-full text-left"
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          onSelect(withdrawal._id);
+        }
+      }}
+      role="button"
+      tabIndex={0}
     >
-      <Card className="transition-shadow hover:shadow-md">
-        <CardContent className="flex items-center justify-between gap-4 pt-4">
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="font-semibold text-gray-900">
-                {formatInr(withdrawal.amount)}
-              </p>
-              <Badge variant={withdrawalStatusVariant(withdrawal.status)}>
-                {withdrawal.status}
-              </Badge>
-            </div>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {format(new Date(withdrawal.createdAt), "MMM d, yyyy · HH:mm")}
+      <CardContent className="flex items-center justify-between gap-4 pt-4">
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-semibold text-gray-900">
+              {formatInr(withdrawal.amount)}
             </p>
-            {withdrawal.rejectionReason ? (
-              <p className="mt-1 text-sm text-destructive">
-                {withdrawal.rejectionReason}
-              </p>
-            ) : null}
+            <Badge variant={withdrawalStatusVariant(withdrawal.status)}>
+              {withdrawal.status}
+            </Badge>
           </div>
-          <div className="flex items-center gap-2">
-            {withdrawal.status === "pending" ? (
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                className={confirmCancel ? "border-destructive text-destructive" : undefined}
-                disabled={cancelMutation.isPending}
-                onClick={handleCancel}
-              >
-                {cancelMutation.isPending
-                  ? "Cancelling…"
-                  : confirmCancel
-                    ? "Confirm cancel"
-                    : "Cancel"}
-              </Button>
-            ) : null}
-            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
-          </div>
-        </CardContent>
-      </Card>
-    </button>
+          <p className="mt-1 text-sm text-muted-foreground">
+            {format(new Date(withdrawal.createdAt), "MMM d, yyyy · HH:mm")}
+          </p>
+          {withdrawal.rejectionReason ? (
+            <p className="mt-1 text-sm text-destructive">
+              {withdrawal.rejectionReason}
+            </p>
+          ) : null}
+        </div>
+        <div className="flex items-center gap-2">
+          {withdrawal.status === "pending" ? (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className={
+                confirmCancel ? "border-destructive text-destructive" : undefined
+              }
+              disabled={cancelMutation.isPending}
+              onClick={handleCancel}
+            >
+              {cancelMutation.isPending
+                ? "Cancelling…"
+                : confirmCancel
+                  ? "Confirm cancel"
+                  : "Cancel"}
+            </Button>
+          ) : null}
+          <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+        </div>
+      </CardContent>
+    </Card>
   );
 }
 

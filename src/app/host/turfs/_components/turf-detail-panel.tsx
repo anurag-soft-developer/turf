@@ -4,8 +4,15 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useHostTurf } from "@/modules/host/hooks/use-my-turfs";
-import { useDeleteTurf } from "@/modules/host/hooks/use-turf-mutations";
+import {
+  useDeleteTurf,
+  useSubmitTurfForApproval,
+  useWithdrawTurfSubmission,
+} from "@/modules/host/hooks/use-turf-mutations";
+import type { TurfStatus } from "@/modules/host/types/turf";
 import { cn } from "@/lib/utils";
+import { turfStatusLabel, turfStatusVariant } from "@/lib/utils/turf-display";
+import { format } from "date-fns";
 import {
   Clock,
   IndianRupee,
@@ -13,8 +20,10 @@ import {
   MapPin,
   Pencil,
   Ruler,
+  Send,
   Star,
   Trash2,
+  Undo2,
 } from "lucide-react";
 import { useState } from "react";
 import type { GeoLocation } from "@/types/common";
@@ -54,33 +63,90 @@ function TurfDetailStat({
 }
 
 function TurfDetailActions({
+  status,
   onDelete,
   onEdit,
+  onSubmit,
+  onWithdraw,
+  isSubmitting,
+  isWithdrawing,
 }: {
+  status: TurfStatus | undefined;
   onDelete: () => void;
   onEdit?: () => void;
+  onSubmit?: () => void;
+  onWithdraw?: () => void;
+  isSubmitting?: boolean;
+  isWithdrawing?: boolean;
 }) {
+  const resolvedStatus = status ?? "draft";
+  const showSubmit =
+    resolvedStatus === "draft" || resolvedStatus === "rejected";
+  const showWithdraw = resolvedStatus === "pending_approval";
+
   return (
-    <div className="flex gap-2 justify-end">
-      <Button
-        type="button"
-        variant="default"
-        size="sm"
-        onClick={onEdit}
-        className="gap-1.5 bg-emerald-600 hover:bg-emerald-700"
-      >
-        <Pencil className="h-4 w-4" />
-        Edit turf
-      </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onDelete}
-        className="gap-1.5 text-destructive hover:bg-destructive/5 hover:text-destructive"
-      >
-        <Trash2 className="h-4 w-4" />
-        Delete
-      </Button>
+    <div className="flex flex-col gap-2">
+      {resolvedStatus === "pending_approval" ? (
+        <p className="text-xs text-muted-foreground">
+          Your listing is under review. You can withdraw to make changes.
+        </p>
+      ) : null}
+      <div className="flex flex-wrap gap-2 justify-end">
+        {showSubmit ? (
+          <Button
+            type="button"
+            size="sm"
+            onClick={onSubmit}
+            disabled={isSubmitting}
+            className="gap-1.5 bg-emerald-600 hover:bg-emerald-700"
+          >
+            {isSubmitting ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Send className="h-4 w-4" />
+            )}
+            {resolvedStatus === "rejected"
+              ? "Resubmit for approval"
+              : "Submit for approval"}
+          </Button>
+        ) : null}
+        {showWithdraw ? (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={onWithdraw}
+            disabled={isWithdrawing}
+            className="gap-1.5"
+          >
+            {isWithdrawing ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Undo2 className="h-4 w-4" />
+            )}
+            Withdraw submission
+          </Button>
+        ) : null}
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={onEdit}
+          className="gap-1.5"
+        >
+          <Pencil className="h-4 w-4" />
+          Edit turf
+        </Button>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={onDelete}
+          className="gap-1.5 text-destructive hover:bg-destructive/5 hover:text-destructive"
+        >
+          <Trash2 className="h-4 w-4" />
+          Delete
+        </Button>
+      </div>
     </div>
   );
 }
@@ -92,7 +158,11 @@ export default function TurfDetailPanel({
 }: TurfDetailPanelProps) {
   const { data: turf, isLoading, isError } = useHostTurf(id);
   const deleteMutation = useDeleteTurf();
+  const submitMutation = useSubmitTurfForApproval();
+  const withdrawMutation = useWithdrawTurfSubmission();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
+  const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
   if (isLoading) {
@@ -191,15 +261,17 @@ export default function TurfDetailPanel({
         <div className="space-y-2">
           {!hasImages ? (
             <div className="flex flex-wrap items-center gap-2">
-              <Badge
-                variant={turf.isAvailable === false ? "secondary" : "default"}
-                className={cn(
-                  turf.isAvailable !== false &&
-                    "border-emerald-200 bg-emerald-600 text-white hover:bg-emerald-600",
-                )}
-              >
-                {turf.isAvailable === false ? "Unavailable" : "Available"}
-              </Badge>
+              {turf.status === "published" && (
+                <Badge
+                  variant={turf.isAvailable === false ? "secondary" : "default"}
+                  className={cn(
+                    turf.isAvailable !== false &&
+                      "border-emerald-200 bg-emerald-600 text-white hover:bg-emerald-600",
+                  )}
+                >
+                  {turf.isAvailable === false ? "Unavailable" : "Available"}
+                </Badge>
+              )}
               {turf.sportType?.map((sport) => (
                 <Badge key={sport} variant="secondary">
                   {sport}
@@ -210,6 +282,29 @@ export default function TurfDetailPanel({
           <h2 className="text-xl font-bold tracking-tight text-gray-900">
             {turf.name}
           </h2>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge variant={turfStatusVariant(turf.status)}>
+              {turfStatusLabel(turf.status)}
+            </Badge>
+            {turf.submittedAt ? (
+              <span className="text-xs text-muted-foreground">
+                Submitted{" "}
+                {format(new Date(turf.submittedAt), "MMM d, yyyy · HH:mm")}
+              </span>
+            ) : null}
+            {turf.reviewedAt ? (
+              <span className="text-xs text-muted-foreground">
+                Reviewed{" "}
+                {format(new Date(turf.reviewedAt), "MMM d, yyyy · HH:mm")}
+              </span>
+            ) : null}
+          </div>
+          {turf.status === "rejected" && turf.rejectionReason ? (
+            <div className="rounded-lg border border-destructive/30 bg-destructive/5 px-3 py-2 text-sm text-destructive">
+              <p className="font-medium">Rejection reason</p>
+              <p className="mt-1 text-destructive/90">{turf.rejectionReason}</p>
+            </div>
+          ) : null}
           {turf.location?.address ? (
             <a
               href={getGoogleMapsUrl(turf.location)}
@@ -283,10 +378,49 @@ export default function TurfDetailPanel({
       </div>
       <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
         <TurfDetailActions
+          status={turf.status}
           onDelete={() => setDeleteDialogOpen(true)}
           onEdit={onEdit}
+          onSubmit={() => setSubmitDialogOpen(true)}
+          onWithdraw={() => setWithdrawDialogOpen(true)}
+          isSubmitting={submitMutation.isPending}
+          isWithdrawing={withdrawMutation.isPending}
         />
       </div>
+
+      <ConfirmDialog
+        open={submitDialogOpen}
+        onOpenChange={setSubmitDialogOpen}
+        title={
+          turf.status === "rejected"
+            ? "Resubmit for approval?"
+            : "Submit for approval?"
+        }
+        description="Your turf will be sent to platform admins for review. You will not be able to publish it publicly until it is approved."
+        confirmLabel={submitMutation.isPending ? "Submitting…" : "Yes, submit"}
+        loading={submitMutation.isPending}
+        onConfirm={() =>
+          submitMutation.mutate(id, {
+            onSuccess: () => setSubmitDialogOpen(false),
+          })
+        }
+      />
+
+      <ConfirmDialog
+        open={withdrawDialogOpen}
+        onOpenChange={setWithdrawDialogOpen}
+        title="Withdraw submission?"
+        description="Your turf will return to draft status. You can edit it and submit again when ready."
+        confirmLabel={
+          withdrawMutation.isPending ? "Withdrawing…" : "Yes, withdraw"
+        }
+        loading={withdrawMutation.isPending}
+        onConfirm={() =>
+          withdrawMutation.mutate(id, {
+            onSuccess: () => setWithdrawDialogOpen(false),
+          })
+        }
+      />
 
       <ConfirmDialog
         open={deleteDialogOpen}

@@ -4,85 +4,127 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { maskAccountNumber, maskUpiId } from "@/lib/utils/payout-mask";
 import {
   useWallet,
   useUpdatePayoutDetails,
 } from "@/modules/host/hooks/use-wallet";
 import {
-  hasCompletePayoutDetails,
   payoutDetailsFormSchema,
+  resolvePrimaryMethod,
   type PayoutDetailsFormData,
 } from "@/modules/host/schemas/wallet-form";
+import type { PayoutMethod } from "@/types/wallet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-export default function PayoutDetailsForm() {
+interface PayoutDetailsFormProps {
+  onSaved: () => void;
+  onCancel: () => void;
+}
+
+export default function PayoutDetailsForm({
+  onSaved,
+  onCancel,
+}: PayoutDetailsFormProps) {
   const { data: wallet } = useWallet();
   const updateMutation = useUpdatePayoutDetails();
-  const [payoutType, setPayoutType] = useState<"bank" | "upi">("bank");
-  const [saved, setSaved] = useState(false);
+  const initialType =
+    resolvePrimaryMethod(wallet?.payoutDetails) ??
+    wallet?.payoutDetails?.primaryMethod ??
+    "bank";
+  const [payoutType, setPayoutType] = useState<PayoutMethod>(initialType);
 
   const {
     register,
     handleSubmit,
     reset,
-    setValue,
     formState: { errors },
   } = useForm<PayoutDetailsFormData>({
     resolver: zodResolver(payoutDetailsFormSchema),
-    defaultValues: { ...wallet?.payoutDetails, payoutType: "bank" },
+    defaultValues:
+      initialType === "upi"
+        ? { payoutType: "upi", upiId: wallet?.payoutDetails?.upiId ?? "" }
+        : {
+            payoutType: "bank",
+            accountHolderName: wallet?.payoutDetails?.accountHolderName ?? "",
+            bankName: wallet?.payoutDetails?.bankName ?? "",
+            accountNumber: wallet?.payoutDetails?.accountNumber ?? "",
+            ifscCode: wallet?.payoutDetails?.ifscCode ?? "",
+          },
   });
 
+  useEffect(() => {
+    const type =
+      resolvePrimaryMethod(wallet?.payoutDetails) ??
+      wallet?.payoutDetails?.primaryMethod ??
+      "bank";
+    setPayoutType(type);
+    const pd = wallet?.payoutDetails;
+    if (type === "upi") {
+      reset({
+        payoutType: "upi",
+        upiId: pd?.upiId ?? "",
+      });
+    } else {
+      reset({
+        payoutType: "bank",
+        accountHolderName: pd?.accountHolderName ?? "",
+        bankName: pd?.bankName ?? "",
+        accountNumber: pd?.accountNumber ?? "",
+        ifscCode: pd?.ifscCode ?? "",
+      });
+    }
+  }, [wallet, reset]);
+
   const onSubmit = handleSubmit(async (data) => {
-    setSaved(false);
     const payload =
       data.payoutType === "upi"
-        ? { upiId: data.upiId }
+        ? { primaryMethod: "upi" as const, upiId: data.upiId }
         : {
+            primaryMethod: "bank" as const,
             accountHolderName: data.accountHolderName,
             bankName: data.bankName,
             accountNumber: data.accountNumber,
             ifscCode: data.ifscCode,
           };
     await updateMutation.mutateAsync(payload);
-    setSaved(true);
+    onSaved();
   });
 
-  const switchType = (type: "bank" | "upi") => {
+  const switchType = (type: PayoutMethod) => {
     setPayoutType(type);
-    setValue("payoutType", type);
+    const pd = wallet?.payoutDetails;
+    if (type === "upi") {
+      reset({
+        payoutType: "upi",
+        upiId: pd?.upiId ?? "",
+      });
+    } else {
+      reset({
+        payoutType: "bank",
+        accountHolderName: pd?.accountHolderName ?? "",
+        bankName: pd?.bankName ?? "",
+        accountNumber: pd?.accountNumber ?? "",
+        ifscCode: pd?.ifscCode ?? "",
+      });
+    }
   };
-
-  const pd = wallet?.payoutDetails;
-  const isComplete = hasCompletePayoutDetails(pd);
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Payout details</CardTitle>
+        <CardTitle>Edit payout details</CardTitle>
         <p className="text-sm text-muted-foreground">
-          Required before requesting a withdrawal.
-          {isComplete ? (
-            <span className="ml-1 text-emerald-600">Complete</span>
-          ) : (
-            <span className="ml-1 text-amber-600">Incomplete</span>
-          )}
+          Choose your preferred payout method and enter the details.
         </p>
       </CardHeader>
       <CardContent className="space-y-4">
-        {isComplete && pd ? (
-          <div className="rounded-lg bg-gray-50 p-3 text-sm text-muted-foreground">
-            <p>{pd.accountHolderName}</p>
-            <p>{pd.bankName}</p>
-            <p>Account: {maskAccountNumber(pd.accountNumber)}</p>
-            <p>IFSC: {pd.ifscCode}</p>
-            <p>UPI: {maskUpiId(pd.upiId)}</p>
-          </div>
-        ) : null}
-
+        <p className="rounded-lg border bg-muted/30 p-3 text-sm text-muted-foreground">
+          Your preferred method is a reference only. Our team will try it first
+          but may use your other saved method if needed.
+        </p>
         <div className="flex gap-2">
           <button
             type="button"
@@ -172,20 +214,27 @@ export default function PayoutDetailsForm() {
               Failed to save payout details. Please try again.
             </p>
           ) : null}
-          {saved ? (
-            <p className="text-sm text-emerald-600">Payout details saved.</p>
-          ) : null}
 
-          <Button type="submit" disabled={updateMutation.isPending}>
-            {updateMutation.isPending ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Saving…
-              </>
-            ) : (
-              "Save payout details"
-            )}
-          </Button>
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" disabled={updateMutation.isPending}>
+              {updateMutation.isPending ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Saving…
+                </>
+              ) : (
+                "Save payout details"
+              )}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              disabled={updateMutation.isPending}
+              onClick={onCancel}
+            >
+              Cancel
+            </Button>
+          </div>
         </form>
       </CardContent>
     </Card>

@@ -2,13 +2,22 @@
 
 import { MyDrawer } from "@/components/my-drawer";
 import { useState } from "react";
-import PayoutDetailsForm from "./_components/payout-details-form";
+import PayoutDetailsSection from "./_components/payout-details-section";
 import RequestWithdrawalForm from "./_components/request-withdrawal-form";
 import WalletBalanceCards from "./_components/wallet-balance-cards";
 import WithdrawalDetailPanel from "./_components/withdrawal-detail-panel";
 import WithdrawalHistory from "./_components/withdrawal-history";
 
+type WalletTab = "analytics" | "payout-details" | "withdrawals";
+
+const TABS: { label: string; id: WalletTab }[] = [
+  { label: "Analytics", id: "analytics" },
+  { label: "Payout details", id: "payout-details" },
+  { label: "Withdrawals", id: "withdrawals" },
+];
+
 export default function HostWalletPage() {
+  const [activeTab, setActiveTab] = useState<WalletTab>("analytics");
   const [selectedWithdrawalId, setSelectedWithdrawalId] = useState<
     string | null
   >(null);
@@ -25,7 +34,7 @@ export default function HostWalletPage() {
   };
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       <div>
         <h2 className="text-xl font-bold text-gray-900">Wallet</h2>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -33,10 +42,33 @@ export default function HostWalletPage() {
         </p>
       </div>
 
-      <WalletBalanceCards />
-      <PayoutDetailsForm />
-      <RequestWithdrawalForm />
-      <WithdrawalHistory onSelectWithdrawal={openWithdrawal} />
+      <div className="flex flex-wrap gap-2">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            type="button"
+            onClick={() => setActiveTab(tab.id)}
+            className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
+              activeTab === tab.id
+                ? "bg-emerald-600 text-white ring-emerald-600"
+                : "bg-white text-gray-700 ring-gray-200"
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
+      </div>
+
+      {activeTab === "analytics" ? <WalletBalanceCards /> : null}
+
+      {activeTab === "payout-details" ? <PayoutDetailsSection /> : null}
+
+      {activeTab === "withdrawals" ? (
+        <div className="space-y-6">
+          <RequestWithdrawalForm onGoToPayout={() => setActiveTab("payout-details")} />
+          <WithdrawalHistory onSelectWithdrawal={openWithdrawal} />
+        </div>
+      ) : null}
 
       <MyDrawer
         open={drawerOpen}

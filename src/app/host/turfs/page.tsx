@@ -4,8 +4,13 @@ import { MyDrawer } from "@/components/my-drawer";
 import EditTurfPanel from "./_components/edit-turf-panel";
 import NewTurfPanel from "./_components/new-turf-panel";
 import TurfDetailPanel from "./_components/turf-detail-panel";
+import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { useMyTurfs } from "@/modules/host/hooks/use-my-turfs";
+import {
+  turfStatusLabel,
+  turfStatusVariant,
+} from "@/lib/utils/turf-display";
 import { Loader2, MapPin, Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
@@ -176,10 +181,20 @@ function HostTurfsPageContent() {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="font-semibold text-gray-900">{turf?.name}</p>
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-semibold text-gray-900">{turf?.name}</p>
+                      <Badge variant={turfStatusVariant(turf?.status)}>
+                        {turfStatusLabel(turf?.status)}
+                      </Badge>
+                    </div>
                     <p className="text-sm text-muted-foreground line-clamp-1">
                       {turf?.location?.address}
                     </p>
+                    {turf?.status === "rejected" && turf.rejectionReason ? (
+                      <p className="mt-1 text-sm text-destructive line-clamp-1">
+                        {turf.rejectionReason}
+                      </p>
+                    ) : null}
                     <p className="mt-1 text-sm text-emerald-700">
                       ₹{turf?.pricing?.basePricePerHour}/hr
                       {turf?.isAvailable === false ? " · Unavailable" : ""}

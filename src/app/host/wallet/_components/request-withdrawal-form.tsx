@@ -17,7 +17,11 @@ import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isAxiosError } from "axios";
 
-export default function RequestWithdrawalForm() {
+export default function RequestWithdrawalForm({
+  onGoToPayout,
+}: {
+  onGoToPayout?: () => void;
+}) {
   const { data: wallet } = useWallet();
   const createMutation = useCreateWithdrawal();
 
@@ -102,7 +106,16 @@ export default function RequestWithdrawalForm() {
         </form>
         {!payoutComplete ? (
           <p className="mt-3 text-sm text-amber-600">
-            Complete payout details before requesting a withdrawal.
+            Complete payout details before requesting a withdrawal.{" "}
+            {onGoToPayout ? (
+              <button
+                type="button"
+                className="font-medium underline"
+                onClick={onGoToPayout}
+              >
+                Go to Payout details
+              </button>
+            ) : null}
           </p>
         ) : null}
         {apiError ? (

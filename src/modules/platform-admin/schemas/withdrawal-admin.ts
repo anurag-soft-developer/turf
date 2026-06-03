@@ -1,6 +1,8 @@
 import { z } from "zod";
 import type { WithdrawalStatus } from "@/types/withdrawal";
 
+const payoutMethodSchema = z.enum(["upi", "bank"]);
+
 export const addCommentFormSchema = z.object({
   message: z.string().trim().min(1).max(1000),
 });
@@ -23,12 +25,17 @@ export const updateStatusFormSchema = z
       "cancelled",
     ]),
     rejectionReason: z.string().trim().max(1000).optional(),
+    paidViaMethod: payoutMethodSchema.optional(),
   })
   .refine(
     (data) =>
       data.status !== "rejected" ||
       Boolean(data.rejectionReason?.trim()),
     { message: "Rejection reason is required", path: ["rejectionReason"] },
+  )
+  .refine(
+    (data) => data.status !== "settled" || data.paidViaMethod !== undefined,
+    { message: "Paid via method is required", path: ["paidViaMethod"] },
   );
 
 export type AddCommentFormData = z.infer<typeof addCommentFormSchema>;

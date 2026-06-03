@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
-import { hostStorageApi } from "@/modules/host/api/storage";
+import { storageApi } from "@/lib/api/storage";
 import {
   AMENITIES,
   SPORT_TYPES,
@@ -100,7 +100,7 @@ export default function TurfForm({
     if (!file) return;
     setUploading(true);
     try {
-      const url = await hostStorageApi.uploadFile(file, "turfMedia");
+      const url = await storageApi.uploadFile(file, "turfMedia");
       setValue("images", [...images, url], { shouldValidate: true });
     } finally {
       setUploading(false);

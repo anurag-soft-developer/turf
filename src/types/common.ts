@@ -12,4 +12,8 @@ export interface GeoLocation {
     type: "Point";
     coordinates: [number, number];
   };
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
 }

@@ -9,6 +9,10 @@ export const turfFormSchema = z
     address: z.string().min(1, "Address is required"),
     latitude: z.number(),
     longitude: z.number(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+    country: z.string().optional(),
     sportTypes: z.array(z.string()).min(1, "Select at least one sport"),
     amenities: z.array(z.string()).optional(),
     images: z.array(z.string()).optional(),
@@ -55,16 +59,33 @@ export const AMENITIES = [
 ] as const;
 
 export function turfFormToCreatePayload(values: TurfFormValues) {
+  const location: {
+    address: string;
+    coordinates: {
+      type: "Point";
+      coordinates: [number, number];
+    };
+    city?: string;
+    state?: string;
+    zip?: string;
+    country?: string;
+  } = {
+    address: values.address.trim(),
+    coordinates: {
+      type: "Point" as const,
+      coordinates: [values.longitude, values.latitude] as [number, number],
+    },
+  };
+
+  if (values.city?.trim()) location.city = values.city.trim();
+  if (values.state?.trim()) location.state = values.state.trim();
+  if (values.zip?.trim()) location.zip = values.zip.trim();
+  if (values.country?.trim()) location.country = values.country.trim();
+
   return {
     name: values.name.trim(),
     description: values.description.trim(),
-    location: {
-      address: values.address.trim(),
-      coordinates: {
-        type: "Point" as const,
-        coordinates: [values.longitude, values.latitude] as [number, number],
-      },
-    },
+    location,
     sportType: values.sportTypes,
     amenities: values.amenities?.length ? values.amenities : undefined,
     images: values.images?.length ? values.images : undefined,

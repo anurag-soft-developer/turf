@@ -27,6 +27,10 @@ function turfToDefaultValues(turf?: Turf): TurfFormValues {
     address: turf?.location?.address ?? "",
     latitude: turf?.location?.coordinates?.coordinates?.[1] ?? 0,
     longitude: turf?.location?.coordinates?.coordinates?.[0] ?? 0,
+    city: turf?.location?.city ?? "",
+    state: turf?.location?.state ?? "",
+    zip: turf?.location?.zip ?? "",
+    country: turf?.location?.country ?? "",
     sportTypes: turf?.sportType ?? [],
     amenities: turf?.amenities ?? [],
     images: turf?.images ?? [],
@@ -154,10 +158,22 @@ export default function TurfForm({
             onAddressChange={(next) =>
               setValue("address", next, { shouldValidate: true, shouldDirty: true })
             }
-            onPlaceSelect={({ address: nextAddress, latitude: lat, longitude: lng }) => {
+            onPlaceSelect={({
+              address: nextAddress,
+              latitude: lat,
+              longitude: lng,
+              city,
+              state,
+              zip,
+              country,
+            }) => {
               setValue("address", nextAddress, { shouldValidate: true, shouldDirty: true });
               setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
               setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
+              setValue("city", city ?? "", { shouldDirty: true });
+              setValue("state", state ?? "", { shouldDirty: true });
+              setValue("zip", zip ?? "", { shouldDirty: true });
+              setValue("country", country ?? "", { shouldDirty: true });
             }}
           />
           {errors.address ? (

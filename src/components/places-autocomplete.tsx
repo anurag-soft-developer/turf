@@ -1,5 +1,6 @@
 "use client";
 
+import { parseAddressComponents } from "@/lib/places/address-components";
 import { Input } from "@/components/ui/input";
 import { useGoogleMapsScript } from "@/lib/hooks/use-google-maps-script";
 import { cn } from "@/lib/utils";
@@ -9,6 +10,10 @@ export interface PlaceSelection {
   address: string;
   latitude: number;
   longitude: number;
+  city?: string;
+  state?: string;
+  zip?: string;
+  country?: string;
 }
 
 interface SuggestionItem {
@@ -162,15 +167,26 @@ export function PlacesAutocomplete({
     try {
       const place = item.placePrediction.toPlace();
       await place.fetchFields({
-        fields: ["formattedAddress", "location"],
+        fields: ["formattedAddress", "location", "addressComponents"],
       });
 
       const address = place.formattedAddress ?? label;
       const location = place.location;
+      const { city, state, zip, country } = parseAddressComponents(
+        place.addressComponents,
+      );
 
       if (location) {
         const { lat, lng } = getLatLng(location);
-        onPlaceSelect({ address, latitude: lat, longitude: lng });
+        onPlaceSelect({
+          address,
+          latitude: lat,
+          longitude: lng,
+          city,
+          state,
+          zip,
+          country,
+        });
         setInputValue(address);
         onAddressChange(address);
       }

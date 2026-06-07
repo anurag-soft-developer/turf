@@ -84,6 +84,8 @@ export default function TurfForm({
   const address = watch("address") ?? "";
   const latitude = watch("latitude");
   const longitude = watch("longitude");
+  const city = watch("city") ?? "";
+  const stateName = watch("state") ?? "";
   const openTime = watch("openTime") ?? "06:00";
   const closeTime = watch("closeTime") ?? "22:00";
   console.log(errors,watch());
@@ -155,6 +157,8 @@ export default function TurfForm({
             key={turf?._id ?? "new"}
             id="address"
             value={address}
+            errorMessage={errors.address?.message}
+            helperText={!mapsError && (city || stateName) ? [city, stateName].filter(Boolean).join(", ") : undefined}
             onAddressChange={(next) =>
               setValue("address", next, { shouldValidate: true, shouldDirty: true })
             }
@@ -176,14 +180,6 @@ export default function TurfForm({
               setValue("country", country ?? "", { shouldDirty: true });
             }}
           />
-          {errors.address ? (
-            <p className="text-sm text-destructive">{errors.address.message}</p>
-          ) : null}
-          {!mapsError && (latitude !== 0 || longitude !== 0) ? (
-            <p className="text-xs text-muted-foreground">
-              Coordinates: {latitude.toFixed(6)}, {longitude.toFixed(6)}
-            </p>
-          ) : null}
         </div>
         {mapsError ? (
           <div className="grid gap-4 sm:grid-cols-2">

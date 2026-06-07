@@ -10,6 +10,8 @@ import {
   LogOut,
   Loader,
   Shield,
+  BrickWall,
+  Ticket,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -20,11 +22,17 @@ const ProfileDropdown = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
+
   const linkButtons = [
     {
-      href: ROUTE_POINT.dashboard,
-      icon: <User className="w-4 h-4" />,
-      label: "Dashboard",
+      href: ROUTE_POINT.host.turves.dashboard,
+      icon: <BrickWall className="w-4 h-4" />,
+      label: "Turf management",
+    },
+    {
+      href: ROUTE_POINT.host.events.dashboard,
+      icon: <Ticket className="w-4 h-4" />,
+      label: "Event management",
     },
     {
       href: ROUTE_POINT.settings,

@@ -29,6 +29,8 @@ interface PlacesAutocompleteProps {
   onPlaceSelect: (place: PlaceSelection) => void;
   disabled?: boolean;
   placeholder?: string;
+  errorMessage?: string;
+  helperText?: string;
 }
 
 function getLatLng(location: google.maps.LatLng | google.maps.LatLngLiteral) {
@@ -48,6 +50,8 @@ export function PlacesAutocomplete({
   onPlaceSelect,
   disabled,
   placeholder = "Search for an address",
+  errorMessage,
+  helperText,
 }: PlacesAutocompleteProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(
@@ -208,6 +212,11 @@ export function PlacesAutocomplete({
           placeholder="Enter address manually"
         />
         <p className="text-xs text-muted-foreground">{error}</p>
+        {errorMessage ? (
+          <p className="text-sm text-destructive">{errorMessage}</p>
+        ) : helperText ? (
+          <p className="text-xs text-muted-foreground">{helperText}</p>
+        ) : null}
       </div>
     );
   }
@@ -243,6 +252,11 @@ export function PlacesAutocomplete({
             </li>
           ))}
         </ul>
+      ) : null}
+      {errorMessage ? (
+        <p className="mt-2 text-sm text-destructive">{errorMessage}</p>
+      ) : helperText ? (
+        <p className="mt-2 text-xs text-muted-foreground">{helperText}</p>
       ) : null}
     </div>
   );

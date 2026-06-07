@@ -22,7 +22,6 @@ export default function Footer() {
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
               <li><Link href={ROUTE_POINT.reviews} className="text-gray-300 hover:text-green-400">Reviews</Link></li>
-              <li><Link href={ROUTE_POINT.dashboard} className="text-gray-300 hover:text-green-400">Dashboard</Link></li>
             </ul>
           </div>
           

@@ -24,6 +24,13 @@ function toDateInputValue(value?: string) {
   return date.toISOString().slice(0, 10);
 }
 
+function toLocalDateInputValue(date: Date) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
 function eventToDefaultValues(event?: HostEvent): EventFormValues {
   return {
     title: event?.title ?? "",
@@ -86,6 +93,11 @@ export default function EventForm({
   const address = watch("address") ?? "";
   const latitude = watch("latitude");
   const longitude = watch("longitude");
+  const city = watch("city") ?? "";
+  const stateName = watch("state") ?? "";
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const minEventDate = toLocalDateInputValue(tomorrow);
 
   const onImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -138,7 +150,7 @@ export default function EventForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="eventDate">Event date</Label>
-              <Input id="eventDate" type="date" {...register("eventDate")} />
+              <Input id="eventDate" type="date" min={minEventDate} {...register("eventDate")} />
               {errors.eventDate ? (
                 <p className="text-sm text-destructive">{errors.eventDate.message}</p>
               ) : null}
@@ -161,6 +173,8 @@ export default function EventForm({
               key={event?._id ?? "new"}
               id="address"
               value={address}
+              errorMessage={errors.address?.message}
+              helperText={!mapsError && (city || stateName) ? [city, stateName].filter(Boolean).join(", ") : undefined}
               onAddressChange={(next) =>
                 setValue("address", next, { shouldValidate: true, shouldDirty: true })
               }
@@ -182,14 +196,6 @@ export default function EventForm({
                 setValue("country", country ?? "", { shouldDirty: true });
               }}
             />
-            {errors.address ? (
-              <p className="text-sm text-destructive">{errors.address.message}</p>
-            ) : null}
-            {!mapsError && (latitude !== 0 || longitude !== 0) ? (
-              <p className="text-xs text-muted-foreground">
-                Coordinates: {latitude.toFixed(6)}, {longitude.toFixed(6)}
-              </p>
-            ) : null}
           </div>
           {mapsError ? (
             <div className="grid gap-4 sm:grid-cols-2">
@@ -239,20 +245,12 @@ export default function EventForm({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="currency">Currency</Label>
-              <Input id="currency" maxLength={3} {...register("currency")} />
-            </div>
-            <div className="space-y-2">
               <Label htmlFor="maxParticipants">Max participants</Label>
               <Input
                 id="maxParticipants"
                 type="number"
                 {...register("maxParticipants", { valueAsNumber: true })}
               />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="turfId">Linked turf ID (optional)</Label>
-              <Input id="turfId" {...register("turfId")} />
             </div>
           </div>
           <label className="flex items-center gap-2 text-sm">

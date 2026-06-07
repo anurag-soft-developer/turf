@@ -1,5 +1,6 @@
 "use client";
 
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { isTokenValid } from "@/lib/utils/auth.util";
 import { redirect } from "next/navigation";
 
@@ -9,13 +10,13 @@ interface iProps {
 
 const ProtectedPage = ({ children }: iProps) => {
   const { isValid, payload } = isTokenValid();
-
+  
   if (!isValid || !payload) {
-    redirect("/auth/login");
+    redirect(ROUTE_POINT.auth.login);
   }
 
   if (!payload.isEmailVerified) {
-    redirect("/auth/verify-email");
+    redirect(ROUTE_POINT.auth.verifyEmail);
   }
 
   return children;

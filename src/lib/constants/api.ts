@@ -39,6 +39,15 @@ export const API_CONFIG = {
       OWNER_STATS: "/turf-bookings/owner-bookings/stats",
       BY_ID: (id: string) => `/turf-bookings/${id}`,
     },
+    EVENTS: {
+      BASE: "/events",
+      MINE: "/events/mine",
+      MINE_STATS: "/events/mine/stats",
+      BY_ID: (id: string) => `/events/${id}`,
+      SUBMIT: (id: string) => `/events/${id}/submit`,
+      WITHDRAW: (id: string) => `/events/${id}/withdraw`,
+      CLOSE: (id: string) => `/events/${id}/close`,
+    },
     STORAGE: {
       UPLOAD_URL: "/storage/upload-url",
       OBJECTS: "/storage/objects",

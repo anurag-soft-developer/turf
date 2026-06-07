@@ -9,12 +9,12 @@ import {
 } from "@/components/ui/drawer";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { cn } from "@/lib/utils";
-import { Banknote, LayoutDashboard, MapPin, Menu } from "lucide-react";
+import { CalendarDays, LayoutDashboard, MapPin, Menu, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 
-function AdminSidebarLinks({
+function HostSidebarLinks({
   className,
   onNavigate,
 }: {
@@ -25,20 +25,28 @@ function AdminSidebarLinks({
 
   const links = [
     {
-      href: ROUTE_POINT.platformAdmin.home,
-      label: "Overview",
+      href: ROUTE_POINT.host.turves.dashboard,
+      label: "Dashboard",
       icon: LayoutDashboard,
       exact: true,
     },
     {
-      href: ROUTE_POINT.platformAdmin.withdrawals,
-      label: "Withdrawals",
-      icon: Banknote,
+      href: ROUTE_POINT.host.turves.list,
+      label: "My Turfs",
+      icon: MapPin,
+      exact: false,
     },
     {
-      href: ROUTE_POINT.platformAdmin.turfs,
-      label: "Turf approvals",
-      icon: MapPin,
+      href: ROUTE_POINT.host.turves.bookings,
+      label: "Bookings",
+      icon: CalendarDays,
+      exact: false,
+    },
+    {
+      href: ROUTE_POINT.host.turves.wallet,
+      label: "Wallet",
+      icon: Wallet,
+      exact: false,
     },
   ];
 
@@ -57,7 +65,7 @@ function AdminSidebarLinks({
             className={cn(
               "flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors",
               active
-                ? "bg-indigo-600 text-white"
+                ? "bg-emerald-600 text-white"
                 : "text-gray-700 hover:bg-white hover:ring-1 hover:ring-gray-200",
             )}
           >
@@ -70,7 +78,7 @@ function AdminSidebarLinks({
   );
 }
 
-export default function PlatformAdminSidebar() {
+export default function HostSideBar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
 
@@ -87,7 +95,7 @@ export default function PlatformAdminSidebar() {
           size="sm"
           className="gap-2"
           onClick={() => setMenuOpen(true)}
-          aria-label="Open admin menu"
+          aria-label="Open host menu"
         >
           <Menu className="h-4 w-4" />
           Menu
@@ -97,16 +105,16 @@ export default function PlatformAdminSidebar() {
       <Drawer open={menuOpen} onOpenChange={setMenuOpen} direction="left">
         <DrawerContent className="max-w-xs">
           <DrawerHeader className="border-b py-3">
-            <DrawerTitle className="text-lg">Platform Admin</DrawerTitle>
+            <DrawerTitle className="text-lg">Host</DrawerTitle>
           </DrawerHeader>
-          <AdminSidebarLinks
+          <HostSidebarLinks
             className="px-4 py-4"
             onNavigate={() => setMenuOpen(false)}
           />
         </DrawerContent>
       </Drawer>
 
-      <AdminSidebarLinks className="sticky top-0 hidden max-h-full w-52 shrink-0 self-start overflow-y-auto border-r border-gray-200 pr-6 md:flex" />
+      <HostSidebarLinks className="sticky top-0 hidden max-h-full w-52 shrink-0 self-start overflow-y-auto border-r border-gray-200 pr-6 md:flex" />
     </>
   );
 }

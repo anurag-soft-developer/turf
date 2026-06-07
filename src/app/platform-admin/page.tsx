@@ -1,16 +1,17 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { Banknote, MapPin } from "lucide-react";
 
 const adminSections = [
   {
-    href: "/platform-admin/withdrawals",
+    href: ROUTE_POINT.platformAdmin.withdrawals,
     title: "Withdrawals",
     description: "Review and process host withdrawal requests",
     icon: Banknote,
   },
   {
-    href: "/platform-admin/turfs",
+    href: ROUTE_POINT.platformAdmin.turfs,
     title: "Turf approvals",
     description: "Approve or reject turf listings submitted by hosts",
     icon: MapPin,

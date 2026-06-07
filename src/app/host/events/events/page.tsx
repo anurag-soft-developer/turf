@@ -1,0 +1,259 @@
+"use client";
+
+import { MyDrawer } from "@/components/my-drawer";
+import EditEventPanel from "./_components/edit-event-panel";
+import NewEventPanel from "./_components/new-event-panel";
+import EventDetailPanel from "./_components/event-detail-panel";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
+import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
+import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
+import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
+import { useInfiniteMyEvents } from "@/modules/host/hooks/use-my-events";
+import { eventStatusLabel, eventStatusVariant } from "@/lib/utils/event-display";
+import { format } from "date-fns";
+import { CalendarDays, Loader2, Plus } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useCallback, useEffect, useState } from "react";
+
+type EventDrawerView =
+  | { kind: "new" }
+  | { kind: "detail"; id: string }
+  | { kind: "edit"; id: string };
+
+function eventDrawerTitle(view: EventDrawerView | null) {
+  if (!view) return "Event details";
+  if (view.kind === "new") return "Add new event";
+  if (view.kind === "edit") return "Edit event";
+  return "Event details";
+}
+
+function EventDrawerQuerySync({ onOpenNew }: { onOpenNew: () => void }) {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (searchParams.get("drawer") === "new") {
+      onOpenNew();
+      router.replace(ROUTE_POINT.host.events.events, { scroll: false });
+    }
+  }, [searchParams, onOpenNew, router]);
+
+  return null;
+}
+
+function formatDate(value?: string) {
+  if (!value) return "Date not set";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "Date not set";
+  return format(date, "MMM d, yyyy");
+}
+
+function HostEventsPageContent() {
+  const [view, setView] = useState<EventDrawerView | null>(null);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+
+  const openDrawerNew = useCallback(() => {
+    setView({ kind: "new" });
+    setDrawerOpen(true);
+  }, []);
+
+  const openDrawerDetail = useCallback((id: string) => {
+    setView({ kind: "detail", id });
+    setDrawerOpen(true);
+  }, []);
+
+  const openDrawerEdit = useCallback((id: string) => {
+    setView({ kind: "edit", id });
+    setDrawerOpen(true);
+  }, []);
+
+  const closeDrawer = useCallback(() => {
+    setView(null);
+    setDrawerOpen(false);
+  }, []);
+
+  const {
+    data,
+    isLoading,
+    isError,
+    refetch,
+    isFetching,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isFetchNextPageError,
+  } = useInfiniteMyEvents();
+
+  const events = flattenPaginatedPages(data?.pages);
+
+  let drawerContent: React.ReactNode = null;
+  if (view?.kind === "new") {
+    drawerContent = (
+      <NewEventPanel
+        onSuccess={() => setDrawerOpen(false)}
+        onCancel={() => setDrawerOpen(false)}
+      />
+    );
+  } else if (view?.kind === "edit") {
+    drawerContent = (
+      <EditEventPanel
+        id={view.id}
+        onSuccess={() => openDrawerDetail(view.id)}
+        onCancel={() => openDrawerDetail(view.id)}
+      />
+    );
+  } else if (view?.kind === "detail") {
+    drawerContent = (
+      <EventDetailPanel
+        id={view.id}
+        onEdit={() => openDrawerEdit(view.id)}
+        onDeleteSuccess={() => setDrawerOpen(false)}
+      />
+    );
+  }
+
+  return (
+    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+      <Suspense fallback={null}>
+        <EventDrawerQuerySync onOpenNew={openDrawerNew} />
+      </Suspense>
+
+      <div className="shrink-0">
+        <div className="flex flex-wrap items-center justify-between gap-4">
+          <h2 className="text-xl font-bold text-gray-900">My Events</h2>
+          <button
+            type="button"
+            onClick={openDrawerNew}
+            className="inline-flex h-8 items-center gap-1.5 rounded-lg bg-primary px-2.5 text-sm font-medium text-primary-foreground"
+          >
+            <Plus className="h-4 w-4" />
+            Add event
+          </button>
+        </div>
+      </div>
+
+      <ScrollableListPanel className="mt-6 min-h-0 flex-1">
+        {isLoading ? (
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+          </div>
+        ) : isError ? (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              Failed to load events. {" "}
+              <button
+                type="button"
+                className="text-emerald-600 underline"
+                onClick={() => refetch()}
+              >
+                Retry
+              </button>
+            </CardContent>
+          </Card>
+        ) : events.length === 0 ? (
+          <Card>
+            <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
+              <CalendarDays className="h-12 w-12 text-gray-300" />
+              <div>
+                <p className="font-semibold text-gray-900">No events yet</p>
+                <p className="text-sm text-muted-foreground">
+                  Start by creating your first event.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={openDrawerNew}
+                className="inline-flex h-8 items-center rounded-lg bg-primary px-3 text-sm font-medium text-primary-foreground"
+              >
+                Add your first event
+              </button>
+            </CardContent>
+          </Card>
+        ) : (
+          <div className="flex flex-col gap-4 pb-4">
+            {isFetching && !isLoading && !isFetchingNextPage ? (
+              <p className="text-sm text-muted-foreground">Refreshing...</p>
+            ) : null}
+
+            {events.map((event) => (
+              <button
+                key={event._id}
+                type="button"
+                onClick={() => openDrawerDetail(event._id)}
+                className="block w-full text-left"
+              >
+                <Card className="transition-shadow hover:shadow-md">
+                  <CardContent className="flex items-center gap-4 pt-4">
+                    {event.coverImages?.[0] ? (
+                      <img
+                        src={event.coverImages[0]}
+                        alt=""
+                        className="h-16 w-16 shrink-0 rounded-lg object-cover ring-1 ring-gray-200"
+                      />
+                    ) : (
+                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 ring-1 ring-gray-200">
+                        <CalendarDays className="h-6 w-6 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <p className="font-semibold text-gray-900">{event.title}</p>
+                        <Badge variant={eventStatusVariant(event.status)}>
+                          {eventStatusLabel(event.status)}
+                        </Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground line-clamp-1">
+                        {event.location?.address}
+                      </p>
+                      {event.status === "rejected" && event.rejectionReason ? (
+                        <p className="mt-1 text-sm text-destructive line-clamp-1">
+                          {event.rejectionReason}
+                        </p>
+                      ) : null}
+                      <p className="mt-1 text-sm text-emerald-700">
+                        {formatDate(event.eventDate)} • {event.currency} {event.price}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </button>
+            ))}
+
+            <InfiniteScrollSentinel
+              hasNextPage={hasNextPage}
+              isFetchingNextPage={isFetchingNextPage}
+              fetchNextPage={() => fetchNextPage()}
+              isError={isFetchNextPageError}
+              onRetry={() => fetchNextPage()}
+            />
+          </div>
+        )}
+      </ScrollableListPanel>
+
+      <MyDrawer
+        open={drawerOpen}
+        onOpenChange={setDrawerOpen}
+        title={eventDrawerTitle(view)}
+        onClose={closeDrawer}
+      >
+        {drawerContent}
+      </MyDrawer>
+    </div>
+  );
+}
+
+export default function HostEventsPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex justify-center py-16">
+          <Loader2 className="h-8 w-8 animate-spin text-emerald-600" />
+        </div>
+      }
+    >
+      <HostEventsPageContent />
+    </Suspense>
+  );
+}

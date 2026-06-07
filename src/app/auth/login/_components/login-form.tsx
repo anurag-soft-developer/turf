@@ -13,6 +13,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useLogin, useVerifyLoginOtp } from "@/lib/hooks/auth";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import {
   loginSchema,
   verifyLoginOtpSchema,
@@ -204,7 +205,7 @@ export default function LoginForm() {
 
             <div className="mt-4 text-center">
               <Link
-                href="/auth/forgot-password"
+                  href={ROUTE_POINT.auth.forgotPassword}
                 className="text-sm text-blue-600 hover:underline"
               >
                 Forgot your password?
@@ -213,7 +214,7 @@ export default function LoginForm() {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-gray-600">Don&apos;t have an account? </span>
-              <Link href="/auth/register" className="text-blue-600 hover:underline">
+                <Link href={ROUTE_POINT.auth.register} className="text-blue-600 hover:underline">
                 Create one
               </Link>
             </div>

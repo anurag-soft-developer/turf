@@ -16,6 +16,7 @@ import {
   useSendVerificationEmail,
   useVerifyEmail,
 } from "@/lib/hooks/auth";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { CheckCircle, Mail, Loader2, AlertCircle } from "lucide-react";
 
 const Page = () => {
@@ -117,7 +118,7 @@ const Page = () => {
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => (window.location.href = "/dashboard")}
+              onClick={() => (window.location.href = ROUTE_POINT.dashboard)}
               className="w-full"
             >
               Go to Dashboard

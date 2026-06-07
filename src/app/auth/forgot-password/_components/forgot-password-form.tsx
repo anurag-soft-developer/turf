@@ -20,6 +20,7 @@ import {
   type ForgotPasswordFormData,
   type ResetPasswordFormData,
 } from "@/lib/schemas/auth";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { useForgotPassword, useResetPassword } from "@/lib/hooks/auth";
 import { getErrorMessage } from "@/lib/utils";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
@@ -60,7 +61,7 @@ export default function ForgotPasswordForm() {
     try {
       const result = await resetMutation.mutateAsync(data);
       setSuccessMessage(result.message);
-      setTimeout(() => router.push("/auth/login"), 1500);
+      setTimeout(() => router.push(ROUTE_POINT.auth.login), 1500);
     } catch {
       // error shown via mutation state
     }
@@ -257,7 +258,7 @@ export default function ForgotPasswordForm() {
         )}
 
         <div className="mt-6 text-center text-sm">
-          <Link href="/auth/login" className="text-blue-600 hover:underline">
+          <Link href={ROUTE_POINT.auth.login} className="text-blue-600 hover:underline">
             Back to sign in
           </Link>
         </div>

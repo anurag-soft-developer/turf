@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { useLogout, useProfile } from "@/lib/hooks/auth";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { isPlatformAdmin } from "@/types/auth";
 import {
   User,
@@ -21,24 +22,24 @@ const ProfileDropdown = () => {
 
   const linkButtons = [
     {
-      href: "/dashboard",
+      href: ROUTE_POINT.dashboard,
       icon: <User className="w-4 h-4" />,
       label: "Dashboard",
     },
     {
-      href: "/settings",
+      href: ROUTE_POINT.settings,
       icon: <Settings className="w-4 h-4" />,
       label: "Settings",
     },
     {
-      href: "/notifications",
+      href: ROUTE_POINT.notifications,
       icon: <Bell className="w-4 h-4" />,
       label: "Notifications",
     },
     ...(isPlatformAdmin(data)
       ? [
           {
-            href: "/platform-admin",
+            href: ROUTE_POINT.platformAdmin.home,
             icon: <Shield className="w-4 h-4" />,
             label: "Platform Admin",
           },
@@ -70,12 +71,12 @@ const ProfileDropdown = () => {
   if (!data)
     return (
       <>
-        <Link href="/auth/login">
+        <Link href={ROUTE_POINT.auth.login}>
           <Button variant="ghost" className="w-full">
             Sign In
           </Button>
         </Link>
-        <Link href="/auth/register">
+        <Link href={ROUTE_POINT.auth.register}>
           <Button className="w-full">Get Started</Button>
         </Link>
       </>

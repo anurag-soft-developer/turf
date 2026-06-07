@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 
 export default function Footer() {
   return (
@@ -20,8 +21,8 @@ export default function Footer() {
           <div>
             <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
             <ul className="space-y-2">
-              <li><Link href="/reviews" className="text-gray-300 hover:text-green-400">Reviews</Link></li>
-              <li><Link href="/dashboard" className="text-gray-300 hover:text-green-400">Dashboard</Link></li>
+              <li><Link href={ROUTE_POINT.reviews} className="text-gray-300 hover:text-green-400">Reviews</Link></li>
+              <li><Link href={ROUTE_POINT.dashboard} className="text-gray-300 hover:text-green-400">Dashboard</Link></li>
             </ul>
           </div>
           

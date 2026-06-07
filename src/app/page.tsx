@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { MapPin, Calendar, Users} from "lucide-react";
 
 export default function Home() {
@@ -17,12 +18,12 @@ export default function Home() {
               Cricket, Football, Basketball and more!
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href="/auth/register">
+              <Link href={ROUTE_POINT.auth.register}>
                 <Button size="lg" className="text-lg px-8 py-3">
                   Get Started Free
                 </Button>
               </Link>
-              <Link href="/auth/login">
+              <Link href={ROUTE_POINT.auth.login}>
                 <Button size="lg" variant="outline" className="text-lg px-8 py-3">
                   Sign In
                 </Button>
@@ -103,7 +104,7 @@ export default function Home() {
               { name: 'Table Tennis', icon: '🏓', count: '40+ venues' },
               { name: 'Hockey', icon: '🏒', count: '25+ venues' },
             ].map((sport) => (
-              <Link key={sport.name} href="/catalog">
+              <Link key={sport.name} href={ROUTE_POINT.catalog}>
                 <Card className="hover:shadow-lg transition-shadow cursor-pointer">
                   <CardContent className="p-6 text-center">
                     <div className="text-4xl mb-2">{sport.icon}</div>
@@ -124,7 +125,7 @@ export default function Home() {
           <p className="text-xl mb-8 opacity-90">
             Join thousands of sports enthusiasts who trust TurfBooking for their games
           </p>
-          <Link href="/auth/register">
+          <Link href={ROUTE_POINT.auth.register}>
             <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
               Start Booking Now
             </Button>

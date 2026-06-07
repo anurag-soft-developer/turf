@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
 import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { useInfiniteMyTurfs } from "@/modules/host/hooks/use-my-turfs";
 import {
@@ -37,7 +38,7 @@ function TurfDrawerQuerySync({ onOpenNew }: { onOpenNew: () => void }) {
   useEffect(() => {
     if (searchParams.get("drawer") === "new") {
       onOpenNew();
-      router.replace("/host/turfs");
+      router.replace(ROUTE_POINT.host.turves.list, { scroll: false });
     }
   }, [searchParams, onOpenNew, router]);
 

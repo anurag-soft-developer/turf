@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import ProfileDropdown from "./ProfileDropdown";
@@ -14,7 +15,7 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link href="/" className="flex-shrink-0 flex items-center">
+            <Link href={ROUTE_POINT.home} className="flex-shrink-0 flex items-center">
               <h1 className="text-2xl font-bold text-green-600">TurfBooking</h1>
             </Link>
           </div>

@@ -7,8 +7,9 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { cn } from "@/lib/utils";
-import { CalendarDays, LayoutDashboard, MapPin, Menu, Wallet } from "lucide-react";
+import { CalendarDays, LayoutDashboard, Menu, Wallet } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -24,25 +25,25 @@ function HostSidebarLinks({
 
   const links = [
     {
-      href: "/host",
+      href: ROUTE_POINT.host.events.dashboard,
       label: "Dashboard",
       icon: LayoutDashboard,
       exact: true,
     },
     {
-      href: "/host/turfs",
-      label: "My Turfs",
-      icon: MapPin,
+      href: ROUTE_POINT.host.events.events,
+      label: "Events",
+      icon: CalendarDays,
       exact: false,
     },
     {
-      href: "/host/bookings",
+      href: ROUTE_POINT.host.events.bookings,
       label: "Bookings",
       icon: CalendarDays,
       exact: false,
     },
     {
-      href: "/host/wallet",
+      href: ROUTE_POINT.host.events.wallet,
       label: "Wallet",
       icon: Wallet,
       exact: false,
@@ -104,7 +105,7 @@ export default function HostSideBar() {
       <Drawer open={menuOpen} onOpenChange={setMenuOpen} direction="left">
         <DrawerContent className="max-w-xs">
           <DrawerHeader className="border-b py-3">
-            <DrawerTitle className="text-lg">Host</DrawerTitle>
+            <DrawerTitle className="text-lg">Host Events</DrawerTitle>
           </DrawerHeader>
           <HostSidebarLinks
             className="px-4 py-4"

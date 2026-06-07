@@ -1,5 +1,6 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { API_CONFIG } from "@/lib/constants/api";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { getAuthToken } from "@/lib/utils/auth.util";
 import { clearSession, refreshAccessToken } from "./refresh-session";
 import { StatusCodes } from "http-status-codes";
@@ -50,9 +51,9 @@ function processRefreshQueue(error: unknown | null, token: string | null) {
 
 function redirectToLogin() {
   if (typeof window === "undefined") return;
-  const isAuthPage = window.location.pathname.startsWith("/auth");
+  const isAuthPage = window.location.pathname.startsWith(ROUTE_POINT.auth.base);
   if (!isAuthPage) {
-    window.location.href = "/auth/login";
+    window.location.href = ROUTE_POINT.auth.login;
   }
 }
 

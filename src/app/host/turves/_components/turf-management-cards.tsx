@@ -1,6 +1,6 @@
-import { turfNewDrawerUrl } from "@/app/host/_lib/turf-drawer-urls";
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { MapPin, Plus } from "lucide-react";
 
 export default function TurfManagementCards() {
@@ -8,7 +8,7 @@ export default function TurfManagementCards() {
     <section>
       <h2 className="mb-4 text-xl font-bold text-gray-900">Turf Management</h2>
       <div className="grid gap-4 sm:grid-cols-2">
-        <Link href={turfNewDrawerUrl()} className="text-left">
+        <Link href={`${ROUTE_POINT.host.turves.list}?drawer=new`} className="text-left">
           <Card className="h-full transition-shadow hover:shadow-md">
             <CardContent className="flex flex-col gap-3 pt-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
@@ -23,7 +23,7 @@ export default function TurfManagementCards() {
             </CardContent>
           </Card>
         </Link>
-        <Link href="/host/turfs">
+        <Link href={ROUTE_POINT.host.turves.list}>
           <Card className="h-full transition-shadow hover:shadow-md">
             <CardContent className="flex flex-col gap-3 pt-4">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatInr } from "@/lib/utils/currency";
 import { useWallet } from "@/modules/host/hooks/use-wallet";
+import { getTurfAvailableBalance } from "@/types/wallet";
 import { useCreateWithdrawal } from "@/modules/host/hooks/use-withdrawals";
 import {
   hasCompletePayoutDetails,
@@ -36,7 +37,7 @@ export default function RequestWithdrawalForm({
   });
 
   const amount = watch("amount");
-  const available = wallet?.availableBalance ?? 0;
+  const available = wallet ? getTurfAvailableBalance(wallet) : 0;
   const payoutComplete = hasCompletePayoutDetails(wallet?.payoutDetails);
   const amountNum = Number(amount) || 0;
   const exceedsBalance = amountNum > available;

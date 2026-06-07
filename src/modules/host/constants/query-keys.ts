@@ -1,4 +1,7 @@
 export const HOST_QUERY_KEYS = {
+  myEvents: (params?: object) => ["host", "events", params] as const,
+  event: (id: string) => ["host", "event", id] as const,
+  eventStats: ["host", "event-stats"] as const,
   myTurfs: (params?: object) => ["host", "turfs", params] as const,
   turf: (id: string) => ["host", "turf", id] as const,
   turfStats: ["host", "turf-stats"] as const,

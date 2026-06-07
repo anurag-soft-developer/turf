@@ -13,6 +13,7 @@ import {
   CardContent,
 } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/auth";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { registerSchema, type RegisterFormData } from "@/lib/schemas/auth";
 import { useState } from "react";
 import { Eye, EyeOff } from "lucide-react";
@@ -152,7 +153,7 @@ export default function RegisterForm() {
 
         <div className="mt-6 text-center text-sm">
           <span className="text-gray-600">Already have an account? </span>
-          <Link href="/auth/login" className="text-blue-600 hover:underline">
+          <Link href={ROUTE_POINT.auth.login} className="text-blue-600 hover:underline">
             Sign in
           </Link>
         </div>

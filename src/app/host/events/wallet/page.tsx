@@ -1,11 +1,5 @@
-import { Card, CardContent } from "@/components/ui/card";
+import HostWalletShell from "@/components/wallet/host-wallet-shell";
 
 export default function HostEventWalletPage() {
-  return (
-    <Card>
-      <CardContent className="py-12 text-center text-muted-foreground">
-        Event wallet is coming soon.
-      </CardContent>
-    </Card>
-  );
+  return <HostWalletShell walletType="event" />;
 }

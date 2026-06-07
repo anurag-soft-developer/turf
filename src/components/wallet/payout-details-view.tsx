@@ -31,7 +31,7 @@ export default function PayoutDetailsView({ onEdit }: PayoutDetailsViewProps) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
-          Loading payout details…
+          Loading payout details...
         </CardContent>
       </Card>
     );
@@ -116,9 +116,7 @@ export default function PayoutDetailsView({ onEdit }: PayoutDetailsViewProps) {
                     <button
                       key={method}
                       type="button"
-                      disabled={
-                        !isCompleteMethod || updateMutation.isPending
-                      }
+                      disabled={!isCompleteMethod || updateMutation.isPending}
                       onClick={() => setPrimaryMethod(method)}
                       className={`rounded-full px-3 py-1 text-sm font-medium ring-1 disabled:cursor-not-allowed disabled:opacity-50 ${
                         isActive
@@ -146,7 +144,7 @@ export default function PayoutDetailsView({ onEdit }: PayoutDetailsViewProps) {
               <div className="rounded-lg bg-gray-50 p-4 text-sm">
                 <p className="font-medium text-gray-900">UPI</p>
                 <p className="mt-2 text-muted-foreground">
-                  UPI ID: {pd?.upiId ?? "—"}
+                  UPI ID: {pd?.upiId ?? "-"}
                 </p>
               </div>
             ) : null}

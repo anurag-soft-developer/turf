@@ -3,10 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatInr } from "@/lib/utils/currency";
-import {
-  userDisplayName,
-  withdrawalStatusVariant,
-} from "@/lib/utils/withdrawal-display";
+import { userDisplayName, withdrawalStatusVariant } from "@/lib/utils/withdrawal-display";
 import { useWithdrawal } from "@/modules/host/hooks/use-withdrawals";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
@@ -69,46 +66,6 @@ export default function WithdrawalDetailPanel({ id }: WithdrawalDetailPanelProps
           ) : null}
         </CardContent>
       </Card>
-
-      {withdrawal.comments.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Comments</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {withdrawal.comments.map((comment, i) => (
-              <div key={i} className="rounded-lg bg-gray-50 p-3 text-sm">
-                <p className="font-medium">{userDisplayName(comment.addedBy)}</p>
-                <p className="text-muted-foreground">
-                  {format(new Date(comment.createdAt), "MMM d, yyyy HH:mm")}
-                </p>
-                <p className="mt-1">{comment.message}</p>
-              </div>
-            ))}
-          </CardContent>
-        </Card>
-      ) : null}
-
-      {withdrawal.attachments.length > 0 ? (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base">Attachments</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-2">
-            {withdrawal.attachments.map((url, i) => (
-              <a
-                key={i}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block truncate text-sm text-indigo-600 underline"
-              >
-                {url}
-              </a>
-            ))}
-          </CardContent>
-        </Card>
-      ) : null}
     </div>
   );
 }

@@ -6,23 +6,27 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { formatInr } from "@/lib/utils/currency";
 import { useWallet } from "@/modules/host/hooks/use-wallet";
-import { getTurfAvailableBalance } from "@/types/wallet";
 import { useCreateWithdrawal } from "@/modules/host/hooks/use-withdrawals";
 import {
   hasCompletePayoutDetails,
   withdrawalRequestFormSchema,
   type WithdrawalRequestFormData,
 } from "@/modules/host/schemas/wallet-form";
+import { getAvailableBalanceForLane, type WalletType } from "@/types/wallet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isAxiosError } from "axios";
 
-export default function RequestWithdrawalForm({
-  onGoToPayout,
-}: {
+interface RequestWithdrawalFormProps {
+  walletType: WalletType;
   onGoToPayout?: () => void;
-}) {
+}
+
+export default function RequestWithdrawalForm({
+  walletType,
+  onGoToPayout,
+}: RequestWithdrawalFormProps) {
   const { data: wallet } = useWallet();
   const createMutation = useCreateWithdrawal();
 
@@ -37,14 +41,14 @@ export default function RequestWithdrawalForm({
   });
 
   const amount = watch("amount");
-  const available = wallet ? getTurfAvailableBalance(wallet) : 0;
+  const available = wallet ? getAvailableBalanceForLane(wallet, walletType) : 0;
   const payoutComplete = hasCompletePayoutDetails(wallet?.payoutDetails);
   const amountNum = Number(amount) || 0;
   const exceedsBalance = amountNum > available;
 
   const onSubmit = handleSubmit(async (data) => {
     try {
-      await createMutation.mutateAsync({ amount: data.amount });
+      await createMutation.mutateAsync({ walletType, amount: data.amount });
       reset();
     } catch {
       // error shown below
@@ -69,7 +73,7 @@ export default function RequestWithdrawalForm({
       <CardContent>
         <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-4">
           <div className="min-w-[200px] flex-1 space-y-2">
-            <Label htmlFor="amount">Amount (₹)</Label>
+            <Label htmlFor="amount">Amount (INR)</Label>
             <Input
               id="amount"
               type="number"
@@ -98,7 +102,7 @@ export default function RequestWithdrawalForm({
             {createMutation.isPending ? (
               <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Submitting…
+                Submitting...
               </>
             ) : (
               "Request withdrawal"

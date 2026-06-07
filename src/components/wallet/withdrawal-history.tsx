@@ -13,6 +13,7 @@ import {
   useCancelWithdrawal,
   useInfiniteMyWithdrawals,
 } from "@/modules/host/hooks/use-withdrawals";
+import type { WalletType } from "@/types/wallet";
 import type { Withdrawal, WithdrawalStatus } from "@/types/withdrawal";
 import { format } from "date-fns";
 import { ChevronRight, Loader2 } from "lucide-react";
@@ -93,7 +94,7 @@ function WithdrawalRow({
               onClick={handleCancel}
             >
               {cancelMutation.isPending
-                ? "Cancelling…"
+                ? "Cancelling..."
                 : confirmCancel
                   ? "Confirm cancel"
                   : "Cancel"}
@@ -106,13 +107,17 @@ function WithdrawalRow({
   );
 }
 
-export default function WithdrawalHistory({
-  onSelectWithdrawal,
-  className,
-}: {
+interface WithdrawalHistoryProps {
+  walletType: WalletType;
   onSelectWithdrawal: (id: string) => void;
   className?: string;
-}) {
+}
+
+export default function WithdrawalHistory({
+  walletType,
+  onSelectWithdrawal,
+  className,
+}: WithdrawalHistoryProps) {
   const [activeStatus, setActiveStatus] = useState<WithdrawalStatus | undefined>();
 
   const {
@@ -124,7 +129,7 @@ export default function WithdrawalHistory({
     hasNextPage,
     isFetchingNextPage,
     isFetchNextPageError,
-  } = useInfiniteMyWithdrawals({ status: activeStatus });
+  } = useInfiniteMyWithdrawals({ status: activeStatus, walletType });
 
   const withdrawals = flattenPaginatedPages(data?.pages);
 

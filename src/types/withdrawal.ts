@@ -1,5 +1,5 @@
 import type { User } from "./auth";
-import type { PayoutDetails, PayoutMethod } from "./wallet";
+import type { PayoutDetails, PayoutMethod, WalletType } from "./wallet";
 
 export type WithdrawalStatus =
   | "pending"
@@ -27,6 +27,7 @@ export interface PayoutSnapshot {
 export interface Withdrawal {
   _id: string;
   requestedBy: User | string;
+  walletType: WalletType;
   amount: number;
   status: WithdrawalStatus;
   comments: WithdrawalComment[];
@@ -42,12 +43,14 @@ export interface Withdrawal {
 
 export interface WithdrawalsFilter {
   status?: WithdrawalStatus;
+  walletType?: WalletType;
   userId?: string;
   page?: number;
   limit?: number;
 }
 
 export interface CreateWithdrawalPayload {
+  walletType: WalletType;
   amount: number;
 }
 

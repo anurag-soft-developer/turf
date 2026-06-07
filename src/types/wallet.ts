@@ -1,4 +1,5 @@
 export type PayoutMethod = "upi" | "bank";
+export type WalletType = "turf" | "event";
 
 export interface PayoutDetails {
   primaryMethod?: PayoutMethod;
@@ -21,15 +22,33 @@ export interface Wallet {
   _id: string;
   user: string;
   turfWallet: WalletLaneBalance;
+  eventWallet: WalletLaneBalance;
   payoutDetails?: PayoutDetails;
+  availableBalance: number;
+  turfAvailableBalance: number;
+  eventAvailableBalance: number;
   createdAt: string;
   updatedAt: string;
 }
 
-export function getTurfAvailableBalance(
-  wallet: Pick<Wallet, "turfWallet">,
+export function getAvailableBalanceForLane(
+  wallet: Pick<Wallet, "turfWallet" | "eventWallet">,
+  walletType: WalletType,
 ): number {
-  return wallet.turfWallet.totalBalance - wallet.turfWallet.heldBalance;
+  const lane = walletType === "turf" ? wallet.turfWallet : wallet.eventWallet;
+  return lane.totalBalance - lane.heldBalance;
+}
+
+export function getTurfAvailableBalance(
+  wallet: Pick<Wallet, "turfWallet" | "eventWallet">,
+): number {
+  return getAvailableBalanceForLane(wallet, "turf");
+}
+
+export function getEventAvailableBalance(
+  wallet: Pick<Wallet, "turfWallet" | "eventWallet">,
+): number {
+  return getAvailableBalanceForLane(wallet, "event");
 }
 
 export interface UpdatePayoutDetailsPayload {

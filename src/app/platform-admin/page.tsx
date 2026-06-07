@@ -11,7 +11,7 @@ const adminSections = [
     icon: Banknote,
   },
   {
-    href: ROUTE_POINT.platformAdmin.turfs,
+    href: ROUTE_POINT.platformAdmin.turves,
     title: "Turf approvals",
     description: "Approve or reject turf listings submitted by hosts",
     icon: MapPin,

@@ -38,7 +38,7 @@ export const ROUTE_POINT = {
   },
   platformAdmin: {
     home: "/platform-admin",
-    turfs: "/platform-admin/turfs",
+    turves: "/platform-admin/turves",
     withdrawals: "/platform-admin/withdrawals",
   },
 } as const;

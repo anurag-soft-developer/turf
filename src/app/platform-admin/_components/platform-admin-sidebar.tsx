@@ -36,7 +36,7 @@ function AdminSidebarLinks({
       icon: Banknote,
     },
     {
-      href: ROUTE_POINT.platformAdmin.turfs,
+      href: ROUTE_POINT.platformAdmin.turves,
       label: "Turf approvals",
       icon: MapPin,
     },

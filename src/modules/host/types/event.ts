@@ -8,6 +8,13 @@ export type EventStatus =
   | "rejected"
   | "closed";
 
+export type EventReviewAction = "publish" | "reject";
+
+export interface ReviewEventPayload {
+  action: EventReviewAction;
+  rejectionReason?: string;
+}
+
 export interface EventTurfRef {
   _id: string;
   name: string;

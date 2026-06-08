@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
-import { Banknote, MapPin } from "lucide-react";
+import { Banknote, CalendarCheck2, MapPin } from "lucide-react";
 
 const adminSections = [
   {
@@ -15,6 +15,12 @@ const adminSections = [
     title: "Turf approvals",
     description: "Approve or reject turf listings submitted by hosts",
     icon: MapPin,
+  },
+  {
+    href: ROUTE_POINT.platformAdmin.events,
+    title: "Event approvals",
+    description: "Approve or reject events submitted by hosts",
+    icon: CalendarCheck2,
   },
 ];
 

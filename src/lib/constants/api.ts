@@ -47,6 +47,8 @@ export const API_CONFIG = {
       SUBMIT: (id: string) => `/events/${id}/submit`,
       WITHDRAW: (id: string) => `/events/${id}/withdraw`,
       CLOSE: (id: string) => `/events/${id}/close`,
+      ADMIN_PENDING: "/events/admin/pending",
+      ADMIN_REVIEW: (id: string) => `/events/admin/${id}/review`,
     },
     STORAGE: {
       UPLOAD_URL: "/storage/upload-url",

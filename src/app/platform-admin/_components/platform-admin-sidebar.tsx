@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/drawer";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { cn } from "@/lib/utils";
-import { Banknote, LayoutDashboard, MapPin, Menu } from "lucide-react";
+import { Banknote, CalendarCheck2, LayoutDashboard, MapPin, Menu } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -39,6 +39,11 @@ function AdminSidebarLinks({
       href: ROUTE_POINT.platformAdmin.turves,
       label: "Turf approvals",
       icon: MapPin,
+    },
+    {
+      href: ROUTE_POINT.platformAdmin.events,
+      label: "Event approvals",
+      icon: CalendarCheck2,
     },
   ];
 

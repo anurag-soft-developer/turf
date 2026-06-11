@@ -31,6 +31,7 @@ interface PlacesAutocompleteProps {
   placeholder?: string;
   errorMessage?: string;
   helperText?: string;
+  cityOnly?: boolean;
 }
 
 function getLatLng(location: google.maps.LatLng | google.maps.LatLngLiteral) {
@@ -43,6 +44,12 @@ function getLatLng(location: google.maps.LatLng | google.maps.LatLngLiteral) {
   return { lat: literal.lat, lng: literal.lng };
 }
 
+const CITY_PRIMARY_TYPES = [
+  "locality",
+  "administrative_area_level_3",
+  "administrative_area_level_2",
+] as const;
+
 export function PlacesAutocomplete({
   id,
   value,
@@ -52,6 +59,7 @@ export function PlacesAutocomplete({
   placeholder = "Search for an address",
   errorMessage,
   helperText,
+  cityOnly = false,
 }: PlacesAutocompleteProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sessionTokenRef = useRef<google.maps.places.AutocompleteSessionToken | null>(
@@ -124,6 +132,7 @@ export function PlacesAutocomplete({
             input,
             sessionToken,
             region: "in",
+            ...(cityOnly ? { includedPrimaryTypes: [...CITY_PRIMARY_TYPES] } : {}),
           });
 
         if (requestId !== requestIdRef.current) return;
@@ -148,7 +157,7 @@ export function PlacesAutocomplete({
         }
       }
     },
-    [ensureSessionToken],
+    [cityOnly, ensureSessionToken],
   );
 
   const handleInputChange = (next: string) => {
@@ -182,8 +191,9 @@ export function PlacesAutocomplete({
 
       if (location) {
         const { lat, lng } = getLatLng(location);
+        const displayLabel = cityOnly ? city ?? label : address;
         onPlaceSelect({
-          address,
+          address: displayLabel,
           latitude: lat,
           longitude: lng,
           city,
@@ -191,8 +201,8 @@ export function PlacesAutocomplete({
           zip,
           country,
         });
-        setInputValue(address);
-        onAddressChange(address);
+        setInputValue(displayLabel);
+        onAddressChange(displayLabel);
       }
     } catch {
       // Address is still set; coordinates require a valid selection.

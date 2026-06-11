@@ -43,6 +43,8 @@ export const API_CONFIG = {
       BASE: "/events",
       MINE: "/events/mine",
       MINE_STATS: "/events/mine/stats",
+      PUBLIC: "/events/public",
+      PUBLIC_BY_SLUG: (slug: string) => `/events/public/${slug}`,
       BY_ID: (id: string) => `/events/${id}`,
       SUBMIT: (id: string) => `/events/${id}/submit`,
       WITHDRAW: (id: string) => `/events/${id}/withdraw`,

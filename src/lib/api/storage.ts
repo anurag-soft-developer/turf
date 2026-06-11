@@ -59,7 +59,10 @@ export const storageApi = {
     await fetch(presigned.uploadUrl, {
       method: "PUT",
       body: file,
-      headers: { "Content-Type": file.type || "application/octet-stream" },
+      headers: {
+        "Content-Type": file.type || "application/octet-stream",
+        "x-amz-acl": "public-read",
+      },
     });
 
     return presigned.publicUrl;

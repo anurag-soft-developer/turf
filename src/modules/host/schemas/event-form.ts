@@ -54,7 +54,7 @@ export function eventFormToCreatePayload(
     price: values.price,
     currency: values.currency.trim().toUpperCase(),
     maxParticipants: values.maxParticipants,
-    coverImages: values.coverImages?.length ? values.coverImages : undefined,
+    coverImages: values.coverImages ?? [],
     turf: values.turfId?.trim() || undefined,
     registrationsPaused: values.registrationsPaused,
   };

@@ -14,6 +14,7 @@ import {
 } from "@/modules/host/schemas/event-form";
 import type { HostEvent } from "@/modules/host/types/event";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { X } from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -99,13 +100,24 @@ export default function EventForm({
   tomorrow.setDate(tomorrow.getDate() + 1);
   const minEventDate = toLocalDateInputValue(tomorrow);
 
+  const removeCoverImage = (index: number) => {
+    setValue(
+      "coverImages",
+      coverImages.filter((_, imageIndex) => imageIndex !== index),
+      { shouldValidate: true, shouldDirty: true },
+    );
+  };
+
   const onImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     try {
       const url = await storageApi.uploadFile(file, "turfMedia");
-      setValue("coverImages", [...coverImages, url], { shouldValidate: true });
+      setValue("coverImages", [...coverImages, url], {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -277,14 +289,23 @@ export default function EventForm({
             {uploading ? "Uploading..." : "Upload image"}
           </Button>
           {coverImages.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {coverImages.map((url) => (
-                <img
-                  key={url}
-                  src={url}
-                  alt=""
-                  className="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200"
-                />
+            <div className="flex flex-wrap gap-3">
+              {coverImages.map((url, index) => (
+                <div key={`${url}-${index}`} className="relative">
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeCoverImage(index)}
+                    aria-label="Remove cover image"
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900/85 text-white hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
               ))}
             </div>
           ) : null}

@@ -88,7 +88,7 @@ export function turfFormToCreatePayload(values: TurfFormValues) {
     location,
     sportType: values.sportTypes,
     amenities: values.amenities?.length ? values.amenities : undefined,
-    images: values.images?.length ? values.images : undefined,
+    images: values.images ?? [],
     pricing: {
       basePricePerHour: values.basePricePerHour,
       weekendSurge: values.weekendSurge,

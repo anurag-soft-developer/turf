@@ -1,7 +1,7 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { API_CONFIG } from "@/lib/constants/api";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
-import { getAuthToken } from "@/lib/utils/auth.util";
+import { getAuthToken, getRefreshToken } from "@/lib/utils/auth.util";
 import { clearSession, refreshAccessToken } from "./refresh-session";
 import { StatusCodes } from "http-status-codes";
 
@@ -79,6 +79,10 @@ api.interceptors.response.use(
       originalRequest._retry ||
       shouldSkipRefresh(originalRequest.url)
     ) {
+      return Promise.reject(error);
+    }
+
+    if (!getRefreshToken()) {
       return Promise.reject(error);
     }
 

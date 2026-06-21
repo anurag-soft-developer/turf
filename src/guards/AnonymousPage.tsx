@@ -14,7 +14,7 @@ const AnonymousPage = ({ children }: iProps) => {
   const { isValid, payload } = isTokenValid();
 
   if (isValid && payload?.sub) {
-    redirect(ROUTE_POINT.dashboard());
+    redirect(ROUTE_POINT.events);
   }
 
   return children;

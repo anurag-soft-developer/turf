@@ -1,22 +1,18 @@
-import { getDashboardType } from "../utils/dashboard-type.util";
-
 export const ROUTE_POINT = {
   home: "/",
   catalog: "/catalog",
   reviews: "/reviews",
-  dashboard: () => {
-    const dashboardType = getDashboardType();
-    if (dashboardType === "events") {
-      return "/host/events";
-    }
-    return "/host/turves";
-  },
   events: "/events",
+  myBookings: "/my-bookings",
+  eventDetail: (slug: string) => `/events/${slug}`,
+  paymentsRazorpayCallback: "/payments/razorpay/callback",
   notifications: "/notifications",
   settings: "/settings",
   auth: {
     base: "/auth",
     login: "/auth/login",
+    loginWithRedirect: (returnTo: string) =>
+      `/auth/login?redirect=${encodeURIComponent(returnTo)}`,
     register: "/auth/register",
     forgotPassword: "/auth/forgot-password",
     verifyEmail: "/auth/verify-email",

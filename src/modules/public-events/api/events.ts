@@ -48,4 +48,11 @@ export const publicEventsApi = {
     );
     return response.data;
   },
+
+  getEventBySlug: async (slug: string): Promise<HostEvent> => {
+    const response = await api.get<HostEvent>(
+      API_CONFIG.ENDPOINTS.EVENTS.PUBLIC_BY_SLUG(slug),
+    );
+    return response.data;
+  },
 };

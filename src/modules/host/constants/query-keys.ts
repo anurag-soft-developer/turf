@@ -9,6 +9,9 @@ export const HOST_QUERY_KEYS = {
   ownerBooking: (id: string) => ["host", "owner-booking", id] as const,
   ownerBookingStats: (turfIds?: string[]) =>
     ["host", "owner-booking-stats", turfIds] as const,
+  ownerEventBookings: (params?: object) =>
+    ["host", "owner-event-bookings", params] as const,
+  ownerEventBooking: (id: string) => ["host", "owner-event-booking", id] as const,
   wallet: ["host", "wallet"] as const,
   myWithdrawals: (params?: object) => ["host", "my-withdrawals", params] as const,
   withdrawal: (id: string) => ["host", "withdrawal", id] as const,

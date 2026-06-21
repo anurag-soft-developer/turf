@@ -1,13 +1,17 @@
 "use client";
 
+import ProtectedPage from "@/guards/ProtectedPage";
 import { MyDrawer } from "@/components/my-drawer";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
 import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
-import EventBookingDetailPanel from "./_components/event-booking-detail-panel";
-import OwnerEventBookingCard from "./_components/owner-event-booking-card";
+import MyEventBookingCard from "./_components/my-event-booking-card";
+import MyEventBookingDetailPanel from "./_components/my-event-booking-detail-panel";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
-import { useInfiniteOwnerEventBookings } from "@/modules/host/hooks/use-owner-event-bookings";
-import type { EventBookingStatus } from "@/modules/host/types/owner-event-booking";
+import { useInfiniteMyEventBookings } from "@/modules/event-bookings/hooks/use-my-event-bookings";
+import type {
+  EventBooking,
+  EventBookingStatus,
+} from "@/modules/event-bookings/types/booking";
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
@@ -19,9 +23,9 @@ const TABS: { label: string; status?: EventBookingStatus }[] = [
   { label: "Completed", status: "completed" },
 ];
 
-export default function HostEventBookingsPage() {
+function MyBookingsContent() {
   const [activeStatus, setActiveStatus] = useState<EventBookingStatus | undefined>();
-  const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
+  const [selectedBooking, setSelectedBooking] = useState<EventBooking | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
   const {
@@ -33,27 +37,32 @@ export default function HostEventBookingsPage() {
     hasNextPage,
     isFetchingNextPage,
     isFetchNextPageError,
-  } = useInfiniteOwnerEventBookings({
+  } = useInfiniteMyEventBookings({
     status: activeStatus,
     sortOrder: "desc",
   });
 
   const bookings = flattenPaginatedPages(data?.pages);
 
-  const openBooking = (id: string) => {
-    setSelectedBookingId(id);
+  const openBooking = (booking: EventBooking) => {
+    setSelectedBooking(booking);
     setDrawerOpen(true);
   };
 
   const handleDrawerClose = () => {
-    setSelectedBookingId(null);
+    setSelectedBooking(null);
     setDrawerOpen(false);
   };
 
   return (
-    <div className="flex h-full min-h-0 flex-col overflow-hidden">
+    <div className="mx-auto flex h-[calc(100dvh-4rem)] max-w-3xl flex-col overflow-hidden px-4 py-8 sm:px-6 lg:px-8">
       <div className="shrink-0 space-y-6">
-        <h2 className="text-xl font-bold text-gray-900">Event bookings</h2>
+        <div>
+          <h1 className="text-3xl font-bold text-gray-900">My bookings</h1>
+          <p className="mt-1 text-muted-foreground">
+            Your event registrations and payment status.
+          </p>
+        </div>
 
         <div className="flex flex-wrap gap-2">
           {TABS.map((tab) => (
@@ -91,12 +100,12 @@ export default function HostEventBookingsPage() {
           </p>
         ) : bookings.length === 0 ? (
           <p className="py-12 text-center text-muted-foreground">
-            No bookings in this category yet.
+            You have no event bookings yet.
           </p>
         ) : (
           <div className="flex flex-col gap-4 pb-4">
             {bookings.map((booking) => (
-              <OwnerEventBookingCard
+              <MyEventBookingCard
                 key={booking._id}
                 booking={booking}
                 onSelect={openBooking}
@@ -119,10 +128,18 @@ export default function HostEventBookingsPage() {
         title="Booking details"
         onClose={handleDrawerClose}
       >
-        {selectedBookingId ? (
-          <EventBookingDetailPanel id={selectedBookingId} />
+        {selectedBooking ? (
+          <MyEventBookingDetailPanel booking={selectedBooking} />
         ) : null}
       </MyDrawer>
     </div>
+  );
+}
+
+export default function MyBookingsPage() {
+  return (
+    <ProtectedPage>
+      <MyBookingsContent />
+    </ProtectedPage>
   );
 }

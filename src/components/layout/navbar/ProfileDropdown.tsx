@@ -12,6 +12,7 @@ import {
   Shield,
   BrickWall,
   Ticket,
+  CalendarCheck,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
@@ -24,6 +25,11 @@ const ProfileDropdown = () => {
 
 
   const linkButtons = [
+    {
+      href: ROUTE_POINT.myBookings,
+      icon: <CalendarCheck className="w-4 h-4" />,
+      label: "My bookings",
+    },
     {
       href: ROUTE_POINT.host.turves.dashboard,
       icon: <BrickWall className="w-4 h-4" />,

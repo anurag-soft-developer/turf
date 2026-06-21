@@ -52,6 +52,16 @@ export const API_CONFIG = {
       ADMIN_PENDING: "/events/admin/pending",
       ADMIN_REVIEW: (id: string) => `/events/admin/${id}/review`,
     },
+    EVENT_BOOKINGS: {
+      USER_BOOKINGS: "/event-bookings/user-bookings",
+      OWNER_BOOKINGS: "/event-bookings/owner-bookings",
+      BY_ID: (id: string) => `/event-bookings/${id}`,
+      CREATE_ORDER: (eventId: string) =>
+        `/event-bookings/events/${eventId}/create-order`,
+      VERIFY_HOSTED: (eventId: string) =>
+        `/event-bookings/events/${eventId}/verify-hosted-payment`,
+      ME: (eventId: string) => `/event-bookings/events/${eventId}/me`,
+    },
     STORAGE: {
       UPLOAD_URL: "/storage/upload-url",
       OBJECTS: "/storage/objects",

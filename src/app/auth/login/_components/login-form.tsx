@@ -22,16 +22,24 @@ import {
 } from "@/lib/schemas/auth";
 import { isAuthOtpChallenge } from "@/types/auth";
 import { useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import { getErrorMessage } from "@/lib/utils";
 
 export default function LoginForm() {
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect");
+  const safeRedirect =
+    redirectTo?.startsWith("/") && !redirectTo.startsWith("//")
+      ? redirectTo
+      : undefined;
+
   const [showPassword, setShowPassword] = useState(false);
   const [otpEmail, setOtpEmail] = useState<string | null>(null);
-  const loginMutation = useLogin();
-  const verifyOtpMutation = useVerifyLoginOtp();
+  const loginMutation = useLogin(safeRedirect);
+  const verifyOtpMutation = useVerifyLoginOtp(safeRedirect);
 
   const {
     register,

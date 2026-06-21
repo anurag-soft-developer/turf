@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import type {
@@ -16,6 +17,7 @@ import type {
 import { isAuthResponse } from "@/types/auth";
 import { useRouter } from "next/navigation";
 import {
+  getAuthToken,
   removeAuthToken,
   removeRefreshToken,
   setAuthToken,
@@ -28,12 +30,24 @@ export const AUTH_QUERY_KEYS = {
   status: ["auth", "status"],
 } as const;
 
+type AuthTokenState = "pending" | "absent" | "present";
+
+function useAuthTokenState(): AuthTokenState {
+  const [state, setState] = useState<AuthTokenState>("pending");
+
+  useEffect(() => {
+    setState(getAuthToken() ? "present" : "absent");
+  }, []);
+
+  return state;
+}
+
 function persistSession(accessToken: string, refreshToken: string) {
   setAuthToken(accessToken);
   setRefreshToken(refreshToken);
 }
 
-export const useLogin = () => {
+export const useLogin = (redirectTo?: string) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -43,14 +57,18 @@ export const useLogin = () => {
       if (!isAuthResponse(data)) return;
 
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
+      queryClient.setQueryData(AUTH_QUERY_KEYS.status, {
+        isAuthenticated: true,
+        user: data.user,
+      });
       persistSession(data.accessToken, data.refreshToken);
-      router.push(ROUTE_POINT.dashboard());
+      router.push(redirectTo || ROUTE_POINT.events);
       router.refresh();
     },
   });
 };
 
-export const useVerifyLoginOtp = () => {
+export const useVerifyLoginOtp = (redirectTo?: string) => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
@@ -58,8 +76,12 @@ export const useVerifyLoginOtp = () => {
     mutationFn: (data: VerifyLoginOtpFormData) => authApi.verifyLoginOtp(data),
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
+      queryClient.setQueryData(AUTH_QUERY_KEYS.status, {
+        isAuthenticated: true,
+        user: data.user,
+      });
       persistSession(data.accessToken, data.refreshToken);
-      router.push(ROUTE_POINT.dashboard());
+      router.push(redirectTo || ROUTE_POINT.events);
       router.refresh();
     },
   });
@@ -74,7 +96,7 @@ export const useRegister = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
       persistSession(data.accessToken, data.refreshToken);
-      router.push(ROUTE_POINT.dashboard());
+      router.push(ROUTE_POINT.events);
       router.refresh();
     },
   });
@@ -97,19 +119,39 @@ export const useLogout = () => {
 };
 
 export const useProfile = () => {
-  return useQuery({
+  const tokenState = useAuthTokenState();
+
+  const query = useQuery({
     queryKey: AUTH_QUERY_KEYS.profile,
     queryFn: authApi.getProfile,
+    enabled: tokenState === "present",
     staleTime: 5 * 60 * 1000,
   });
+
+  return {
+    ...query,
+    isLoading: tokenState === "pending" || query.isLoading,
+  };
 };
 
 export const useAuthStatus = () => {
-  return useQuery({
+  const tokenState = useAuthTokenState();
+
+  const query = useQuery({
     queryKey: AUTH_QUERY_KEYS.status,
     queryFn: authApi.getAuthStatus,
+    enabled: tokenState === "present",
     staleTime: 5 * 60 * 1000,
   });
+
+  const isAuthenticated =
+    tokenState === "present" && Boolean(query.data?.isAuthenticated);
+
+  return {
+    ...query,
+    isLoading: tokenState === "pending" || query.isLoading,
+    isAuthenticated,
+  };
 };
 
 export const useUpdateProfile = () => {
@@ -175,7 +217,7 @@ export const useVerifyEmail = () => {
     onSuccess: (data) => {
       persistSession(data.accessToken, data.refreshToken);
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.profile });
-      router.push(ROUTE_POINT.dashboard());
+      router.push(ROUTE_POINT.events);
       router.refresh();
     },
   });

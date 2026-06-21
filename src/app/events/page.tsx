@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { format } from "date-fns";
 import { CalendarDays, Loader2, MapPin, SlidersHorizontal } from "lucide-react";
+import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
@@ -52,7 +54,8 @@ function EventCard({ event }: { event: HostEvent }) {
   const cover = eventCover(event);
 
   return (
-    <Card className="overflow-hidden border-gray-200 transition-shadow hover:shadow-md">
+    <Link href={ROUTE_POINT.eventDetail(event.slug)} className="block">
+      <Card className="overflow-hidden border-gray-200 transition-shadow hover:shadow-md">
       <CardContent className="p-0">
         <div className="relative h-44 w-full bg-gray-100">
           {cover ? (
@@ -87,6 +90,7 @@ function EventCard({ event }: { event: HostEvent }) {
         </div>
       </CardContent>
     </Card>
+    </Link>
   );
 }
 

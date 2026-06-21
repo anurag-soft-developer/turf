@@ -118,10 +118,10 @@ const Page = () => {
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => (window.location.href = ROUTE_POINT.dashboard())}
+              onClick={() => (window.location.href = ROUTE_POINT.events)}
               className="w-full"
             >
-              Go to Dashboard
+              Go to Events
             </Button>
           </CardContent>
         </Card>

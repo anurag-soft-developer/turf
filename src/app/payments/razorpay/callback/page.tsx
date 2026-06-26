@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ArrowLeft, CheckCircle2, Loader2, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,22 @@ import { useVerifyEventHostedPayment } from "@/modules/event-bookings/hooks/use-
 type CallbackState = "loading" | "success" | "error";
 
 export default function RazorpayPaymentCallbackPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-lg px-4 py-16 sm:px-6 lg:px-8">
+          <div className="flex justify-center py-10">
+            <Loader2 className="h-10 w-10 animate-spin text-emerald-600" />
+          </div>
+        </div>
+      }
+    >
+      <RazorpayPaymentCallbackContent />
+    </Suspense>
+  );
+}
+
+function RazorpayPaymentCallbackContent() {
   const searchParams = useSearchParams();
   const { data: authStatus, isLoading: isAuthLoading } = useAuthStatus();
   const verifyMutation = useVerifyEventHostedPayment(

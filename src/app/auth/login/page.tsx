@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import LoginForm from "./_components/login-form";
 import AnonymousPage from '@/guards/AnonymousPage';
 
@@ -14,7 +15,9 @@ export default function LoginPage() {
             Your gateway to premium sports venues
           </p>
         </div>
-        <LoginForm />
+        <Suspense fallback={<div className="h-96 w-full max-w-md animate-pulse rounded-lg bg-gray-100" />}>
+          <LoginForm />
+        </Suspense>
       </div>
     </div>
    </AnonymousPage>

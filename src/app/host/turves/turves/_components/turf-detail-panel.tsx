@@ -27,14 +27,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import type { GeoLocation } from "@/types/common";
-
-function getGoogleMapsUrl(location: GeoLocation): string {
-  const [lng, lat] = location.coordinates?.coordinates ?? [];
-  if (lat != null && lng != null && !(lat === 0 && lng === 0)) {
-    return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
-  }
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location.address)}`;
-}
+import { getGoogleMapsUrl } from "@/lib/maps/google-maps-url";
 
 interface TurfDetailPanelProps {
   id: string;

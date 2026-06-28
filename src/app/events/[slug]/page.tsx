@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { format } from "date-fns";
+import { format, isBefore, startOfDay } from "date-fns";
 import {
   ArrowLeft,
   CalendarDays,
@@ -16,14 +16,44 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
+import { getGoogleMapsUrl } from "@/lib/maps/google-maps-url";
 import { usePublicEvent } from "@/modules/public-events/hooks/use-public-event";
 import EventRegistrationSection from "./_components/event-registration-section";
+
+function isEventUpcoming(eventDate?: string) {
+  if (!eventDate) return false;
+  const date = new Date(eventDate);
+  if (Number.isNaN(date.getTime())) return false;
+  return !isBefore(startOfDay(date), startOfDay(new Date()));
+}
 
 function formatEventDate(value?: string) {
   if (!value) return "Date not set";
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return "Date not set";
   return format(date, "EEEE, MMMM d, yyyy");
+}
+
+function EventDetailStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-2.5 rounded-lg border bg-card px-3 py-2.5">
+      <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-md bg-emerald-50 text-emerald-700">
+        <Icon className="h-3.5 w-3.5" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-[11px] font-medium text-muted-foreground">{label}</p>
+        <p className="truncate text-sm font-semibold text-gray-900">{value}</p>
+      </div>
+    </div>
+  );
 }
 
 export default function EventDetailPage() {
@@ -84,9 +114,11 @@ export default function EventDetailPage() {
                 No cover image
               </div>
             )}
-            <div className="absolute left-4 top-4">
-              <Badge variant="default">Upcoming</Badge>
-            </div>
+            {isEventUpcoming(event.eventDate) ? (
+              <div className="absolute left-4 top-4">
+                <Badge variant="default">Upcoming</Badge>
+              </div>
+            ) : null}
           </div>
 
           <div className="space-y-6 p-6 sm:p-8">
@@ -105,42 +137,37 @@ export default function EventDetailPage() {
                   </span>
                 ) : null}
                 {event.location?.address ? (
-                  <span className="inline-flex items-start gap-1.5">
-                    <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
-                    {event.location.address}
-                  </span>
+                  <a
+                    href={getGoogleMapsUrl(event.location)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex min-w-0 items-start gap-1.5 text-emerald-700 transition-colors hover:text-emerald-800"
+                  >
+                    <MapPin className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span className="truncate underline-offset-2 hover:underline">
+                      {event.location.address}
+                    </span>
+                  </a>
                 ) : null}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-              <div className="rounded-xl border bg-card p-4">
-                <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-                  <IndianRupee className="h-4 w-4" />
-                </div>
-                <p className="text-xs font-medium text-muted-foreground">Entry fee</p>
-                <p className="mt-0.5 text-lg font-semibold text-gray-900">
-                  {event.currency} {event.price}
-                </p>
-              </div>
-
-              <div className="rounded-xl border bg-card p-4">
-                <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-                  <UserRound className="h-4 w-4" />
-                </div>
-                <p className="text-xs font-medium text-muted-foreground">Participants</p>
-                <p className="mt-0.5 text-lg font-semibold text-gray-900">
-                  {event.registeredCount}/{event.maxParticipants}
-                </p>
-              </div>
-
-              <div className="rounded-xl border bg-card p-4">
-                <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-                  <UserRound className="h-4 w-4" />
-                </div>
-                <p className="text-xs font-medium text-muted-foreground">Spots left</p>
-                <p className="mt-0.5 text-lg font-semibold text-gray-900">{spotsLeft}</p>
-              </div>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+              <EventDetailStat
+                icon={IndianRupee}
+                label="Entry fee"
+                value={`${event.currency} ${event.price}`}
+              />
+              <EventDetailStat
+                icon={UserRound}
+                label="Participants"
+                value={`${event.registeredCount}/${event.maxParticipants}`}
+              />
+              <EventDetailStat
+                icon={UserRound}
+                label="Spots left"
+                value={String(spotsLeft)}
+              />
             </div>
 
             {event.description ? (

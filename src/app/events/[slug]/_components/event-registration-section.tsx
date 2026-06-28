@@ -47,7 +47,6 @@ export default function EventRegistrationSection({
   const [modalOpen, setModalOpen] = useState(false);
   const [fullName, setFullName] = useState("");
   const [contactNumber, setContactNumber] = useState("");
-  const [notes, setNotes] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
 
   const spotsLeft = Math.max(event.maxParticipants - event.registeredCount, 0);
@@ -78,7 +77,6 @@ export default function EventRegistrationSection({
       const result = await createOrderMutation.mutateAsync({
         fullName: trimmedName,
         contactNumber: trimmedContact,
-        notes: notes.trim() || undefined,
         playerCount: 1,
       });
 
@@ -233,7 +231,7 @@ export default function EventRegistrationSection({
               </DialogDescription>
             </DialogHeader>
 
-            <div className="space-y-4">
+            <div className="space-y-4 my-4">
               <div className="space-y-1.5">
                 <Label htmlFor="fullName">Full name</Label>
                 <Input
@@ -251,16 +249,6 @@ export default function EventRegistrationSection({
                   value={defaultContact}
                   onChange={(e) => setContactNumber(e.target.value)}
                   placeholder="Phone number"
-                />
-              </div>
-
-              <div className="space-y-1.5">
-                <Label htmlFor="notes">Notes (optional)</Label>
-                <Input
-                  id="notes"
-                  value={notes}
-                  onChange={(e) => setNotes(e.target.value)}
-                  placeholder="Any additional information"
                 />
               </div>
 

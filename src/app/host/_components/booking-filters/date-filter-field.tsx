@@ -9,6 +9,7 @@ export function DateFilterField({
   min,
   onChange,
   clearLabel,
+  clearToValue,
   className,
 }: {
   label: string;
@@ -16,13 +17,17 @@ export function DateFilterField({
   min?: string;
   onChange: (value: string) => void;
   clearLabel: string;
+  clearToValue?: string;
   className?: string;
 }) {
+  const resetValue = clearToValue ?? "";
+  const showClear = clearToValue ? value !== clearToValue : Boolean(value);
+
   return (
     <FilterField
       label={label}
-      showClear={Boolean(value)}
-      onClear={() => onChange("")}
+      showClear={showClear}
+      onClear={() => onChange(resetValue)}
       clearLabel={clearLabel}
       className={className}
     >

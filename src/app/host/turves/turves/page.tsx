@@ -4,6 +4,11 @@ import { MyDrawer } from "@/components/my-drawer";
 import EditTurfPanel from "./_components/edit-turf-panel";
 import NewTurfPanel from "./_components/new-turf-panel";
 import TurfDetailPanel from "./_components/turf-detail-panel";
+import {
+  ALL_FILTER,
+  EMPTY_TURVES_FILTERS,
+  TurvesFilters,
+} from "./_components/turves-filters";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
@@ -11,6 +16,7 @@ import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-lis
 import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { useInfiniteMyTurfs } from "@/modules/host/hooks/use-my-turfs";
+import type { TurfStatus } from "@/types/turf";
 import {
   turfStatusLabel,
   turfStatusVariant,
@@ -48,6 +54,18 @@ function TurfDrawerQuerySync({ onOpenNew }: { onOpenNew: () => void }) {
 function HostTurfsPageContent() {
   const [view, setView] = useState<TurfDrawerView | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(
+    EMPTY_TURVES_FILTERS.selectedStatus,
+  );
+  const [searchText, setSearchText] = useState(EMPTY_TURVES_FILTERS.searchText);
+  const [availability, setAvailability] = useState(
+    EMPTY_TURVES_FILTERS.availability,
+  );
+
+  const hasActiveFilters =
+    selectedStatus !== ALL_FILTER ||
+    Boolean(searchText.trim()) ||
+    availability !== ALL_FILTER;
 
   const openDrawerNew = useCallback(() => {
     setView({ kind: "new" });
@@ -79,12 +97,28 @@ function HostTurfsPageContent() {
     hasNextPage,
     isFetchingNextPage,
     isFetchNextPageError,
-  } = useInfiniteMyTurfs();
+  } = useInfiniteMyTurfs({
+    ...(selectedStatus !== ALL_FILTER
+      ? { status: selectedStatus as TurfStatus }
+      : {}),
+    ...(searchText.trim() ? { globalSearchText: searchText.trim() } : {}),
+    ...(availability === "true"
+      ? { isAvailable: true }
+      : availability === "false"
+        ? { isAvailable: false }
+        : {}),
+  });
 
   const turfs = flattenPaginatedPages(data?.pages);
 
   const handleDrawerClose = () => {
     closeDrawer();
+  };
+
+  const clearFilters = () => {
+    setSelectedStatus(EMPTY_TURVES_FILTERS.selectedStatus);
+    setSearchText(EMPTY_TURVES_FILTERS.searchText);
+    setAvailability(EMPTY_TURVES_FILTERS.availability);
   };
 
   let drawerContent: React.ReactNode = null;
@@ -119,7 +153,7 @@ function HostTurfsPageContent() {
         <TurfDrawerQuerySync onOpenNew={openDrawerNew} />
       </Suspense>
 
-      <div className="shrink-0">
+      <div className="shrink-0 space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-xl font-bold text-gray-900">My Turfs</h2>
           <button
@@ -131,6 +165,16 @@ function HostTurfsPageContent() {
             Add turf
           </button>
         </div>
+
+        <TurvesFilters
+          selectedStatus={selectedStatus}
+          searchText={searchText}
+          availability={availability}
+          onStatusChange={setSelectedStatus}
+          onSearchChange={setSearchText}
+          onAvailabilityChange={setAvailability}
+          onClear={clearFilters}
+        />
       </div>
 
       <ScrollableListPanel className="mt-6 min-h-0 flex-1">
@@ -152,6 +196,13 @@ function HostTurfsPageContent() {
             </CardContent>
           </Card>
         ) : turfs.length === 0 ? (
+          hasActiveFilters ? (
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground">
+                No turfs match your filters.
+              </CardContent>
+            </Card>
+          ) : (
           <Card>
             <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
               <MapPin className="h-12 w-12 text-gray-300" />
@@ -170,6 +221,7 @@ function HostTurfsPageContent() {
               </button>
             </CardContent>
           </Card>
+          )
         ) : (
           <div className="flex flex-col gap-4 pb-4">
             {isFetching && !isLoading && !isFetchingNextPage ? (

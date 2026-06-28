@@ -34,3 +34,26 @@ export function useTurfStats() {
     queryFn: () => hostTurfApi.getStats(),
   });
 }
+
+export function useSearchMyTurfs(
+  searchText: string,
+  options: { enabled?: boolean; limit?: number } = {},
+) {
+  const { enabled = true, limit = 8 } = options;
+  const trimmed = searchText.trim();
+
+  return useQuery({
+    queryKey: HOST_QUERY_KEYS.myTurfs({
+      globalSearchText: trimmed || undefined,
+      limit,
+      page: 1,
+    }),
+    queryFn: () =>
+      hostTurfApi.getMyTurfs({
+        page: 1,
+        limit,
+        ...(trimmed ? { globalSearchText: trimmed } : {}),
+      }),
+    enabled,
+  });
+}

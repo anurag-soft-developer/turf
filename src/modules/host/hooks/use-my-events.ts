@@ -34,3 +34,28 @@ export function useHostEventStats() {
     queryFn: () => hostEventApi.getMyStats(),
   });
 }
+
+export function useSearchMyEvents(
+  searchText: string,
+  options: { enabled?: boolean; limit?: number } = {},
+) {
+  const { enabled = true, limit = 8 } = options;
+  const trimmed = searchText.trim();
+
+  return useQuery({
+    queryKey: HOST_QUERY_KEYS.myEvents({
+      globalSearchText: trimmed || undefined,
+      limit,
+      sortOrder: "desc",
+      page: 1,
+    }),
+    queryFn: () =>
+      hostEventApi.getMyEvents({
+        page: 1,
+        limit,
+        sortOrder: "desc",
+        ...(trimmed ? { globalSearchText: trimmed } : {}),
+      }),
+    enabled,
+  });
+}

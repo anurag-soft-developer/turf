@@ -5,25 +5,28 @@ import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-sc
 import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
 import BookingDetailPanel from "./_components/booking-detail-panel";
 import OwnerBookingCard from "./_components/owner-booking-card";
-import QrCheckInScanner from "./_components/qr-check-in-scanner";
-import { Button } from "@/components/ui/button";
+import {
+  ALL_FILTER,
+  EMPTY_TURF_BOOKINGS_FILTERS,
+  TurfBookingsFilters,
+} from "./_components/turf-bookings-filters";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { useInfiniteOwnerBookings } from "@/modules/host/hooks/use-owner-bookings";
 import type { TurfBookingStatus } from "@/modules/host/types/owner-booking";
-import { Loader2, QrCode } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-const TABS: { label: string; status?: TurfBookingStatus }[] = [
-  { label: "All" },
-  { label: "Pending", status: "pending" },
-  { label: "Confirmed", status: "confirmed" },
-  { label: "Cancelled", status: "cancelled" },
-  { label: "Completed", status: "completed" },
-];
-
 export default function HostBookingsPage() {
-  const [activeStatus, setActiveStatus] = useState<TurfBookingStatus | undefined>();
-  const [showScanner, setShowScanner] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(
+    EMPTY_TURF_BOOKINGS_FILTERS.selectedStatus,
+  );
+  const [selectedTurfId, setSelectedTurfId] = useState(
+    EMPTY_TURF_BOOKINGS_FILTERS.selectedTurfId,
+  );
+  const [startDate, setStartDate] = useState(
+    EMPTY_TURF_BOOKINGS_FILTERS.startDate,
+  );
+  const [endDate, setEndDate] = useState(EMPTY_TURF_BOOKINGS_FILTERS.endDate);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(
     null,
   );
@@ -39,7 +42,12 @@ export default function HostBookingsPage() {
     isFetchingNextPage,
     isFetchNextPageError,
   } = useInfiniteOwnerBookings({
-    status: activeStatus,
+    ...(selectedStatus !== ALL_FILTER
+      ? { status: selectedStatus as TurfBookingStatus }
+      : {}),
+    ...(selectedTurfId ? { turf: selectedTurfId } : {}),
+    ...(startDate ? { startDate } : {}),
+    ...(endDate ? { endDate } : {}),
     sortOrder: "desc",
   });
 
@@ -55,41 +63,29 @@ export default function HostBookingsPage() {
     setDrawerOpen(false);
   };
 
+  const clearFilters = () => {
+    setSelectedStatus(EMPTY_TURF_BOOKINGS_FILTERS.selectedStatus);
+    setSelectedTurfId(EMPTY_TURF_BOOKINGS_FILTERS.selectedTurfId);
+    setStartDate(EMPTY_TURF_BOOKINGS_FILTERS.startDate);
+    setEndDate(EMPTY_TURF_BOOKINGS_FILTERS.endDate);
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="shrink-0 space-y-6">
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <h2 className="text-xl font-bold text-gray-900">Turf bookings</h2>
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setShowScanner((v) => !v)}
-          >
-            <QrCode className="mr-2 h-4 w-4" />
-            {showScanner ? "Hide scanner" : "Scan QR check-in"}
-          </Button>
-        </div>
+        <h2 className="text-xl font-bold text-gray-900">Turf bookings</h2>
 
-        {showScanner ? (
-          <QrCheckInScanner onClose={() => setShowScanner(false)} />
-        ) : null}
-
-        <div className="flex flex-wrap gap-2">
-          {TABS.map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              onClick={() => setActiveStatus(tab.status)}
-              className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
-                activeStatus === tab.status
-                  ? "bg-emerald-600 text-white ring-emerald-600"
-                  : "bg-white text-gray-700 ring-gray-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <TurfBookingsFilters
+          selectedStatus={selectedStatus}
+          selectedTurfId={selectedTurfId}
+          startDate={startDate}
+          endDate={endDate}
+          onStatusChange={setSelectedStatus}
+          onTurfChange={setSelectedTurfId}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onClear={clearFilters}
+        />
       </div>
 
       <ScrollableListPanel className="mt-6 min-h-0 flex-1">
@@ -110,7 +106,7 @@ export default function HostBookingsPage() {
           </p>
         ) : bookings.length === 0 ? (
           <p className="py-12 text-center text-muted-foreground">
-            No bookings in this category yet.
+            No bookings match your filters.
           </p>
         ) : (
           <div className="flex flex-col gap-4 pb-4">

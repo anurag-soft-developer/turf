@@ -4,6 +4,11 @@ import { MyDrawer } from "@/components/my-drawer";
 import EditEventPanel from "./_components/edit-event-panel";
 import NewEventPanel from "./_components/new-event-panel";
 import EventDetailPanel from "./_components/event-detail-panel";
+import {
+  ALL_FILTER,
+  EMPTY_EVENTS_FILTERS,
+  EventsFilters,
+} from "./_components/events-filters";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
@@ -11,6 +16,7 @@ import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-lis
 import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { useInfiniteMyEvents } from "@/modules/host/hooks/use-my-events";
+import type { EventStatus } from "@/modules/host/types/event";
 import { eventStatusLabel, eventStatusVariant } from "@/lib/utils/event-display";
 import { format } from "date-fns";
 import { CalendarDays, Loader2, Plus } from "lucide-react";
@@ -53,6 +59,22 @@ function formatDate(value?: string) {
 function HostEventsPageContent() {
   const [view, setView] = useState<EventDrawerView | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState(
+    EMPTY_EVENTS_FILTERS.selectedStatus,
+  );
+  const [searchText, setSearchText] = useState(EMPTY_EVENTS_FILTERS.searchText);
+  const [registrations, setRegistrations] = useState(
+    EMPTY_EVENTS_FILTERS.registrations,
+  );
+  const [startDate, setStartDate] = useState(EMPTY_EVENTS_FILTERS.startDate);
+  const [endDate, setEndDate] = useState(EMPTY_EVENTS_FILTERS.endDate);
+
+  const hasActiveFilters =
+    selectedStatus !== ALL_FILTER ||
+    Boolean(searchText.trim()) ||
+    registrations !== ALL_FILTER ||
+    Boolean(startDate) ||
+    Boolean(endDate);
 
   const openDrawerNew = useCallback(() => {
     setView({ kind: "new" });
@@ -74,6 +96,14 @@ function HostEventsPageContent() {
     setDrawerOpen(false);
   }, []);
 
+  const clearFilters = () => {
+    setSelectedStatus(EMPTY_EVENTS_FILTERS.selectedStatus);
+    setSearchText(EMPTY_EVENTS_FILTERS.searchText);
+    setRegistrations(EMPTY_EVENTS_FILTERS.registrations);
+    setStartDate(EMPTY_EVENTS_FILTERS.startDate);
+    setEndDate(EMPTY_EVENTS_FILTERS.endDate);
+  };
+
   const {
     data,
     isLoading,
@@ -84,7 +114,20 @@ function HostEventsPageContent() {
     hasNextPage,
     isFetchingNextPage,
     isFetchNextPageError,
-  } = useInfiniteMyEvents();
+  } = useInfiniteMyEvents({
+    ...(selectedStatus !== ALL_FILTER
+      ? { status: selectedStatus as EventStatus }
+      : {}),
+    ...(searchText.trim() ? { globalSearchText: searchText.trim() } : {}),
+    ...(registrations === "true"
+      ? { registrationsPaused: true }
+      : registrations === "false"
+        ? { registrationsPaused: false }
+        : {}),
+    ...(startDate ? { startDate } : {}),
+    ...(endDate ? { endDate } : {}),
+    sortOrder: "desc",
+  });
 
   const events = flattenPaginatedPages(data?.pages);
 
@@ -120,7 +163,7 @@ function HostEventsPageContent() {
         <EventDrawerQuerySync onOpenNew={openDrawerNew} />
       </Suspense>
 
-      <div className="shrink-0">
+      <div className="shrink-0 space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-4">
           <h2 className="text-xl font-bold text-gray-900">My Events</h2>
           <button
@@ -132,6 +175,20 @@ function HostEventsPageContent() {
             Add event
           </button>
         </div>
+
+        <EventsFilters
+          selectedStatus={selectedStatus}
+          searchText={searchText}
+          registrations={registrations}
+          startDate={startDate}
+          endDate={endDate}
+          onStatusChange={setSelectedStatus}
+          onSearchChange={setSearchText}
+          onRegistrationsChange={setRegistrations}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onClear={clearFilters}
+        />
       </div>
 
       <ScrollableListPanel className="mt-6 min-h-0 flex-1">
@@ -153,6 +210,13 @@ function HostEventsPageContent() {
             </CardContent>
           </Card>
         ) : events.length === 0 ? (
+          hasActiveFilters ? (
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground">
+                No events match your filters.
+              </CardContent>
+            </Card>
+          ) : (
           <Card>
             <CardContent className="flex flex-col items-center gap-4 py-12 text-center">
               <CalendarDays className="h-12 w-12 text-gray-300" />
@@ -171,6 +235,7 @@ function HostEventsPageContent() {
               </button>
             </CardContent>
           </Card>
+          )
         ) : (
           <div className="flex flex-col gap-4 pb-4">
             {isFetching && !isLoading && !isFetchingNextPage ? (

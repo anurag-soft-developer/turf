@@ -4,6 +4,11 @@ import { MyDrawer } from "@/components/my-drawer";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
 import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
 import EventBookingDetailPanel from "./_components/event-booking-detail-panel";
+import {
+  ALL_FILTER,
+  EMPTY_EVENT_BOOKINGS_FILTERS,
+  EventBookingsFilters,
+} from "./_components/event-bookings-filters";
 import OwnerEventBookingCard from "./_components/owner-event-booking-card";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { useInfiniteOwnerEventBookings } from "@/modules/host/hooks/use-owner-event-bookings";
@@ -11,16 +16,17 @@ import type { EventBookingStatus } from "@/modules/host/types/owner-event-bookin
 import { Loader2 } from "lucide-react";
 import { useState } from "react";
 
-const TABS: { label: string; status?: EventBookingStatus }[] = [
-  { label: "All" },
-  { label: "Pending", status: "pending" },
-  { label: "Confirmed", status: "confirmed" },
-  { label: "Cancelled", status: "cancelled" },
-  { label: "Completed", status: "completed" },
-];
-
 export default function HostEventBookingsPage() {
-  const [activeStatus, setActiveStatus] = useState<EventBookingStatus | undefined>();
+  const [selectedStatus, setSelectedStatus] = useState(
+    EMPTY_EVENT_BOOKINGS_FILTERS.selectedStatus,
+  );
+  const [selectedEventId, setSelectedEventId] = useState(
+    EMPTY_EVENT_BOOKINGS_FILTERS.selectedEventId,
+  );
+  const [startDate, setStartDate] = useState(
+    EMPTY_EVENT_BOOKINGS_FILTERS.startDate,
+  );
+  const [endDate, setEndDate] = useState(EMPTY_EVENT_BOOKINGS_FILTERS.endDate);
   const [selectedBookingId, setSelectedBookingId] = useState<string | null>(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
 
@@ -34,7 +40,12 @@ export default function HostEventBookingsPage() {
     isFetchingNextPage,
     isFetchNextPageError,
   } = useInfiniteOwnerEventBookings({
-    status: activeStatus,
+    ...(selectedStatus !== ALL_FILTER
+      ? { status: selectedStatus as EventBookingStatus }
+      : {}),
+    ...(selectedEventId ? { event: selectedEventId } : {}),
+    ...(startDate ? { startDate } : {}),
+    ...(endDate ? { endDate } : {}),
     sortOrder: "desc",
   });
 
@@ -50,27 +61,29 @@ export default function HostEventBookingsPage() {
     setDrawerOpen(false);
   };
 
+  const clearFilters = () => {
+    setSelectedStatus(EMPTY_EVENT_BOOKINGS_FILTERS.selectedStatus);
+    setSelectedEventId(EMPTY_EVENT_BOOKINGS_FILTERS.selectedEventId);
+    setStartDate(EMPTY_EVENT_BOOKINGS_FILTERS.startDate);
+    setEndDate(EMPTY_EVENT_BOOKINGS_FILTERS.endDate);
+  };
+
   return (
     <div className="flex h-full min-h-0 flex-col overflow-hidden">
       <div className="shrink-0 space-y-6">
         <h2 className="text-xl font-bold text-gray-900">Event bookings</h2>
 
-        <div className="flex flex-wrap gap-2">
-          {TABS.map((tab) => (
-            <button
-              key={tab.label}
-              type="button"
-              onClick={() => setActiveStatus(tab.status)}
-              className={`rounded-full px-3 py-1 text-sm font-medium ring-1 ${
-                activeStatus === tab.status
-                  ? "bg-emerald-600 text-white ring-emerald-600"
-                  : "bg-white text-gray-700 ring-gray-200"
-              }`}
-            >
-              {tab.label}
-            </button>
-          ))}
-        </div>
+        <EventBookingsFilters
+          selectedStatus={selectedStatus}
+          selectedEventId={selectedEventId}
+          startDate={startDate}
+          endDate={endDate}
+          onStatusChange={setSelectedStatus}
+          onEventChange={setSelectedEventId}
+          onStartDateChange={setStartDate}
+          onEndDateChange={setEndDate}
+          onClear={clearFilters}
+        />
       </div>
 
       <ScrollableListPanel className="mt-6 min-h-0 flex-1">
@@ -91,7 +104,7 @@ export default function HostEventBookingsPage() {
           </p>
         ) : bookings.length === 0 ? (
           <p className="py-12 text-center text-muted-foreground">
-            No bookings in this category yet.
+            No bookings match your filters.
           </p>
         ) : (
           <div className="flex flex-col gap-4 pb-4">

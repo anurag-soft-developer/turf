@@ -84,7 +84,3 @@ export function useCancelBooking() {
     },
   });
 }
-
-export function useCheckInBooking() {
-  return useCompleteBooking();
-}

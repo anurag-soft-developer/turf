@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { useGoogleMapsScript } from "@/lib/hooks/use-google-maps-script";
 import { cn } from "@/lib/utils";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useDebouncedCallback } from "use-debounce";
 
 export interface PlaceSelection {
   address: string;
@@ -50,6 +51,8 @@ const CITY_PRIMARY_TYPES = [
   "administrative_area_level_2",
 ] as const;
 
+const PLACES_SEARCH_DEBOUNCE_MS = 300;
+
 export function PlacesAutocomplete({
   id,
   value,
@@ -66,7 +69,6 @@ export function PlacesAutocomplete({
     null,
   );
   const requestIdRef = useRef(0);
-  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const { ready, error } = useGoogleMapsScript();
   const [inputValue, setInputValue] = useState(value);
@@ -89,13 +91,6 @@ export function PlacesAutocomplete({
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
-
-  useEffect(
-    () => () => {
-      if (debounceRef.current) clearTimeout(debounceRef.current);
-    },
-    [],
-  );
 
   const ensureSessionToken = useCallback(async () => {
     if (!sessionTokenRef.current) {
@@ -160,14 +155,17 @@ export function PlacesAutocomplete({
     [cityOnly, ensureSessionToken],
   );
 
+  const debouncedFetchSuggestions = useDebouncedCallback(
+    (input: string) => {
+      void fetchSuggestions(input);
+    },
+    PLACES_SEARCH_DEBOUNCE_MS,
+  );
+
   const handleInputChange = (next: string) => {
     setInputValue(next);
     onAddressChange(next);
-
-    if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      void fetchSuggestions(next);
-    }, 300);
+    debouncedFetchSuggestions(next);
   };
 
   const handleSelect = (item: SuggestionItem) => async () => {

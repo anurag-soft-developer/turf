@@ -7,11 +7,14 @@ import type {
   TurfStats,
   UpdateTurfPayload,
 } from "../types/turf";
+import type { TurfStatus } from "@/types/turf";
 
 export interface MyTurfsParams {
   page?: number;
   limit?: number;
   globalSearchText?: string;
+  status?: TurfStatus;
+  isAvailable?: boolean;
 }
 
 export const hostTurfApi = {

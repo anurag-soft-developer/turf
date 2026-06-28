@@ -33,8 +33,10 @@ export interface OwnerEventBooking {
 }
 
 export interface OwnerEventBookingsFilter {
-  event?: string;
-  status?: EventBookingStatus;
+  event?: string | string[];
+  status?: EventBookingStatus | EventBookingStatus[];
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
   sortOrder?: "asc" | "desc";

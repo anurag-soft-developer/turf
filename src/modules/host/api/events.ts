@@ -3,6 +3,7 @@ import { API_CONFIG } from "@/lib/constants/api";
 import type { PaginatedResponse } from "@/types/common";
 import type {
   CreateEventPayload,
+  EventStatus,
   HostEvent,
   HostEventStats,
   UpdateEventPayload,
@@ -12,7 +13,10 @@ export interface MyEventsParams {
   page?: number;
   limit?: number;
   globalSearchText?: string;
-  status?: string;
+  status?: EventStatus;
+  registrationsPaused?: boolean;
+  startDate?: string;
+  endDate?: string;
   minPrice?: number;
   maxPrice?: number;
   sortBy?: string;

@@ -37,7 +37,9 @@ export interface OwnerBooking {
 
 export interface OwnerBookingsFilter {
   turf?: string;
-  status?: TurfBookingStatus;
+  status?: TurfBookingStatus | TurfBookingStatus[];
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
   sortBy?: string;

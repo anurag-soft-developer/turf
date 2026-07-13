@@ -18,7 +18,7 @@ export function withdrawalStatusVariant(
   }
 }
 
-export function userDisplayName(user: { fullName?: string; email?: string } | string) {
+export function userDisplayName(user: { fullName?: string; email?: string; phone?: string } | string) {
   if (typeof user === "string") return user;
-  return user.fullName || user.email || "User";
+  return user.fullName || user.email || user.phone || "User";
 }

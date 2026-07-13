@@ -73,7 +73,7 @@ export default function TwoFactorSettingsForm() {
               Two-factor authentication
             </CardTitle>
             <CardDescription className="mt-1">
-              Require a one-time code sent to your email when signing in.
+              Require a one-time verification code when signing in.
             </CardDescription>
           </div>
           <Badge variant={isEnabled ? "default" : "secondary"}>
@@ -102,8 +102,8 @@ export default function TwoFactorSettingsForm() {
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
             <p className="text-sm text-gray-600">
               {pendingEnabled
-                ? "Enter the code sent to your email to enable 2FA."
-                : "Enter the code sent to your email to disable 2FA."}
+                ? "Enter the verification code we sent you to enable 2FA."
+                : "Enter the verification code we sent you to disable 2FA."}
             </p>
 
             <div className="space-y-2">

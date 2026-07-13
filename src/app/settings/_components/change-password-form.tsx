@@ -60,9 +60,9 @@ export default function ChangePasswordForm() {
         <CardDescription>
           {user?.isPasswordExists
             ? user.twoFactorEnabled
-              ? "Enter your current password and the OTP sent to your email."
+              ? "Enter your current password and the verification code we sent you."
               : "Enter your current password and a new password."
-            : "Your account uses Google sign-in. Request an OTP to set a password."}
+            : "Your account uses Google sign-in. Request a verification code to set a password."}
         </CardDescription>
       </CardHeader>
       <CardContent>

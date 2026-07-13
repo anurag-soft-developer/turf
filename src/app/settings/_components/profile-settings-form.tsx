@@ -30,21 +30,27 @@ export default function ProfileSettingsForm() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<UpdateProfileFormData>({
     resolver: zodResolver(updateProfileSchema),
-    defaultValues: user
-      ? {
-          fullName: user.fullName ?? "",
-          phone: user.phone ?? "",
-          bio: user.bio ?? "",
-        }
-      : undefined,
   });
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        fullName: user.fullName ?? "",
+        bio: user.bio ?? "",
+      });
+    }
+  }, [user, reset]);
 
   const onSubmit = async (data: UpdateProfileFormData) => {
     try {
-      await updateProfile.mutateAsync(data);
+      await updateProfile.mutateAsync({
+        fullName: data.fullName,
+        bio: data.bio,
+      });
       setSuccessMessage("Profile updated successfully.");
     } catch {
       setSuccessMessage(null);
@@ -65,28 +71,29 @@ export default function ProfileSettingsForm() {
     <Card>
       <CardHeader>
         <CardTitle>Profile</CardTitle>
-        <CardDescription>Update your name, phone, and bio.</CardDescription>
+        <CardDescription>Update your name and bio.</CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input id="email" value={user?.email ?? ""} disabled />
-          </div>
+          {user?.email ? (
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input id="email" value={user.email} disabled />
+            </div>
+          ) : null}
+
+          {user?.phone ? (
+            <div className="space-y-2">
+              <Label htmlFor="phone">Phone</Label>
+              <Input id="phone" value={user.phone} disabled />
+            </div>
+          ) : null}
 
           <div className="space-y-2">
             <Label htmlFor="fullName">Full name</Label>
             <Input id="fullName" {...register("fullName")} />
             {errors.fullName && (
               <p className="text-sm text-red-600">{errors.fullName.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="phone">Phone</Label>
-            <Input id="phone" type="tel" {...register("phone")} />
-            {errors.phone && (
-              <p className="text-sm text-red-600">{errors.phone.message}</p>
             )}
           </div>
 

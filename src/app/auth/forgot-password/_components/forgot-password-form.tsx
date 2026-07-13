@@ -17,6 +17,8 @@ import {
 import {
   forgotPasswordSchema,
   resetPasswordSchema,
+  toForgotPasswordPayload,
+  type AuthContactPayload,
   type ForgotPasswordFormData,
   type ResetPasswordFormData,
 } from "@/lib/schemas/auth";
@@ -28,28 +30,29 @@ import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordForm() {
   const router = useRouter();
-  const [step, setStep] = useState<"email" | "reset">("email");
-  const [email, setEmail] = useState("");
+  const [step, setStep] = useState<"identifier" | "reset">("identifier");
+  const [contact, setContact] = useState<AuthContactPayload | null>(null);
+  const [destination, setDestination] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
   const forgotMutation = useForgotPassword();
   const resetMutation = useResetPassword();
 
-  const emailForm = useForm<ForgotPasswordFormData>({
+  const identifierForm = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
   });
 
   const resetForm = useForm<ResetPasswordFormData>({
     resolver: zodResolver(resetPasswordSchema),
-    defaultValues: { email: "" },
   });
 
   const onRequestOtp = async (data: ForgotPasswordFormData) => {
     try {
-      const result = await forgotMutation.mutateAsync(data.email);
-      setEmail(data.email);
-      resetForm.setValue("email", data.email);
+      const payload = toForgotPasswordPayload(data);
+      const result = await forgotMutation.mutateAsync(payload);
+      setContact(payload);
+      setDestination(payload.email ?? payload.phone ?? data.identifier);
       setStep("reset");
       setSuccessMessage(result.message);
     } catch {
@@ -58,8 +61,13 @@ export default function ForgotPasswordForm() {
   };
 
   const onResetPassword = async (data: ResetPasswordFormData) => {
+    if (!contact) return;
     try {
-      const result = await resetMutation.mutateAsync(data);
+      const result = await resetMutation.mutateAsync({
+        ...contact,
+        otp: data.otp,
+        password: data.password,
+      });
       setSuccessMessage(result.message);
       setTimeout(() => router.push(ROUTE_POINT.auth.login), 1500);
     } catch {
@@ -87,31 +95,31 @@ export default function ForgotPasswordForm() {
     <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle>
-          {step === "email" ? "Forgot password" : "Reset password"}
+          {step === "identifier" ? "Forgot password" : "Reset password"}
         </CardTitle>
         <CardDescription>
-          {step === "email"
-            ? "Enter your email and we will send a 6-digit reset code."
-            : `Enter the code sent to ${email} and choose a new password.`}
+          {step === "identifier"
+            ? "Enter your email or phone and we will send a 6-digit reset code by email or SMS."
+            : `Enter the code sent to ${destination} and choose a new password.`}
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {step === "email" ? (
+        {step === "identifier" ? (
           <form
-            onSubmit={emailForm.handleSubmit(onRequestOtp)}
+            onSubmit={identifierForm.handleSubmit(onRequestOtp)}
             className="space-y-4"
           >
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="identifier">Email or phone</Label>
               <Input
-                id="email"
-                type="email"
-                placeholder="you@example.com"
-                {...emailForm.register("email")}
+                id="identifier"
+                type="text"
+                placeholder="you@email.com or +919876543210"
+                {...identifierForm.register("identifier")}
               />
-              {emailForm.formState.errors.email && (
+              {identifierForm.formState.errors.identifier && (
                 <p className="text-sm text-red-600">
-                  {emailForm.formState.errors.email.message}
+                  {identifierForm.formState.errors.identifier.message}
                 </p>
               )}
             </div>
@@ -145,8 +153,6 @@ export default function ForgotPasswordForm() {
             onSubmit={resetForm.handleSubmit(onResetPassword)}
             className="space-y-4"
           >
-            <input type="hidden" {...resetForm.register("email")} />
-
             <div className="space-y-2">
               <Label htmlFor="otp">Reset code</Label>
               <Input
@@ -237,8 +243,8 @@ export default function ForgotPasswordForm() {
               type="button"
               variant="ghost"
               className="w-full"
-              disabled={forgotMutation.isPending}
-              onClick={() => forgotMutation.mutate(email)}
+              disabled={forgotMutation.isPending || !contact}
+              onClick={() => contact && forgotMutation.mutate(contact)}
             >
               Resend code
             </Button>
@@ -248,11 +254,12 @@ export default function ForgotPasswordForm() {
               variant="outline"
               className="w-full"
               onClick={() => {
-                setStep("email");
+                setStep("identifier");
+                setContact(null);
                 setSuccessMessage(null);
               }}
             >
-              Use a different email
+              Use a different email or phone
             </Button>
           </form>
         )}

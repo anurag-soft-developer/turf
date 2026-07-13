@@ -10,32 +10,28 @@ import type {
 } from "@/types/auth";
 import type {
   ChangePasswordPayload,
-  LoginFormData,
-  RegisterFormData,
+  ForgotPasswordPayload,
+  LoginPayload,
+  RegisterPayload,
   ResetPasswordPayload,
   UpdateNotificationSettingsFormData,
   UpdateProfileFormData,
   UpdateTwoFactorFormData,
   VerifyEmailFormData,
-  VerifyLoginOtpFormData,
+  VerifyLoginOtpPayload,
 } from "@/lib/schemas/auth";
 
 export const authApi = {
-  register: async (data: RegisterFormData): Promise<AuthResponse> => {
-    const { bio, phone, ...rest } = data;
+  register: async (data: RegisterPayload): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>(
       API_CONFIG.ENDPOINTS.AUTH.REGISTER,
-      {
-        ...rest,
-        ...(phone ? { phone } : {}),
-        ...(bio ? { bio } : {}),
-      },
+      data,
     );
     return response.data;
   },
 
   login: async (
-    data: LoginFormData,
+    data: LoginPayload,
   ): Promise<AuthResponse | AuthOtpChallengeResponse> => {
     const response = await api.post<AuthResponse | AuthOtpChallengeResponse>(
       API_CONFIG.ENDPOINTS.AUTH.LOGIN,
@@ -45,7 +41,7 @@ export const authApi = {
   },
 
   verifyLoginOtp: async (
-    data: VerifyLoginOtpFormData,
+    data: VerifyLoginOtpPayload,
   ): Promise<AuthResponse> => {
     const response = await api.post<AuthResponse>(
       API_CONFIG.ENDPOINTS.AUTH.LOGIN_VERIFY_OTP,
@@ -133,10 +129,12 @@ export const authApi = {
     return response.data;
   },
 
-  forgotPassword: async (email: string): Promise<MessageResponse> => {
+  forgotPassword: async (
+    data: ForgotPasswordPayload,
+  ): Promise<MessageResponse> => {
     const response = await api.post<MessageResponse>(
       API_CONFIG.ENDPOINTS.AUTH.FORGOT_PASSWORD,
-      { email },
+      data,
     );
     return response.data;
   },

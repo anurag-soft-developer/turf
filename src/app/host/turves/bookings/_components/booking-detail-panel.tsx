@@ -38,8 +38,13 @@ function getBookedBy(bookedBy: OwnerBooking["bookedBy"]): {
   }
 
   const user = bookedBy as BookedByUser;
-  const name = user.fullName || user.email || "Player";
-  const initial = (user.fullName?.[0] ?? user.email?.[0] ?? "P").toUpperCase();
+  const name = user.fullName || user.email || user.phone || "Player";
+  const initial = (
+    user.fullName?.[0] ??
+    user.email?.[0] ??
+    user.phone?.[0] ??
+    "P"
+  ).toUpperCase();
 
   return {
     name,

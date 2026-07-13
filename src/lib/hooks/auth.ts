@@ -5,14 +5,19 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import type {
   ChangePasswordFormData,
+  ForgotPasswordPayload,
   LoginFormData,
   RegisterFormData,
-  ResetPasswordFormData,
+  ResetPasswordPayload,
   UpdateNotificationSettingsFormData,
   UpdateProfileFormData,
   UpdateTwoFactorFormData,
   VerifyEmailFormData,
-  VerifyLoginOtpFormData,
+  VerifyLoginOtpPayload,
+} from "@/lib/schemas/auth";
+import {
+  toLoginPayload,
+  toRegisterPayload,
 } from "@/lib/schemas/auth";
 import { isAuthResponse } from "@/types/auth";
 import { useRouter } from "next/navigation";
@@ -52,7 +57,7 @@ export const useLogin = (redirectTo?: string) => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: LoginFormData) => authApi.login(data),
+    mutationFn: (data: LoginFormData) => authApi.login(toLoginPayload(data)),
     onSuccess: (data) => {
       if (!isAuthResponse(data)) return;
 
@@ -73,7 +78,7 @@ export const useVerifyLoginOtp = (redirectTo?: string) => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: VerifyLoginOtpFormData) => authApi.verifyLoginOtp(data),
+    mutationFn: (data: VerifyLoginOtpPayload) => authApi.verifyLoginOtp(data),
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
       queryClient.setQueryData(AUTH_QUERY_KEYS.status, {
@@ -92,7 +97,8 @@ export const useRegister = () => {
   const router = useRouter();
 
   return useMutation({
-    mutationFn: (data: RegisterFormData) => authApi.register(data),
+    mutationFn: (data: RegisterFormData) =>
+      authApi.register(toRegisterPayload(data)),
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
       persistSession(data.accessToken, data.refreshToken);
@@ -197,14 +203,13 @@ export const useUpdateTwoFactor = () => {
 
 export const useForgotPassword = () => {
   return useMutation({
-    mutationFn: (email: string) => authApi.forgotPassword(email),
+    mutationFn: (data: ForgotPasswordPayload) => authApi.forgotPassword(data),
   });
 };
 
 export const useResetPassword = () => {
   return useMutation({
-    mutationFn: ({ confirmPassword: _, ...data }: ResetPasswordFormData) =>
-      authApi.resetPassword(data),
+    mutationFn: (data: ResetPasswordPayload) => authApi.resetPassword(data),
   });
 };
 

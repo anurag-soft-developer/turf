@@ -13,7 +13,7 @@ function getTurfName(turf: Turf | string) {
 
 function getBookedByName(bookedBy: OwnerBooking["bookedBy"]) {
   if (typeof bookedBy === "string") return "Player";
-  return bookedBy.fullName || bookedBy.email || "Player";
+  return bookedBy.fullName || bookedBy.email || bookedBy.phone || "Player";
 }
 
 function statusVariant(

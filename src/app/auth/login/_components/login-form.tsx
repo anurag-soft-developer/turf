@@ -19,8 +19,12 @@ import {
   verifyLoginOtpSchema,
   type LoginFormData,
   type VerifyLoginOtpFormData,
+  type VerifyLoginOtpPayload,
 } from "@/lib/schemas/auth";
-import { isAuthOtpChallenge } from "@/types/auth";
+import {
+  isAuthOtpChallenge,
+  type AuthOtpChallengeResponse,
+} from "@/types/auth";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Eye, EyeOff } from "lucide-react";
@@ -37,7 +41,8 @@ export default function LoginForm() {
       : undefined;
 
   const [showPassword, setShowPassword] = useState(false);
-  const [otpEmail, setOtpEmail] = useState<string | null>(null);
+  const [otpChallenge, setOtpChallenge] =
+    useState<AuthOtpChallengeResponse | null>(null);
   const loginMutation = useLogin(safeRedirect);
   const verifyOtpMutation = useVerifyLoginOtp(safeRedirect);
 
@@ -51,15 +56,13 @@ export default function LoginForm() {
 
   const otpForm = useForm<VerifyLoginOtpFormData>({
     resolver: zodResolver(verifyLoginOtpSchema),
-    defaultValues: { email: "" },
   });
 
   const onSubmit = async (data: LoginFormData) => {
     try {
       const result = await loginMutation.mutateAsync(data);
       if (isAuthOtpChallenge(result)) {
-        setOtpEmail(result.email);
-        otpForm.setValue("email", result.email);
+        setOtpChallenge(result);
       }
     } catch (error) {
       console.error("Login failed:", error);
@@ -67,12 +70,23 @@ export default function LoginForm() {
   };
 
   const onVerifyOtp = async (data: VerifyLoginOtpFormData) => {
+    if (!otpChallenge) return;
     try {
-      await verifyOtpMutation.mutateAsync(data);
+      const payload: VerifyLoginOtpPayload = {
+        otp: data.otp,
+        ...(otpChallenge.phone
+          ? { phone: otpChallenge.phone }
+          : { email: otpChallenge.email! }),
+      };
+      await verifyOtpMutation.mutateAsync(payload);
     } catch (error) {
       console.error("OTP verification failed:", error);
     }
   };
+
+  const otpDestination =
+    otpChallenge?.email ?? otpChallenge?.phone ?? "";
+  const channelLabel = otpChallenge?.channel === "sms" ? "phone" : "email";
 
   return (
     <Card className="w-full max-w-md">
@@ -83,16 +97,16 @@ export default function LoginForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {otpEmail ? (
+        {otpChallenge ? (
           <form
             onSubmit={otpForm.handleSubmit(onVerifyOtp)}
             className="space-y-4"
           >
             <p className="text-sm text-gray-600">
-              Two-factor authentication is enabled. Enter the code sent to{" "}
-              <span className="font-medium">{otpEmail}</span>.
+              Two-factor authentication is enabled. Enter the code sent to your{" "}
+              {channelLabel}{" "}
+              <span className="font-medium">{otpDestination}</span>.
             </p>
-            <input type="hidden" {...otpForm.register("email")} />
             <div className="space-y-2">
               <Label htmlFor="otp">Verification code</Label>
               <Input
@@ -129,7 +143,7 @@ export default function LoginForm() {
               variant="ghost"
               className="w-full"
               onClick={() => {
-                setOtpEmail(null);
+                setOtpChallenge(null);
                 otpForm.reset();
               }}
             >
@@ -140,15 +154,18 @@ export default function LoginForm() {
           <>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="identifier">Email or phone</Label>
                 <Input
-                  id="email"
-                  type="email"
-                  placeholder="Enter your email"
-                  {...register("email")}
+                  id="identifier"
+                  type="text"
+                  placeholder="you@email.com or +919876543210"
+                  autoComplete="username"
+                  {...register("identifier")}
                 />
-                {errors.email && (
-                  <p className="text-sm text-red-600">{errors.email.message}</p>
+                {errors.identifier && (
+                  <p className="text-sm text-red-600">
+                    {errors.identifier.message}
+                  </p>
                 )}
               </div>
 
@@ -213,7 +230,7 @@ export default function LoginForm() {
 
             <div className="mt-4 text-center">
               <Link
-                  href={ROUTE_POINT.auth.forgotPassword}
+                href={ROUTE_POINT.auth.forgotPassword}
                 className="text-sm text-blue-600 hover:underline"
               >
                 Forgot your password?
@@ -222,7 +239,10 @@ export default function LoginForm() {
 
             <div className="mt-6 text-center text-sm">
               <span className="text-gray-600">Don&apos;t have an account? </span>
-                <Link href={ROUTE_POINT.auth.register} className="text-blue-600 hover:underline">
+              <Link
+                href={ROUTE_POINT.auth.register}
+                className="text-blue-600 hover:underline"
+              >
                 Create one
               </Link>
             </div>

@@ -15,7 +15,8 @@ const ProtectedPage = ({ children }: iProps) => {
     redirect(ROUTE_POINT.auth.login);
   }
 
-  if (!payload.isEmailVerified) {
+  // Email verification only applies to accounts that have an email.
+  if (payload.email && !payload.isEmailVerified) {
     redirect(ROUTE_POINT.auth.verifyEmail);
   }
 

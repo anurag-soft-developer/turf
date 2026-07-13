@@ -10,7 +10,7 @@ export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
 
 export interface User {
   _id: string;
-  email: string;
+  email?: string;
   role: UserRoleType | string;
   fullName?: string;
   bio?: string;
@@ -18,6 +18,7 @@ export interface User {
   isActive?: boolean;
   isVerified?: boolean;
   isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
   twoFactorEnabled?: boolean;
   emailNotificationsEnabled?: boolean;
   smsNotificationsEnabled?: boolean;
@@ -41,7 +42,9 @@ export interface AuthResponse {
 export interface AuthOtpChallengeResponse {
   message: string;
   requiresOtp: true;
-  email: string;
+  channel: "email" | "sms";
+  email?: string;
+  phone?: string;
 }
 
 /** Matches GET /auth/status response. */
@@ -64,8 +67,10 @@ export interface MessageResponse {
 /** Matches turf-services IJwtPayload. */
 export interface IJwtPayload {
   sub: string;
-  email: string;
-  isEmailVerified: boolean;
+  email?: string;
+  phone?: string;
+  isEmailVerified?: boolean;
+  isPhoneVerified?: boolean;
   role: string;
   iat?: number;
   exp?: number;

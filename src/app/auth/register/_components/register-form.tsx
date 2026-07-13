@@ -52,19 +52,6 @@ export default function RegisterForm() {
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              {...register("email")}
-            />
-            {errors.email && (
-              <p className="text-sm text-red-600">{errors.email.message}</p>
-            )}
-          </div>
-
-          <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
             <Input
               id="fullName"
@@ -78,15 +65,18 @@ export default function RegisterForm() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="phone">Phone Number (Optional)</Label>
+            <Label htmlFor="identifier">Email or phone</Label>
             <Input
-              id="phone"
-              type="tel"
-              placeholder="Enter your phone number"
-              {...register("phone")}
+              id="identifier"
+              type="text"
+              placeholder="you@email.com or +919876543210"
+              autoComplete="username"
+              {...register("identifier")}
             />
-            {errors.phone && (
-              <p className="text-sm text-red-600">{errors.phone.message}</p>
+            {errors.identifier && (
+              <p className="text-sm text-red-600">
+                {errors.identifier.message}
+              </p>
             )}
           </div>
 

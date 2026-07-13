@@ -84,6 +84,23 @@ const Page = () => {
     );
   }
 
+  // Phone-only accounts have no email to verify — send them onward.
+  if (!isProfileLoading && user && !email) {
+    if (typeof window !== "undefined") {
+      window.location.href = ROUTE_POINT.events;
+    }
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Card className="w-full max-w-md">
+          <CardContent className="flex items-center justify-center p-6">
+            <Loader2 className="h-6 w-6 animate-spin" />
+            <span className="ml-2">Redirecting...</span>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   // Error state
   if (profileError || !email) {
     return (

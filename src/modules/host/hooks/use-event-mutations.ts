@@ -91,3 +91,22 @@ export function useCloseEvent() {
     onError: (error) => toastError(error, "Failed to close event."),
   });
 }
+
+export function useToggleEventRegistrations() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      registrationsPaused,
+    }: {
+      id: string;
+      registrationsPaused: boolean;
+    }) => hostEventApi.update(id, { registrationsPaused }),
+    onSuccess: (_, { id }) => {
+      invalidateHostEventQueries(queryClient, id);
+    },
+    onError: (error) =>
+      toastError(error, "Failed to update registrations. Please try again."),
+  });
+}

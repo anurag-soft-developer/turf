@@ -1,137 +1,214 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import Image from "next/image";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { ROUTE_POINT } from "@/lib/constants/route-point";
-import { MapPin, Calendar, Users} from "lucide-react";
+import {
+  CalendarCheck,
+  LayoutDashboard,
+  MapPin,
+  UserPlus,
+  Upload,
+  Wallet,
+} from "lucide-react";
+import HomeAuthCtas from "./_components/home-auth-ctas";
+
+const HERO_IMAGE =
+  "https://images.pexels.com/photos/399187/pexels-photo-399187.jpeg?auto=compress&cs=tinysrgb&w=1200";
+
+const GALLERY_IMAGES = [
+  {
+    src: "https://images.pexels.com/photos/114296/pexels-photo-114296.jpeg?auto=compress&cs=tinysrgb&w=800",
+    alt: "Football match on turf",
+  },
+  {
+    src: "https://images.pexels.com/photos/3651674/pexels-photo-3651674.jpeg?auto=compress&cs=tinysrgb&w=800",
+    alt: "Cricket batsman on field",
+  },
+  {
+    src: "https://images.pexels.com/photos/47730/the-ball-stadion-football-the-pitch-47730.jpeg?auto=compress&cs=tinysrgb&w=800",
+    alt: "Soccer stadium at night",
+  },
+];
+
+const STEPS = [
+  {
+    step: 1,
+    icon: UserPlus,
+    title: "Create your account",
+    description: "Sign up as a turf owner and set up your host profile in minutes.",
+  },
+  {
+    step: 2,
+    icon: Upload,
+    title: "Publish your turf",
+    description: "Add photos, pricing, amenities, and location to list your venue.",
+  },
+  {
+    step: 3,
+    icon: CalendarCheck,
+    title: "Accept bookings",
+    description: "Manage requests, confirm slots, and grow your bookings over time.",
+  },
+];
+
+const FEATURES = [
+  {
+    icon: MapPin,
+    title: "Publish & manage listings",
+    description:
+      "Add turf details, photos, and pricing. Update availability and keep your listing current.",
+  },
+  {
+    icon: LayoutDashboard,
+    title: "Booking dashboard",
+    description:
+      "Confirm, complete, or cancel bookings from one place. Stay on top of every reservation.",
+  },
+  {
+    icon: Wallet,
+    title: "Wallet & payouts",
+    description:
+      "Track earnings, request withdrawals, and manage payout details with ease.",
+  },
+];
 
 export default function Home() {
   return (
-    <>
-      <section className="bg-gradient-to-br from-green-50 to-blue-50 pb-16 pt-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center pt-10">
-            <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-              Find & Book <span className="text-green-600">Premium Sports Turfs</span>
-            </h1>
-            <p className="text-xl text-gray-600 mb-8 max-w-2xl mx-auto">
-              Discover amazing sports venues, book instantly, and enjoy your favorite sports with friends. 
-              Cricket, Football, Basketball and more!
+    <div className="bg-white text-gray-900">
+      {/* Hero — text left, image right */}
+      <section className="overflow-hidden bg-gradient-to-br from-emerald-50/80 via-white to-sky-50/60">
+        <div className="mx-auto grid max-w-7xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:gap-16 lg:px-8 lg:py-24">
+          <div className="order-2 text-center lg:order-1 lg:text-left">
+            <p className="mb-4 font-heading text-sm font-semibold uppercase tracking-[0.2em] text-emerald-600">
+              For turf owners
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Link href={ROUTE_POINT.auth.register}>
-                <Button size="lg" className="text-lg px-8 py-3">
-                  Get Started Free
-                </Button>
-              </Link>
-              <Link href={ROUTE_POINT.auth.login}>
-                <Button size="lg" variant="outline" className="text-lg px-8 py-3">
-                  Sign In
-                </Button>
-              </Link>
+            <h1 className="font-heading mb-6 text-4xl font-bold tracking-tight text-gray-900 sm:text-5xl lg:text-6xl">
+              List Your Turf.
+              <br />
+              Take Bookings.
+              <br />
+              <span className="text-emerald-600">Grow Your Business.</span>
+            </h1>
+            <p className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-gray-600 lg:mx-0">
+              Publish your sports venue, manage time slots, accept bookings, and
+              track earnings — all from one simple host dashboard.
+            </p>
+            <div className="flex justify-center lg:justify-start">
+              <HomeAuthCtas variant="hero" />
+            </div>
+          </div>
+
+          <div className="order-1 lg:order-2">
+            <div className="relative mx-auto aspect-[4/3] w-full max-w-xl overflow-hidden rounded-3xl shadow-xl shadow-emerald-900/10 ring-1 ring-black/5 lg:max-w-none">
+              <Image
+                src={HERO_IMAGE}
+                alt="Sports turf field"
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 50vw"
+              />
             </div>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Why Choose TurfBooking?</h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              We make it easy to find, book, and enjoy the best sports facilities in your area.
+      {/* How it works */}
+      <section id="how-it-works" className="scroll-mt-20 border-t border-gray-100 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <h2 className="font-heading mb-3 text-3xl font-bold text-gray-900">
+              How it works
+            </h2>
+            <p className="mx-auto max-w-xl text-gray-600">
+              Get your turf live and taking bookings in three simple steps.
             </p>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <Card className="text-center">
-              <CardHeader>
-                <MapPin className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <CardTitle>Find Nearby Turfs</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Discover premium sports venues near your location with detailed information, 
-                  photos, and real-time availability.
-                </CardDescription>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center">
-              <CardHeader>
-                <Calendar className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <CardTitle>Instant Booking</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Book your favorite time slots instantly with our easy-to-use booking system. 
-                  No phone calls, no waiting.
-                </CardDescription>
-              </CardContent>
-            </Card>
-            
-            <Card className="text-center">
-              <CardHeader>
-                <Users className="h-12 w-12 text-green-600 mx-auto mb-4" />
-                <CardTitle>Play with Friends</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Connect with other sports enthusiasts in your community and play together.
-                </CardDescription>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </section>
 
-      {/* Sports Categories */}
-      <section className="py-16 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">Popular Sports</h2>
-            <p className="text-gray-600">Choose from a wide variety of sports and activities</p>
-          </div>
-          
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            {[
-              { name: 'Cricket', icon: '🏏', count: '120+ venues' },
-              { name: 'Football', icon: '⚽', count: '80+ venues' },
-              { name: 'Basketball', icon: '🏀', count: '60+ venues' },
-              { name: 'Tennis', icon: '🎾', count: '45+ venues' },
-              { name: 'Badminton', icon: '🏸', count: '90+ venues' },
-              { name: 'Volleyball', icon: '🏐', count: '30+ venues' },
-              { name: 'Table Tennis', icon: '🏓', count: '40+ venues' },
-              { name: 'Hockey', icon: '🏒', count: '25+ venues' },
-            ].map((sport) => (
-              <Link key={sport.name} href={ROUTE_POINT.catalog}>
-                <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                  <CardContent className="p-6 text-center">
-                    <div className="text-4xl mb-2">{sport.icon}</div>
-                    <h3 className="font-semibold text-gray-900">{sport.name}</h3>
-                    <p className="text-sm text-gray-600">{sport.count}</p>
-                  </CardContent>
-                </Card>
-              </Link>
+          <div className="grid gap-8 md:grid-cols-3">
+            {STEPS.map(({ step, icon: Icon, title, description }) => (
+              <div key={step} className="relative text-center">
+                <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-emerald-50 text-emerald-600">
+                  <Icon className="h-7 w-7" />
+                </div>
+                <span className="mb-2 block text-xs font-semibold uppercase tracking-wider text-emerald-600">
+                  Step {step}
+                </span>
+                <h3 className="font-heading mb-2 text-xl font-semibold text-gray-900">
+                  {title}
+                </h3>
+                <p className="text-sm leading-relaxed text-gray-600">{description}</p>
+              </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-16 bg-green-600 text-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ready to Play?</h2>
-          <p className="text-xl mb-8 opacity-90">
-            Join thousands of sports enthusiasts who trust TurfBooking for their games
-          </p>
-          <Link href={ROUTE_POINT.auth.register}>
-            <Button size="lg" variant="secondary" className="text-lg px-8 py-3">
-              Start Booking Now
-            </Button>
-          </Link>
+      {/* Features */}
+      <section id="features" className="scroll-mt-20 border-t border-gray-100 bg-gray-50 py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-12 text-center">
+            <h2 className="font-heading mb-3 text-3xl font-bold text-gray-900">
+              Built for turf owners
+            </h2>
+            <p className="mx-auto max-w-xl text-gray-600">
+              Everything you need to publish, manage, and monetize your sports venue.
+            </p>
+          </div>
+
+          <div className="grid gap-6 md:grid-cols-3">
+            {FEATURES.map(({ icon: Icon, title, description }) => (
+              <Card
+                key={title}
+                className="border-gray-200 bg-white text-center shadow-sm"
+              >
+                <CardHeader>
+                  <Icon className="mx-auto mb-3 h-10 w-10 text-emerald-600" />
+                  <CardTitle className="font-heading text-gray-900">{title}</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription className="text-gray-600">
+                    {description}
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         </div>
       </section>
-    </>
+
+      {/* Gallery */}
+      <section className="border-t border-gray-100 py-16">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="grid gap-4 sm:grid-cols-3">
+            {GALLERY_IMAGES.map(({ src, alt }) => (
+              <div
+                key={src}
+                className="relative aspect-[4/3] overflow-hidden rounded-2xl"
+              >
+                <Image
+                  src={src}
+                  alt={alt}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 640px) 100vw, 33vw"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Final CTA */}
+      <section className="border-t border-emerald-500 bg-emerald-600 py-16">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <h2 className="font-heading mb-3 text-3xl font-bold text-white">
+            Ready to list your turf?
+          </h2>
+          <p className="mb-8 text-lg text-emerald-50">
+            Join turf owners who publish their venues and take bookings online.
+          </p>
+          <HomeAuthCtas variant="final" />
+        </div>
+      </section>
+    </div>
   );
 }

@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { setAuthToken, setRefreshToken } from "@/lib/utils/auth.util";
-import { ROUTE_POINT } from "@/lib/constants/route-point";
+import { getDefaultHomeRoute } from "@/lib/constants/app-type";
 import { Suspense } from "react";
 
 export default function AuthCallback() {
@@ -27,7 +27,7 @@ function Component() {
       if (refresh) {
         setRefreshToken(refresh);
       }
-      router.replace(ROUTE_POINT.events);
+      router.replace(getDefaultHomeRoute());
     }
   }, [token, refresh, router]);
 

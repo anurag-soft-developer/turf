@@ -2,22 +2,36 @@
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
+import { SearchMultiSelect } from "@/components/search-multi-select";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { TimePicker } from "@/components/ui/time-picker";
 import { storageApi } from "@/lib/api/storage";
+import ENV_CONFIG from "@/config/env.config";
 import {
-  AMENITIES,
-  SPORT_TYPES,
+  AMENITY_OPTIONS,
+  isSportTypeValue,
+  SPORT_TYPE_OPTIONS,
   turfFormSchema,
   turfFormToCreatePayload,
   type TurfFormValues,
 } from "@/modules/host/schemas/turf-form";
 import type { Turf } from "@/modules/host/types/turf";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import {
+  Clock,
+  FileText,
+  ImageIcon,
+  IndianRupee,
+  MapPin,
+  Percent,
+  Search,
+  Trophy,
+  Type,
+  X,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -32,7 +46,7 @@ function turfToDefaultValues(turf?: Turf): TurfFormValues {
     state: turf?.location?.state ?? "",
     zip: turf?.location?.zip ?? "",
     country: turf?.location?.country ?? "",
-    sportTypes: turf?.sportType ?? [],
+    sportTypes: (turf?.sportType ?? []).filter(isSportTypeValue),
     amenities: turf?.amenities ?? [],
     images: turf?.images ?? [],
     basePricePerHour: turf?.pricing?.basePricePerHour ?? 500,
@@ -42,7 +56,6 @@ function turfToDefaultValues(turf?: Turf): TurfFormValues {
     length: turf?.dimensions?.length,
     width: turf?.dimensions?.width,
     dimensionUnit: (turf?.dimensions?.unit as "meters" | "feet") ?? "meters",
-    isAvailable: turf?.isAvailable ?? true,
     slotBufferMins: turf?.slotBufferMins ?? 15,
   };
 }
@@ -65,7 +78,7 @@ export default function TurfForm({
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
-  const mapsError = !process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  const mapsError = !ENV_CONFIG.GOOGLE_MAPS_API_KEY
     ? "Google Maps API key is not configured"
     : null;
 
@@ -89,18 +102,6 @@ export default function TurfForm({
   const stateName = watch("state") ?? "";
   const openTime = watch("openTime") ?? "06:00";
   const closeTime = watch("closeTime") ?? "22:00";
-  console.log(errors,watch());
-
-  const toggleItem = (
-    field: "sportTypes" | "amenities",
-    value: string,
-    current: string[],
-  ) => {
-    const next = current.includes(value)
-      ? current.filter((v) => v !== value)
-      : [...current, value];
-    setValue(field, next, { shouldValidate: true });
-  };
 
   const removeImage = (index: number) => {
     setValue(
@@ -140,18 +141,22 @@ export default function TurfForm({
       className="-mx-4 flex min-h-full flex-col"
       onSubmit={handleSubmit((values) => onSubmit(turfFormToCreatePayload(values)))}
     >
-      <div className="space-y-8 px-4 py-4 pb-2">
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold">Basic info</h3>
+      <div className="space-y-4 px-4 py-4 pb-2">
         <div className="space-y-2">
-          <Label htmlFor="name">Name</Label>
-          <Input id="name" {...register("name")} />
+          <Label htmlFor="name" className="flex items-center gap-1.5">
+            <Type className="h-3.5 w-3.5 text-emerald-600" />
+            Name
+          </Label>
+          <InputWithIcon id="name" icon={Type} {...register("name")} />
           {errors.name ? (
             <p className="text-sm text-destructive">{errors.name.message}</p>
           ) : null}
         </div>
         <div className="space-y-2">
-          <Label htmlFor="description">Description</Label>
+          <Label htmlFor="description" className="flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-emerald-600" />
+            Description
+          </Label>
           <Textarea id="description" rows={4} {...register("description")} />
           {errors.description ? (
             <p className="text-sm text-destructive">
@@ -159,12 +164,12 @@ export default function TurfForm({
             </p>
           ) : null}
         </div>
-      </section>
 
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold">Location</h3>
         <div className="space-y-2">
-          <Label htmlFor="address">Address</Label>
+          <Label htmlFor="address" className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 text-emerald-600" />
+            Address
+          </Label>
           <PlacesAutocomplete
             key={turf?._id ?? "new"}
             id="address"
@@ -197,8 +202,9 @@ export default function TurfForm({
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="latitude">Latitude</Label>
-              <Input
+              <InputWithIcon
                 id="latitude"
+                icon={MapPin}
                 type="number"
                 step="any"
                 value={latitude}
@@ -212,8 +218,9 @@ export default function TurfForm({
             </div>
             <div className="space-y-2">
               <Label htmlFor="longitude">Longitude</Label>
-              <Input
+              <InputWithIcon
                 id="longitude"
+                icon={MapPin}
                 type="number"
                 step="any"
                 value={longitude}
@@ -227,77 +234,82 @@ export default function TurfForm({
             </div>
           </div>
         ) : null}
-      </section>
 
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold">Sports & amenities</h3>
-        <div>
-          <Label>Sport types</Label>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {SPORT_TYPES.map((sport) => (
-              <button
-                key={sport}
-                type="button"
-                onClick={() => toggleItem("sportTypes", sport, sportTypes)}
-                className={`rounded-full px-3 py-1 text-sm ring-1 ${
-                  sportTypes.includes(sport)
-                    ? "bg-emerald-600 text-white ring-emerald-600"
-                    : "bg-white text-gray-700 ring-gray-200"
-                }`}
-              >
-                {sport}
-              </button>
-            ))}
-          </div>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-1.5">
+            <Trophy className="h-3.5 w-3.5 text-emerald-600" />
+            Sport types
+          </Label>
+          <SearchMultiSelect
+            options={SPORT_TYPE_OPTIONS}
+            value={sportTypes}
+            onChange={(next) =>
+              setValue("sportTypes", next as TurfFormValues["sportTypes"], {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            placeholder="Search sports…"
+            searchPlaceholder="Add another sport…"
+            startIcon={Search}
+          />
           {errors.sportTypes ? (
-            <p className="mt-1 text-sm text-destructive">
+            <p className="text-sm text-destructive">
               {errors.sportTypes.message}
             </p>
           ) : null}
         </div>
-        <div>
-          <Label>Amenities</Label>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {AMENITIES.map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => toggleItem("amenities", item, amenities)}
-                className={`rounded-full px-3 py-1 text-sm ring-1 ${
-                  amenities.includes(item)
-                    ? "bg-emerald-600 text-white ring-emerald-600"
-                    : "bg-white text-gray-700 ring-gray-200"
-                }`}
-              >
-                {item}
-              </button>
-            ))}
-          </div>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-1.5">
+            <Search className="h-3.5 w-3.5 text-emerald-600" />
+            Amenities
+          </Label>
+          <SearchMultiSelect
+            options={AMENITY_OPTIONS}
+            value={amenities}
+            onChange={(next) =>
+              setValue("amenities", next, {
+                shouldValidate: true,
+                shouldDirty: true,
+              })
+            }
+            placeholder="Search amenities…"
+            searchPlaceholder="Add another amenity…"
+            startIcon={Search}
+          />
         </div>
-      </section>
 
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold">Pricing & hours</h3>
         <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="basePricePerHour">Base price / hour (₹)</Label>
-            <Input
+            <Label htmlFor="basePricePerHour" className="flex items-center gap-1.5">
+              <IndianRupee className="h-3.5 w-3.5 text-emerald-600" />
+              Base price / hour (₹)
+            </Label>
+            <InputWithIcon
               id="basePricePerHour"
+              icon={IndianRupee}
               type="number"
               {...register("basePricePerHour", { valueAsNumber: true })}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="weekendSurge">Weekend surge (0–1)</Label>
-            <Input
+            <Label htmlFor="weekendSurge" className="flex items-center gap-1.5">
+              <Percent className="h-3.5 w-3.5 text-emerald-600" />
+              Weekend surge (0–1)
+            </Label>
+            <InputWithIcon
               id="weekendSurge"
+              icon={Percent}
               type="number"
               step="0.01"
               {...register("weekendSurge", { valueAsNumber: true })}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="openTime">Opens</Label>
+            <Label htmlFor="openTime" className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-emerald-600" />
+              Opens
+            </Label>
             <TimePicker
               id="openTime"
               value={openTime}
@@ -310,7 +322,10 @@ export default function TurfForm({
             ) : null}
           </div>
           <div className="space-y-2">
-            <Label htmlFor="closeTime">Closes</Label>
+            <Label htmlFor="closeTime" className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-emerald-600" />
+              Closes
+            </Label>
             <TimePicker
               id="closeTime"
               value={closeTime}
@@ -323,51 +338,49 @@ export default function TurfForm({
             ) : null}
           </div>
         </div>
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" {...register("isAvailable")} />
-          Available for bookings
-        </label>
-      </section>
 
-      <section className="space-y-4">
-        <h3 className="text-lg font-semibold">Images</h3>
-        <input
-          ref={fileRef}
-          type="file"
-          accept="image/*"
-          className="hidden"
-          onChange={onImageUpload}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => fileRef.current?.click()}
-          disabled={uploading}
-        >
-          {uploading ? "Uploading…" : "Upload image"}
-        </Button>
-        {images.length > 0 ? (
-          <div className="flex flex-wrap gap-3">
-            {images.map((url, index) => (
-              <div key={`${url}-${index}`} className="relative">
-                <img
-                  src={url}
-                  alt=""
-                  className="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200"
-                />
-                <button
-                  type="button"
-                  onClick={() => removeImage(index)}
-                  aria-label="Remove image"
-                  className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900/85 text-white hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <X className="h-3 w-3" />
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : null}
-      </section>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-1.5">
+            <ImageIcon className="h-3.5 w-3.5 text-emerald-600" />
+            Images
+          </Label>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={onImageUpload}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+          >
+            {uploading ? "Uploading…" : "Upload image"}
+          </Button>
+          {images.length > 0 ? (
+            <div className="flex flex-wrap gap-3">
+              {images.map((url, index) => (
+                <div key={`${url}-${index}`} className="relative">
+                  <img
+                    src={url}
+                    alt=""
+                    className="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    aria-label="Remove image"
+                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900/85 text-white hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                  >
+                    <X className="h-3 w-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : null}
+        </div>
       </div>
 
       <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">

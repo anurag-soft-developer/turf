@@ -4,12 +4,12 @@ import { MyDrawer } from "@/components/my-drawer";
 import EditTurfPanel from "./_components/edit-turf-panel";
 import NewTurfPanel from "./_components/new-turf-panel";
 import TurfDetailPanel from "./_components/turf-detail-panel";
+import TurfListCard from "./_components/turf-list-card";
 import {
   ALL_FILTER,
   EMPTY_TURVES_FILTERS,
   TurvesFilters,
 } from "./_components/turves-filters";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
 import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
@@ -17,10 +17,6 @@ import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { useInfiniteMyTurfs } from "@/modules/host/hooks/use-my-turfs";
 import type { TurfStatus } from "@/types/turf";
-import {
-  turfStatusLabel,
-  turfStatusVariant,
-} from "@/lib/utils/turf-display";
 import { Loader2, MapPin, Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
@@ -228,48 +224,11 @@ function HostTurfsPageContent() {
               <p className="text-sm text-muted-foreground">Refreshing…</p>
             ) : null}
             {turfs.map((turf) => (
-              <button
+              <TurfListCard
                 key={turf._id}
-                type="button"
-                onClick={() => openDrawerDetail(turf._id)}
-                className="block w-full text-left"
-              >
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardContent className="flex items-center gap-4 pt-4">
-                    {turf.images?.[0] ? (
-                      <img
-                        src={turf.images[0]}
-                        alt=""
-                        className="h-16 w-16 shrink-0 rounded-lg object-cover ring-1 ring-gray-200"
-                      />
-                    ) : (
-                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 ring-1 ring-gray-200">
-                        <MapPin className="h-6 w-6 text-gray-400" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-gray-900">{turf?.name}</p>
-                        <Badge variant={turfStatusVariant(turf?.status)}>
-                          {turfStatusLabel(turf?.status)}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {turf?.location?.address}
-                      </p>
-                      {turf?.status === "rejected" && turf.rejectionReason ? (
-                        <p className="mt-1 text-sm text-destructive line-clamp-1">
-                          {turf.rejectionReason}
-                        </p>
-                      ) : null}
-                      <p className="mt-1 text-sm text-emerald-700">
-                        ₹{turf?.pricing?.basePricePerHour}/hr
-                        {turf?.isAvailable === false ? " · Unavailable" : ""}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </button>
+                turf={turf}
+                onOpen={openDrawerDetail}
+              />
             ))}
             <InfiniteScrollSentinel
               hasNextPage={hasNextPage}

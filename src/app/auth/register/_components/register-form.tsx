@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -14,9 +14,10 @@ import {
 } from "@/components/ui/card";
 import { useRegister } from "@/lib/hooks/auth";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
+import { APP_NAME } from "@/lib/constants/app-type";
 import { registerSchema, type RegisterFormData } from "@/lib/schemas/auth";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Lock, User } from "lucide-react";
 import Link from "next/link";
 import { getErrorMessage } from "@/lib/utils";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
@@ -46,15 +47,16 @@ export default function RegisterForm() {
       <CardHeader>
         <CardTitle>Create Account</CardTitle>
         <CardDescription>
-          Join TurfBooking to find and book amazing sports venues
+          Join {APP_NAME} to list your turf and start taking bookings
         </CardDescription>
       </CardHeader>
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="fullName">Full Name</Label>
-            <Input
+            <InputWithIcon
               id="fullName"
+              icon={User}
               type="text"
               placeholder="Enter your full name"
               {...register("fullName")}
@@ -66,8 +68,9 @@ export default function RegisterForm() {
 
           <div className="space-y-2">
             <Label htmlFor="identifier">Email or phone</Label>
-            <Input
+            <InputWithIcon
               id="identifier"
+              icon={User}
               type="text"
               placeholder="you@email.com or +919876543210"
               autoComplete="username"
@@ -82,27 +85,28 @@ export default function RegisterForm() {
 
           <div className="space-y-2">
             <Label htmlFor="password">Password</Label>
-            <div className="relative">
-              <Input
-                id="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Create a strong password"
-                {...register("password")}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-2 top-1 h-6 w-6 p-0"
-                onClick={() => setShowPassword(!showPassword)}
-              >
-                {showPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
+            <InputWithIcon
+              id="password"
+              icon={Lock}
+              type={showPassword ? "text" : "password"}
+              placeholder="Create a strong password"
+              endAdornment={
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="h-6 w-6 p-0"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </Button>
+              }
+              {...register("password")}
+            />
             {errors.password && (
               <p className="text-sm text-red-600">{errors.password.message}</p>
             )}

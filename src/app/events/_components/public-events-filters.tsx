@@ -7,7 +7,7 @@ import { TextSearchFilterField } from "@/app/host/_components/booking-filters/te
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
 import { cn } from "@/lib/utils";
 import { format } from "date-fns";
-import { ChevronDown, SlidersHorizontal, X } from "lucide-react";
+import { ChevronDown, MapPin, ArrowUpDown, SlidersHorizontal, X } from "lucide-react";
 import { useEffect, useState } from "react";
 
 export function todayDateInputValue() {
@@ -82,6 +82,7 @@ function CityFilterField({
       showClear={Boolean(value.trim())}
       onClear={handleClear}
       clearLabel="Clear city filter"
+      startIcon={MapPin}
     >
       <PlacesAutocomplete
         id="event-city"
@@ -199,6 +200,7 @@ export function PublicEventsFilters({
           showClear={sort !== ""}
           onClear={() => onSortChange("")}
           clearLabel="Clear sort filter"
+          startIcon={ArrowUpDown}
         >
           <div className="relative flex w-full items-center">
             <select

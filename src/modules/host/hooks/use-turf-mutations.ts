@@ -34,6 +34,26 @@ export function useUpdateTurf(id: string) {
   });
 }
 
+export function useToggleTurfAvailability() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      isAvailable,
+    }: {
+      id: string;
+      isAvailable: boolean;
+    }) => hostTurfApi.update(id, { isAvailable }),
+    onSuccess: (_, { id }) => {
+      queryClient.invalidateQueries({ queryKey: ["host", "turfs"] });
+      queryClient.invalidateQueries({ queryKey: HOST_QUERY_KEYS.turf(id) });
+    },
+    onError: (error) =>
+      toastError(error, "Failed to update availability. Please try again."),
+  });
+}
+
 export function useDeleteTurf() {
   const queryClient = useQueryClient();
 

@@ -1,6 +1,8 @@
 "use client";
 
 import { Input } from "@/components/ui/input";
+import type { LucideIcon } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { FilterField } from "./filter-field";
 
 export function DateFilterField({
@@ -10,6 +12,7 @@ export function DateFilterField({
   onChange,
   clearLabel,
   clearToValue,
+  startIcon = Calendar,
   className,
 }: {
   label: string;
@@ -18,6 +21,7 @@ export function DateFilterField({
   onChange: (value: string) => void;
   clearLabel: string;
   clearToValue?: string;
+  startIcon?: LucideIcon;
   className?: string;
 }) {
   const resetValue = clearToValue ?? "";
@@ -29,6 +33,7 @@ export function DateFilterField({
       showClear={showClear}
       onClear={() => onChange(resetValue)}
       clearLabel={clearLabel}
+      startIcon={startIcon}
       className={className}
     >
       <Input

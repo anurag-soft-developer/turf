@@ -8,6 +8,7 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
+import { showEventsHost, showTurfHost } from "@/lib/constants/app-type";
 import { cn } from "@/lib/utils";
 import { Banknote, CalendarCheck2, LayoutDashboard, MapPin, Menu } from "lucide-react";
 import Link from "next/link";
@@ -35,16 +36,24 @@ function AdminSidebarLinks({
       label: "Withdrawals",
       icon: Banknote,
     },
-    {
-      href: ROUTE_POINT.platformAdmin.turves,
-      label: "Turf approvals",
-      icon: MapPin,
-    },
-    {
-      href: ROUTE_POINT.platformAdmin.events,
-      label: "Event approvals",
-      icon: CalendarCheck2,
-    },
+    ...(showTurfHost
+      ? [
+          {
+            href: ROUTE_POINT.platformAdmin.turves,
+            label: "Turf approvals",
+            icon: MapPin,
+          },
+        ]
+      : []),
+    ...(showEventsHost
+      ? [
+          {
+            href: ROUTE_POINT.platformAdmin.events,
+            label: "Event approvals",
+            icon: CalendarCheck2,
+          },
+        ]
+      : []),
   ];
 
   return (

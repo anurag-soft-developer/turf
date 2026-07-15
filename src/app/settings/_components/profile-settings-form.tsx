@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import {
@@ -20,7 +20,7 @@ import {
 } from "@/lib/schemas/auth";
 import { useProfile, useUpdateProfile } from "@/lib/hooks/auth";
 import { getErrorMessage } from "@/lib/utils";
-import { Loader2 } from "lucide-react";
+import { FileText, Loader2, Mail, Phone, User } from "lucide-react";
 
 export default function ProfileSettingsForm() {
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
@@ -77,28 +77,40 @@ export default function ProfileSettingsForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {user?.email ? (
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" value={user.email} disabled />
+              <Label htmlFor="email" className="flex items-center gap-1.5">
+                <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+                Email
+              </Label>
+              <InputWithIcon id="email" icon={Mail} value={user.email} disabled />
             </div>
           ) : null}
 
           {user?.phone ? (
             <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" value={user.phone} disabled />
+              <Label htmlFor="phone" className="flex items-center gap-1.5">
+                <Phone className="h-3.5 w-3.5 text-muted-foreground" />
+                Phone
+              </Label>
+              <InputWithIcon id="phone" icon={Phone} value={user.phone} disabled />
             </div>
           ) : null}
 
           <div className="space-y-2">
-            <Label htmlFor="fullName">Full name</Label>
-            <Input id="fullName" {...register("fullName")} />
+            <Label htmlFor="fullName" className="flex items-center gap-1.5">
+              <User className="h-3.5 w-3.5 text-muted-foreground" />
+              Full name
+            </Label>
+            <InputWithIcon id="fullName" icon={User} {...register("fullName")} />
             {errors.fullName && (
               <p className="text-sm text-red-600">{errors.fullName.message}</p>
             )}
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="bio">Bio</Label>
+            <Label htmlFor="bio" className="flex items-center gap-1.5">
+              <FileText className="h-3.5 w-3.5 text-muted-foreground" />
+              Bio
+            </Label>
             <Textarea id="bio" rows={4} {...register("bio")} />
             {errors.bio && (
               <p className="text-sm text-red-600">{errors.bio.message}</p>

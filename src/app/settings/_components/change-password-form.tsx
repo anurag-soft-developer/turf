@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -23,7 +23,7 @@ import {
   useSendChangePasswordOtp,
 } from "@/lib/hooks/auth";
 import { getErrorMessage } from "@/lib/utils";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Loader2, Lock } from "lucide-react";
 
 export default function ChangePasswordForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -73,8 +73,9 @@ export default function ChangePasswordForm() {
             {user?.isPasswordExists && (
               <div className="space-y-2">
                 <Label htmlFor="currentPassword">Current password</Label>
-                <Input
+                <InputWithIcon
                   id="currentPassword"
+                  icon={Lock}
                   type={showPassword ? "text" : "password"}
                   {...register("currentPassword")}
                 />
@@ -100,8 +101,9 @@ export default function ChangePasswordForm() {
                     {sendOtp.isPending ? "Sending…" : "Send OTP"}
                   </Button>
                 </div>
-                <Input
+                <InputWithIcon
                   id="otp"
+                  icon={KeyRound}
                   inputMode="numeric"
                   maxLength={6}
                   placeholder="6-digit code"
@@ -118,26 +120,27 @@ export default function ChangePasswordForm() {
 
             <div className="space-y-2">
               <Label htmlFor="newPassword">New password</Label>
-              <div className="relative">
-                <Input
-                  id="newPassword"
-                  type={showPassword ? "text" : "password"}
-                  {...register("newPassword")}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1 h-6 w-6 p-0"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
+              <InputWithIcon
+                id="newPassword"
+                icon={Lock}
+                type={showPassword ? "text" : "password"}
+                endAdornment={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                }
+                {...register("newPassword")}
+              />
               {errors.newPassword && (
                 <p className="text-sm text-red-600">
                   {errors.newPassword.message}
@@ -147,8 +150,9 @@ export default function ChangePasswordForm() {
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm new password</Label>
-              <Input
+              <InputWithIcon
                 id="confirmPassword"
+                icon={Lock}
                 type={showPassword ? "text" : "password"}
                 {...register("confirmPassword")}
               />

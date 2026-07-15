@@ -7,18 +7,28 @@ import { useHostTurf } from "@/modules/host/hooks/use-my-turfs";
 import {
   useDeleteTurf,
   useSubmitTurfForApproval,
+  useToggleTurfAvailability,
   useWithdrawTurfSubmission,
 } from "@/modules/host/hooks/use-turf-mutations";
 import type { TurfStatus } from "@/modules/host/types/turf";
 import { cn } from "@/lib/utils";
-import { turfStatusLabel, turfStatusVariant } from "@/lib/utils/turf-display";
+import {
+  isTurfOpenForBookings,
+  turfBookingHoldActionLabel,
+  turfBookingHoldBadgeClassName,
+  turfBookingHoldLabel,
+  turfStatusLabel,
+  turfStatusVariant,
+} from "@/lib/utils/turf-display";
 import { format } from "date-fns";
 import {
   Clock,
   IndianRupee,
   Loader2,
   MapPin,
+  PauseCircle,
   Pencil,
+  PlayCircle,
   Ruler,
   Send,
   Star,
@@ -45,32 +55,40 @@ function TurfDetailStat({
   value: string;
 }) {
   return (
-    <div className="rounded-xl border bg-card p-3.5">
-      <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+    <div className="flex items-center gap-3 rounded-xl border bg-card p-3.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
         <Icon className="h-4 w-4" />
       </div>
-      <p className="text-xs font-medium text-muted-foreground">{label}</p>
-      <p className="mt-0.5 text-sm font-semibold text-gray-900">{value}</p>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="mt-0.5 text-sm font-semibold text-gray-900">{value}</p>
+      </div>
     </div>
   );
 }
 
 function TurfDetailActions({
   status,
+  isAvailable,
   onDelete,
   onEdit,
+  onToggleAvailability,
   onSubmit,
   onWithdraw,
   isSubmitting,
   isWithdrawing,
+  isTogglingAvailability,
 }: {
   status: TurfStatus | undefined;
+  isAvailable: boolean;
   onDelete: () => void;
   onEdit?: () => void;
+  onToggleAvailability?: () => void;
   onSubmit?: () => void;
   onWithdraw?: () => void;
   isSubmitting?: boolean;
   isWithdrawing?: boolean;
+  isTogglingAvailability?: boolean;
 }) {
   const resolvedStatus = status ?? "draft";
   const showSubmit =
@@ -124,6 +142,28 @@ function TurfDetailActions({
           type="button"
           variant="outline"
           size="sm"
+          onClick={onToggleAvailability}
+          disabled={isTogglingAvailability}
+          className={cn(
+            "gap-1.5",
+            isAvailable
+              ? "border-amber-200 text-amber-800 hover:bg-amber-50"
+              : "border-emerald-200 text-emerald-700 hover:bg-emerald-50",
+          )}
+        >
+          {isTogglingAvailability ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : isAvailable ? (
+            <PauseCircle className="h-4 w-4" />
+          ) : (
+            <PlayCircle className="h-4 w-4" />
+          )}
+          {turfBookingHoldActionLabel(isAvailable)}
+        </Button>
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
           onClick={onEdit}
           className="gap-1.5"
         >
@@ -153,6 +193,7 @@ export default function TurfDetailPanel({
   const deleteMutation = useDeleteTurf();
   const submitMutation = useSubmitTurfForApproval();
   const withdrawMutation = useWithdrawTurfSubmission();
+  const toggleAvailability = useToggleTurfAvailability();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
@@ -178,6 +219,7 @@ export default function TurfDetailPanel({
   const images = turf.images ?? [];
   const hasImages = images.length > 0;
   const heroImage = hasImages ? images[activeImage] : null;
+  const isAvailable = isTurfOpenForBookings(turf.isAvailable);
 
   const dimensionsLabel =
     turf.dimensions?.length && turf.dimensions?.width
@@ -200,15 +242,10 @@ export default function TurfDetailPanel({
               <div className="absolute bottom-0 left-0 right-0 p-4">
                 <div className="flex flex-wrap items-center gap-2">
                   <Badge
-                    variant={
-                      turf.isAvailable === false ? "secondary" : "default"
-                    }
-                    className={cn(
-                      turf.isAvailable !== false &&
-                        "border-emerald-200 bg-emerald-600 text-white hover:bg-emerald-600",
-                    )}
+                    variant="outline"
+                    className={turfBookingHoldBadgeClassName(turf.isAvailable)}
                   >
-                    {turf.isAvailable === false ? "Unavailable" : "Available"}
+                    {turfBookingHoldLabel(turf.isAvailable)}
                   </Badge>
                   {turf.sportType?.map((sport) => (
                     <Badge
@@ -256,13 +293,10 @@ export default function TurfDetailPanel({
             <div className="flex flex-wrap items-center gap-2">
               {turf.status === "published" && (
                 <Badge
-                  variant={turf.isAvailable === false ? "secondary" : "default"}
-                  className={cn(
-                    turf.isAvailable !== false &&
-                      "border-emerald-200 bg-emerald-600 text-white hover:bg-emerald-600",
-                  )}
+                  variant="outline"
+                  className={turfBookingHoldBadgeClassName(turf.isAvailable)}
                 >
-                  {turf.isAvailable === false ? "Unavailable" : "Available"}
+                  {turfBookingHoldLabel(turf.isAvailable)}
                 </Badge>
               )}
               {turf.sportType?.map((sport) => (
@@ -372,12 +406,20 @@ export default function TurfDetailPanel({
       <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
         <TurfDetailActions
           status={turf.status}
+          isAvailable={isAvailable}
           onDelete={() => setDeleteDialogOpen(true)}
           onEdit={onEdit}
+          onToggleAvailability={() =>
+            toggleAvailability.mutate({
+              id,
+              isAvailable: !isAvailable,
+            })
+          }
           onSubmit={() => setSubmitDialogOpen(true)}
           onWithdraw={() => setWithdrawDialogOpen(true)}
           isSubmitting={submitMutation.isPending}
           isWithdrawing={withdrawMutation.isPending}
+          isTogglingAvailability={toggleAvailability.isPending}
         />
       </div>
 

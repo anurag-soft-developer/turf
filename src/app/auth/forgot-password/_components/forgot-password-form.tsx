@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -25,7 +25,7 @@ import {
 import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { useForgotPassword, useResetPassword } from "@/lib/hooks/auth";
 import { getErrorMessage } from "@/lib/utils";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Loader2, Lock, User } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function ForgotPasswordForm() {
@@ -111,8 +111,9 @@ export default function ForgotPasswordForm() {
           >
             <div className="space-y-2">
               <Label htmlFor="identifier">Email or phone</Label>
-              <Input
+              <InputWithIcon
                 id="identifier"
+                icon={User}
                 type="text"
                 placeholder="you@email.com or +919876543210"
                 {...identifierForm.register("identifier")}
@@ -155,8 +156,9 @@ export default function ForgotPasswordForm() {
           >
             <div className="space-y-2">
               <Label htmlFor="otp">Reset code</Label>
-              <Input
+              <InputWithIcon
                 id="otp"
+                icon={KeyRound}
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="6-digit code"
@@ -172,27 +174,28 @@ export default function ForgotPasswordForm() {
 
             <div className="space-y-2">
               <Label htmlFor="password">New password</Label>
-              <div className="relative">
-                <Input
-                  id="password"
-                  type={showPassword ? "text" : "password"}
-                  placeholder="New password"
-                  {...resetForm.register("password")}
-                />
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  className="absolute right-2 top-1 h-6 w-6 p-0"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
-                </Button>
-              </div>
+              <InputWithIcon
+                id="password"
+                icon={Lock}
+                type={showPassword ? "text" : "password"}
+                placeholder="New password"
+                endAdornment={
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-6 w-6 p-0"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
+                }
+                {...resetForm.register("password")}
+              />
               {resetForm.formState.errors.password && (
                 <p className="text-sm text-red-600">
                   {resetForm.formState.errors.password.message}
@@ -202,8 +205,9 @@ export default function ForgotPasswordForm() {
 
             <div className="space-y-2">
               <Label htmlFor="confirmPassword">Confirm password</Label>
-              <Input
+              <InputWithIcon
                 id="confirmPassword"
+                icon={Lock}
                 type={showPassword ? "text" : "password"}
                 placeholder="Confirm new password"
                 {...resetForm.register("confirmPassword")}

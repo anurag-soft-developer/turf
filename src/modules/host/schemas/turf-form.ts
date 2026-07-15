@@ -2,48 +2,46 @@ import { z } from "zod";
 
 const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
-export const turfFormSchema = z
-  .object({
-    name: z.string().min(1, "Name is required"),
-    description: z.string().min(1, "Description is required"),
-    address: z.string().min(1, "Address is required"),
-    latitude: z.number(),
-    longitude: z.number(),
-    city: z.string().optional(),
-    state: z.string().optional(),
-    zip: z.string().optional(),
-    country: z.string().optional(),
-    sportTypes: z.array(z.string()).min(1, "Select at least one sport"),
-    amenities: z.array(z.string()).optional(),
-    images: z.array(z.string()).optional(),
-    basePricePerHour: z.number().min(0, "Price must be 0 or more"),
-    weekendSurge: z.number().min(0).max(1),
-    openTime: z.string().regex(timeRegex, "Use HH:MM format"),
-    closeTime: z.string().regex(timeRegex, "Use HH:MM format"),
-    length: z.number().min(0).optional(),
-    width: z.number().min(0).optional(),
-    dimensionUnit: z.enum(["meters", "feet"]),
-    isAvailable: z.boolean(),
-    slotBufferMins: z.number().min(0).max(120),
-  })
-  .refine((data) => !(data.latitude === 0 && data.longitude === 0), {
-    message: "Select a location from the address suggestions",
-    path: ["address"],
-  });
-
-export type TurfFormValues = z.infer<typeof turfFormSchema>;
-
-export const SPORT_TYPES = [
-  "Football",
-  "Cricket",
-  "Basketball",
-  "Tennis",
-  "Volleyball",
-  "Badminton",
-  "Hockey",
-  "Baseball",
-  "Soccer",
+export const SPORT_TYPE_VALUES = [
+  "football",
+  "cricket",
+  "basketball",
+  "badminton",
+  "tennis",
+  "volleyball",
+  "hockey",
+  "table_tennis",
+  "squash",
+  "futsal",
+  "kabaddi",
+  "pickleball",
+  "rugby",
+  "baseball",
+  "softball",
+  "handball",
+  "throwball",
+  "netball",
+  "athletics",
+  "boxing",
+  "martial_arts",
+  "skating",
+  "golf",
+  "swimming",
 ] as const;
+
+export type SportTypeValue = (typeof SPORT_TYPE_VALUES)[number];
+
+export function formatSportTypeLabel(slug: string): string {
+  return slug
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+}
+
+export const SPORT_TYPE_OPTIONS = SPORT_TYPE_VALUES.map((value) => ({
+  value,
+  label: formatSportTypeLabel(value),
+}));
 
 export const AMENITIES = [
   "Parking",
@@ -57,6 +55,47 @@ export const AMENITIES = [
   "Wi-Fi",
   "Seating Area",
 ] as const;
+
+export const AMENITY_OPTIONS = AMENITIES.map((value) => ({
+  value,
+  label: value,
+}));
+
+export function isSportTypeValue(value: string): value is SportTypeValue {
+  return (SPORT_TYPE_VALUES as readonly string[]).includes(value);
+}
+
+export const turfFormSchema = z
+  .object({
+    name: z.string().min(1, "Name is required"),
+    description: z.string().min(1, "Description is required"),
+    address: z.string().min(1, "Address is required"),
+    latitude: z.number(),
+    longitude: z.number(),
+    city: z.string().optional(),
+    state: z.string().optional(),
+    zip: z.string().optional(),
+    country: z.string().optional(),
+    sportTypes: z
+      .array(z.enum(SPORT_TYPE_VALUES))
+      .min(1, "Select at least one sport"),
+    amenities: z.array(z.string()).optional(),
+    images: z.array(z.string()).optional(),
+    basePricePerHour: z.number().min(0, "Price must be 0 or more"),
+    weekendSurge: z.number().min(0).max(1),
+    openTime: z.string().regex(timeRegex, "Use HH:MM format"),
+    closeTime: z.string().regex(timeRegex, "Use HH:MM format"),
+    length: z.number().min(0).optional(),
+    width: z.number().min(0).optional(),
+    dimensionUnit: z.enum(["meters", "feet"]),
+    slotBufferMins: z.number().min(0).max(120),
+  })
+  .refine((data) => !(data.latitude === 0 && data.longitude === 0), {
+    message: "Select a location from the address suggestions",
+    path: ["address"],
+  });
+
+export type TurfFormValues = z.infer<typeof turfFormSchema>;
 
 export function turfFormToCreatePayload(values: TurfFormValues) {
   const location: {
@@ -105,7 +144,6 @@ export function turfFormToCreatePayload(values: TurfFormValues) {
             unit: values.dimensionUnit,
           }
         : undefined,
-    isAvailable: values.isAvailable,
     slotBufferMins: values.slotBufferMins,
   };
 }

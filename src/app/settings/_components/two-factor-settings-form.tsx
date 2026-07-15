@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -24,7 +24,7 @@ import {
   useUpdateTwoFactor,
 } from "@/lib/hooks/auth";
 import { getErrorMessage } from "@/lib/utils";
-import { Loader2, Shield } from "lucide-react";
+import { KeyRound, Loader2, Shield } from "lucide-react";
 
 export default function TwoFactorSettingsForm() {
   const { data: user } = useProfile();
@@ -119,8 +119,9 @@ export default function TwoFactorSettingsForm() {
                   {sendOtp.isPending ? "Sending…" : "Resend OTP"}
                 </Button>
               </div>
-              <Input
+              <InputWithIcon
                 id="otp"
+                icon={KeyRound}
                 inputMode="numeric"
                 maxLength={6}
                 placeholder="6-digit code"

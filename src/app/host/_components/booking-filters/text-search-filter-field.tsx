@@ -1,6 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
+import type { LucideIcon } from "lucide-react";
+import { Search } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useDebounce } from "use-debounce";
 import { ENTITY_SEARCH_DEBOUNCE_MS, filterFieldInnerClass } from "./constants";
@@ -12,6 +14,7 @@ export function TextSearchFilterField({
   onChange,
   placeholder,
   clearLabel,
+  startIcon = Search,
   className,
 }: {
   label: string;
@@ -19,6 +22,7 @@ export function TextSearchFilterField({
   onChange: (value: string) => void;
   placeholder: string;
   clearLabel: string;
+  startIcon?: LucideIcon;
   className?: string;
 }) {
   const [query, setQuery] = useState(value);
@@ -43,6 +47,7 @@ export function TextSearchFilterField({
       showClear={Boolean(query)}
       onClear={handleClear}
       clearLabel={clearLabel}
+      startIcon={startIcon}
       className={className}
     >
       <input

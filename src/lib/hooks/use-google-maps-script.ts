@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import ENV_CONFIG from "@/config/env.config";
 
 const GOOGLE_MAPS_SCRIPT_ID = "google-maps-script";
 const INIT_CALLBACK = "__googleMapsInit";
@@ -26,7 +27,7 @@ function loadGoogleMapsScript(): Promise<void> {
   if (loadPromise) return loadPromise;
 
   loadPromise = new Promise((resolve, reject) => {
-    const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+    const apiKey = ENV_CONFIG.GOOGLE_MAPS_API_KEY;
     if (!apiKey) {
       loadPromise = null;
       reject(new Error("Google Maps API key is not configured"));

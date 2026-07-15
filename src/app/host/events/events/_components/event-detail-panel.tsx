@@ -3,12 +3,21 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { eventStatusLabel, eventStatusVariant } from "@/lib/utils/event-display";
+import { cn } from "@/lib/utils";
+import {
+  eventRegistrationHoldActionLabel,
+  eventRegistrationHoldBadgeClassName,
+  eventRegistrationHoldLabel,
+  eventStatusLabel,
+  eventStatusVariant,
+  isEventOpenForRegistrations,
+} from "@/lib/utils/event-display";
 import { useHostEvent } from "@/modules/host/hooks/use-my-events";
 import {
   useCloseEvent,
   useDeleteEvent,
   useSubmitEventForApproval,
+  useToggleEventRegistrations,
   useWithdrawEventSubmission,
 } from "@/modules/host/hooks/use-event-mutations";
 import { format } from "date-fns";
@@ -17,7 +26,9 @@ import {
   IndianRupee,
   Loader2,
   MapPin,
+  PauseCircle,
   Pencil,
+  PlayCircle,
   Send,
   Trash2,
   Undo2,
@@ -38,6 +49,28 @@ function formatEventDate(value?: string) {
   return format(date, "MMM d, yyyy");
 }
 
+function EventDetailStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="flex items-center gap-3 rounded-xl border bg-card p-3.5">
+      <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0">
+        <p className="text-xs font-medium text-muted-foreground">{label}</p>
+        <p className="mt-0.5 text-sm font-semibold text-gray-900">{value}</p>
+      </div>
+    </div>
+  );
+}
+
 export default function EventDetailPanel({
   id,
   onEdit,
@@ -48,6 +81,7 @@ export default function EventDetailPanel({
   const submitMutation = useSubmitEventForApproval();
   const withdrawMutation = useWithdrawEventSubmission();
   const closeMutation = useCloseEvent();
+  const toggleRegistrations = useToggleEventRegistrations();
 
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
@@ -75,6 +109,7 @@ export default function EventDetailPanel({
   const showSubmit = resolvedStatus === "draft" || resolvedStatus === "rejected";
   const showWithdraw = resolvedStatus === "pending_approval";
   const showClose = resolvedStatus === "published" && !event.isClosed;
+  const registrationsOpen = isEventOpenForRegistrations(event.registrationsPaused);
 
   return (
     <div className="-mx-4 flex min-h-full flex-col">
@@ -85,6 +120,14 @@ export default function EventDetailPanel({
             <Badge variant={eventStatusVariant(event.status)}>
               {eventStatusLabel(event.status)}
             </Badge>
+            <Badge
+              variant="outline"
+              className={eventRegistrationHoldBadgeClassName(
+                event.registrationsPaused,
+              )}
+            >
+              {eventRegistrationHoldLabel(event.registrationsPaused)}
+            </Badge>
             <span className="text-xs text-muted-foreground">
               {formatEventDate(event.eventDate)}
               {event.reportingTime ? ` at ${event.reportingTime}` : ""}
@@ -93,24 +136,16 @@ export default function EventDetailPanel({
         </div>
 
         <div className="grid grid-cols-2 gap-3">
-          <div className="rounded-xl border bg-card p-3.5">
-            <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-              <IndianRupee className="h-4 w-4" />
-            </div>
-            <p className="text-xs font-medium text-muted-foreground">Price</p>
-            <p className="mt-0.5 text-sm font-semibold text-gray-900">
-              {event.currency} {event.price}
-            </p>
-          </div>
-          <div className="rounded-xl border bg-card p-3.5">
-            <div className="mb-2 flex h-8 w-8 items-center justify-center rounded-lg bg-emerald-50 text-emerald-700">
-              <UserRound className="h-4 w-4" />
-            </div>
-            <p className="text-xs font-medium text-muted-foreground">Participants</p>
-            <p className="mt-0.5 text-sm font-semibold text-gray-900">
-              {event.registeredCount}/{event.maxParticipants}
-            </p>
-          </div>
+          <EventDetailStat
+            icon={IndianRupee}
+            label="Price"
+            value={`${event.currency} ${event.price}`}
+          />
+          <EventDetailStat
+            icon={UserRound}
+            label="Participants"
+            value={`${event.registeredCount}/${event.maxParticipants}`}
+          />
         </div>
 
         {event.location?.address ? (
@@ -188,6 +223,34 @@ export default function EventDetailPanel({
               Close event
             </Button>
           ) : null}
+
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            disabled={toggleRegistrations.isPending}
+            onClick={() =>
+              toggleRegistrations.mutate({
+                id,
+                registrationsPaused: registrationsOpen,
+              })
+            }
+            className={cn(
+              "gap-1.5",
+              registrationsOpen
+                ? "border-amber-200 text-amber-800 hover:bg-amber-50"
+                : "border-emerald-200 text-emerald-700 hover:bg-emerald-50",
+            )}
+          >
+            {toggleRegistrations.isPending ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : registrationsOpen ? (
+              <PauseCircle className="h-4 w-4" />
+            ) : (
+              <PlayCircle className="h-4 w-4" />
+            )}
+            {eventRegistrationHoldActionLabel(event.registrationsPaused)}
+          </Button>
 
           <Button type="button" variant="outline" size="sm" onClick={onEdit} className="gap-1.5">
             <Pencil className="h-4 w-4" />

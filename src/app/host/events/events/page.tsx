@@ -4,12 +4,12 @@ import { MyDrawer } from "@/components/my-drawer";
 import EditEventPanel from "./_components/edit-event-panel";
 import NewEventPanel from "./_components/new-event-panel";
 import EventDetailPanel from "./_components/event-detail-panel";
+import EventListCard from "./_components/event-list-card";
 import {
   ALL_FILTER,
   EMPTY_EVENTS_FILTERS,
   EventsFilters,
 } from "./_components/events-filters";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
 import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
@@ -17,8 +17,6 @@ import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
 import { useInfiniteMyEvents } from "@/modules/host/hooks/use-my-events";
 import type { EventStatus } from "@/modules/host/types/event";
-import { eventStatusLabel, eventStatusVariant } from "@/lib/utils/event-display";
-import { format } from "date-fns";
 import { CalendarDays, Loader2, Plus } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useCallback, useEffect, useState } from "react";
@@ -47,13 +45,6 @@ function EventDrawerQuerySync({ onOpenNew }: { onOpenNew: () => void }) {
   }, [searchParams, onOpenNew, router]);
 
   return null;
-}
-
-function formatDate(value?: string) {
-  if (!value) return "Date not set";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "Date not set";
-  return format(date, "MMM d, yyyy");
 }
 
 function HostEventsPageContent() {
@@ -243,47 +234,11 @@ function HostEventsPageContent() {
             ) : null}
 
             {events.map((event) => (
-              <button
+              <EventListCard
                 key={event._id}
-                type="button"
-                onClick={() => openDrawerDetail(event._id)}
-                className="block w-full text-left"
-              >
-                <Card className="transition-shadow hover:shadow-md">
-                  <CardContent className="flex items-center gap-4 pt-4">
-                    {event.coverImages?.[0] ? (
-                      <img
-                        src={event.coverImages[0]}
-                        alt=""
-                        className="h-16 w-16 shrink-0 rounded-lg object-cover ring-1 ring-gray-200"
-                      />
-                    ) : (
-                      <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-gray-100 ring-1 ring-gray-200">
-                        <CalendarDays className="h-6 w-6 text-gray-400" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-gray-900">{event.title}</p>
-                        <Badge variant={eventStatusVariant(event.status)}>
-                          {eventStatusLabel(event.status)}
-                        </Badge>
-                      </div>
-                      <p className="text-sm text-muted-foreground line-clamp-1">
-                        {event.location?.address}
-                      </p>
-                      {event.status === "rejected" && event.rejectionReason ? (
-                        <p className="mt-1 text-sm text-destructive line-clamp-1">
-                          {event.rejectionReason}
-                        </p>
-                      ) : null}
-                      <p className="mt-1 text-sm text-emerald-700">
-                        {formatDate(event.eventDate)} • {event.currency} {event.price}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </button>
+                event={event}
+                onOpen={openDrawerDetail}
+              />
             ))}
 
             <InfiniteScrollSentinel

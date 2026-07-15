@@ -1,6 +1,6 @@
 "use client";
 
-import { ROUTE_POINT } from "@/lib/constants/route-point";
+import { getDefaultHomeRoute } from "@/lib/constants/app-type";
 import { isTokenValid } from "@/lib/utils/auth.util";
 import { redirect } from "next/navigation";
 import React from "react";
@@ -10,11 +10,10 @@ interface iProps {
 }
 
 const AnonymousPage = ({ children }: iProps) => {
-  
   const { isValid, payload } = isTokenValid();
 
   if (isValid && payload?.sub) {
-    redirect(ROUTE_POINT.events);
+    redirect(getDefaultHomeRoute());
   }
 
   return children;

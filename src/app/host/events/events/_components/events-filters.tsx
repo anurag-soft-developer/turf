@@ -7,6 +7,7 @@ import { StatusFilterField } from "@/app/host/_components/booking-filters/status
 import { TextSearchFilterField } from "@/app/host/_components/booking-filters/text-search-filter-field";
 import { eventStatusLabel } from "@/lib/utils/event-display";
 import type { EventStatus } from "@/modules/host/types/event";
+import { PauseCircle } from "lucide-react";
 
 export { ALL_FILTER } from "@/app/host/_components/booking-filters/constants";
 
@@ -24,8 +25,8 @@ const STATUS_OPTIONS: { label: string; value: EventStatus }[] = (
 }));
 
 const REGISTRATIONS_OPTIONS = [
-  { label: "Open", value: "false" },
-  { label: "Paused", value: "true" },
+  { label: "Open for bookings", value: "false" },
+  { label: "Bookings on hold", value: "true" },
 ] as const;
 
 export interface EventsFilterState {
@@ -106,7 +107,8 @@ export function EventsFilters({
         options={[...REGISTRATIONS_OPTIONS]}
         onChange={onRegistrationsChange}
         clearLabel="Clear registrations filter"
-        className="max-w-[180px]"
+        startIcon={PauseCircle}
+        className="max-w-[220px]"
       />
     </BookingFiltersBar>
   );

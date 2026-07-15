@@ -1,25 +1,26 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { Outfit, Plus_Jakarta_Sans } from "next/font/google";
 import Footer from "@/components/layout/footer";
 import Navbar from "@/components/layout/navbar/navbar";
 import QueryProvider from "@/lib/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
+import { APP_NAME } from "@/lib/constants/app-type";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const plusJakarta = Plus_Jakarta_Sans({
+  variable: "--font-plus-jakarta",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const outfit = Outfit({
+  variable: "--font-outfit",
   subsets: ["latin"],
 });
 
 export const metadata: Metadata = {
-  title: "TurfBooking - Find & Book Sports Turfs",
+  title: `${APP_NAME} - List Your Turf & Take Bookings`,
   description:
-    "Discover and book the best sports turfs in your city. Cricket, Football, Basketball and more!",
+    "Publish your sports turf, manage bookings, and grow your venue business. Built for turf owners.",
 };
 
 export default function RootLayout({
@@ -30,7 +31,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${plusJakarta.variable} ${outfit.variable} font-sans antialiased`}
       >
         <QueryProvider>
           <div className="flex min-h-screen flex-col">

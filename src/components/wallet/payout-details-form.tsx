@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import {
   useWallet,
@@ -15,7 +15,7 @@ import {
 } from "@/modules/host/schemas/wallet-form";
 import type { PayoutMethod } from "@/types/wallet";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { Landmark, Loader2, Smartphone, User } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -155,8 +155,9 @@ export default function PayoutDetailsForm({
             <>
               <div className="space-y-2">
                 <Label htmlFor="accountHolderName">Account holder name</Label>
-                <Input
+                <InputWithIcon
                   id="accountHolderName"
+                  icon={User}
                   {...register("accountHolderName")}
                 />
                 {"accountHolderName" in errors && errors.accountHolderName ? (
@@ -167,7 +168,11 @@ export default function PayoutDetailsForm({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="bankName">Bank name</Label>
-                <Input id="bankName" {...register("bankName")} />
+                <InputWithIcon
+                  id="bankName"
+                  icon={Landmark}
+                  {...register("bankName")}
+                />
                 {"bankName" in errors && errors.bankName ? (
                   <p className="text-sm text-destructive">
                     {errors.bankName.message}
@@ -176,7 +181,11 @@ export default function PayoutDetailsForm({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="accountNumber">Account number</Label>
-                <Input id="accountNumber" {...register("accountNumber")} />
+                <InputWithIcon
+                  id="accountNumber"
+                  icon={Landmark}
+                  {...register("accountNumber")}
+                />
                 {"accountNumber" in errors && errors.accountNumber ? (
                   <p className="text-sm text-destructive">
                     {errors.accountNumber.message}
@@ -185,7 +194,11 @@ export default function PayoutDetailsForm({
               </div>
               <div className="space-y-2">
                 <Label htmlFor="ifscCode">IFSC code</Label>
-                <Input id="ifscCode" {...register("ifscCode")} />
+                <InputWithIcon
+                  id="ifscCode"
+                  icon={Landmark}
+                  {...register("ifscCode")}
+                />
                 {"ifscCode" in errors && errors.ifscCode ? (
                   <p className="text-sm text-destructive">
                     {errors.ifscCode.message}
@@ -196,8 +209,9 @@ export default function PayoutDetailsForm({
           ) : (
             <div className="space-y-2">
               <Label htmlFor="upiId">UPI ID</Label>
-              <Input
+              <InputWithIcon
                 id="upiId"
+                icon={Smartphone}
                 placeholder="name@bank"
                 {...register("upiId")}
               />

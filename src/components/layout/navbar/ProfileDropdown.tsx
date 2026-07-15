@@ -1,6 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { useLogout, useProfile } from "@/lib/hooks/auth";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
+import {
+  showEventsHost,
+  showEventsPublic,
+  showPlatformAdmin,
+  showTurfHost,
+} from "@/lib/constants/app-type";
 import { isPlatformAdmin } from "@/types/auth";
 import {
   User,
@@ -23,23 +29,34 @@ const ProfileDropdown = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-
   const linkButtons = [
-    {
-      href: ROUTE_POINT.myBookings,
-      icon: <CalendarCheck className="w-4 h-4" />,
-      label: "My bookings",
-    },
-    {
-      href: ROUTE_POINT.host.turves.dashboard,
-      icon: <BrickWall className="w-4 h-4" />,
-      label: "Turf management",
-    },
-    {
-      href: ROUTE_POINT.host.events.dashboard,
-      icon: <Ticket className="w-4 h-4" />,
-      label: "Event management",
-    },
+    ...(showEventsPublic
+      ? [
+          {
+            href: ROUTE_POINT.myBookings,
+            icon: <CalendarCheck className="w-4 h-4" />,
+            label: "My bookings",
+          },
+        ]
+      : []),
+    ...(showTurfHost
+      ? [
+          {
+            href: ROUTE_POINT.host.turves.dashboard,
+            icon: <BrickWall className="w-4 h-4" />,
+            label: "Turf management",
+          },
+        ]
+      : []),
+    ...(showEventsHost
+      ? [
+          {
+            href: ROUTE_POINT.host.events.dashboard,
+            icon: <Ticket className="w-4 h-4" />,
+            label: "Event management",
+          },
+        ]
+      : []),
     {
       href: ROUTE_POINT.settings,
       icon: <Settings className="w-4 h-4" />,
@@ -50,7 +67,7 @@ const ProfileDropdown = () => {
       icon: <Bell className="w-4 h-4" />,
       label: "Notifications",
     },
-    ...(isPlatformAdmin(data)
+    ...(showPlatformAdmin && isPlatformAdmin(data)
       ? [
           {
             href: ROUTE_POINT.platformAdmin.home,
@@ -91,7 +108,9 @@ const ProfileDropdown = () => {
           </Button>
         </Link>
         <Link href={ROUTE_POINT.auth.register}>
-          <Button className="w-full">Get Started</Button>
+          <Button className="w-full bg-emerald-600 text-white hover:bg-emerald-500">
+            Get Started
+          </Button>
         </Link>
       </>
     );

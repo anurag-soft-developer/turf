@@ -3,26 +3,40 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
+import {
+  APP_NAME,
+  getDefaultHomeRoute,
+  showEventsHost,
+  showEventsPublic,
+  showTurfHost,
+} from "@/lib/constants/app-type";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import ProfileDropdown from "./ProfileDropdown";
 
-const NAV_LINKS = [
-  { label: "Events", href: ROUTE_POINT.events },
-  { label: "About Us", href: "/#about" },
-  { label: "Contacts", href: "/#contact" },
-];
+const HOME_HREF = getDefaultHomeRoute();
+
+const NAV_LINKS = showTurfHost
+  ? [
+      { label: "How it works", href: "/#how-it-works" },
+      { label: "Features", href: "/#features" },
+    ]
+  : showEventsPublic
+    ? [{ label: "Events", href: ROUTE_POINT.events }]
+    : showEventsHost
+      ? [{ label: "Dashboard", href: ROUTE_POINT.host.events.dashboard }]
+      : [];
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="bg-white shadow-lg fixed w-full top-0 z-50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <nav className="fixed top-0 z-50 w-full border-b border-gray-200 bg-white/95 shadow-sm backdrop-blur">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center gap-4">
           <div className="flex items-center">
-            <Link href={ROUTE_POINT.home} className="flex shrink-0 items-center">
-              <h1 className="text-2xl font-bold text-green-600">TurfBooking</h1>
+            <Link href={HOME_HREF} className="flex shrink-0 items-center">
+              <h1 className="text-2xl font-bold font-heading text-emerald-600">{APP_NAME}</h1>
             </Link>
           </div>
 
@@ -48,6 +62,7 @@ export default function Navbar() {
               size="sm"
               onClick={() => setIsOpen((prev) => !prev)}
               aria-label="Toggle menu"
+              className="text-gray-700 hover:bg-gray-100 hover:text-gray-900"
             >
               {isOpen ? (
                 <X className="h-6 w-6" />
@@ -61,7 +76,7 @@ export default function Navbar() {
 
       {isOpen && (
         <div className="md:hidden">
-          <div className="bg-white px-2 pb-3 pt-2 shadow-lg sm:px-3">
+          <div className="border-t border-gray-200 bg-white px-2 pb-3 pt-2 shadow-lg sm:px-3">
             <div className="space-y-1 px-3 pb-2">
               {NAV_LINKS.map((item) => (
                 <Link

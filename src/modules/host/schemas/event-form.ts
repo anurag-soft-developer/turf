@@ -23,7 +23,6 @@ export const eventFormSchema = z
     maxParticipants: z.number().int().min(1, "At least 1 participant required"),
     coverImages: z.array(z.string()).optional(),
     turfId: z.string().optional(),
-    registrationsPaused: z.boolean(),
   })
   .refine((data) => !(data.latitude === 0 && data.longitude === 0), {
     message: "Select a location from the address suggestions",
@@ -56,6 +55,5 @@ export function eventFormToCreatePayload(
     maxParticipants: values.maxParticipants,
     coverImages: values.coverImages ?? [],
     turf: values.turfId?.trim() || undefined,
-    registrationsPaused: values.registrationsPaused,
   };
 }

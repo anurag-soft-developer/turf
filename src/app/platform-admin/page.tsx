@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
+import { showEventsHost, showTurfHost } from "@/lib/constants/app-type";
 import { Banknote, CalendarCheck2, MapPin } from "lucide-react";
 
 const adminSections = [
@@ -10,18 +11,26 @@ const adminSections = [
     description: "Review and process host withdrawal requests",
     icon: Banknote,
   },
-  {
-    href: ROUTE_POINT.platformAdmin.turves,
-    title: "Turf approvals",
-    description: "Approve or reject turf listings submitted by hosts",
-    icon: MapPin,
-  },
-  {
-    href: ROUTE_POINT.platformAdmin.events,
-    title: "Event approvals",
-    description: "Approve or reject events submitted by hosts",
-    icon: CalendarCheck2,
-  },
+  ...(showTurfHost
+    ? [
+        {
+          href: ROUTE_POINT.platformAdmin.turves,
+          title: "Turf approvals",
+          description: "Approve or reject turf listings submitted by hosts",
+          icon: MapPin,
+        },
+      ]
+    : []),
+  ...(showEventsHost
+    ? [
+        {
+          href: ROUTE_POINT.platformAdmin.events,
+          title: "Event approvals",
+          description: "Approve or reject events submitted by hosts",
+          icon: CalendarCheck2,
+        },
+      ]
+    : []),
 ];
 
 export default function PlatformAdminPage() {

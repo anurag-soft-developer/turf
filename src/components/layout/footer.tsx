@@ -1,43 +1,81 @@
-import Link from 'next/link';
+"use client";
+
+import Link from "next/link";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
+import {
+  APP_NAME,
+  getDefaultHomeRoute,
+  showEventsHost,
+  showEventsPublic,
+  showTurfHost,
+} from "@/lib/constants/app-type";
+import { useProfile } from "@/lib/hooks/auth";
+
+const HOME_HREF = getDefaultHomeRoute();
+
+const TAGLINE = showTurfHost
+  ? "The host platform for turf owners. Publish your venue, manage bookings, and grow your sports business."
+  : showEventsPublic
+    ? "Discover and book sports events near you."
+    : "Create and manage sports events, bookings, and payouts from one place.";
 
 export default function Footer() {
+  const { data: user } = useProfile();
+
+  const quickLinks = [
+    { href: HOME_HREF, label: "Home" },
+    ...(user
+      ? showTurfHost
+        ? [{ href: ROUTE_POINT.host.turves.dashboard, label: "Dashboard" }]
+        : showEventsHost
+          ? [{ href: ROUTE_POINT.host.events.dashboard, label: "Dashboard" }]
+          : showEventsPublic
+            ? [{ href: ROUTE_POINT.events, label: "Events" }]
+            : []
+      : [
+          ...(showTurfHost
+            ? [{ href: ROUTE_POINT.auth.register, label: "List Your Turf" }]
+            : showEventsHost
+              ? [{ href: ROUTE_POINT.auth.register, label: "Get Started" }]
+              : showEventsPublic
+                ? [{ href: ROUTE_POINT.events, label: "Events" }]
+                : []),
+          { href: ROUTE_POINT.auth.login, label: "Sign In" },
+        ]),
+  ];
+
   return (
-    <footer className="bg-gray-900 text-white py-12">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-          <div className="col-span-1 md:col-span-2">
-            <h3 className="text-2xl font-bold text-green-400 mb-4">TurfBooking</h3>
-            <p className="text-gray-300 mb-4">
-              Your premier destination for booking sports venues. Find, book, and play at the best turfs in your city.
-            </p>
-            <div className="flex space-x-4">
-              <a href="#" className="text-gray-300 hover:text-green-400">Facebook</a>
-              <a href="#" className="text-gray-300 hover:text-green-400">Twitter</a>
-              <a href="#" className="text-gray-300 hover:text-green-400">Instagram</a>
-            </div>
+    <footer className="border-t border-gray-200 bg-gray-50 py-12 text-gray-900">
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+          <div className="md:col-span-2">
+            <h3 className="font-heading mb-4 text-2xl font-bold text-emerald-600">
+              {APP_NAME}
+            </h3>
+            <p className="max-w-md text-gray-600">{TAGLINE}</p>
           </div>
-          
+
           <div>
-            <h4 className="text-lg font-semibold mb-4">Quick Links</h4>
+            <h4 className="font-heading mb-4 text-lg font-semibold text-gray-900">
+              Quick Links
+            </h4>
             <ul className="space-y-2">
-              <li><Link href={ROUTE_POINT.reviews} className="text-gray-300 hover:text-green-400">Reviews</Link></li>
-            </ul>
-          </div>
-          
-          <div>
-            <h4 className="text-lg font-semibold mb-4">Support</h4>
-            <ul className="space-y-2">
-              <li><a href="#" className="text-gray-300 hover:text-green-400">Help Center</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-green-400">Contact Us</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-green-400">Privacy Policy</a></li>
-              <li><a href="#" className="text-gray-300 hover:text-green-400">Terms of Service</a></li>
+              {quickLinks.map(({ href, label }) => (
+                <li key={`${href}-${label}`}>
+                  <Link
+                    href={href}
+                    className="text-gray-600 transition-colors hover:text-emerald-600"
+                  >
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </div>
         </div>
-        
-        <div className="border-t border-gray-700 mt-8 pt-8 text-center text-gray-300">
-          <p>&copy; 2024 TurfBooking. All rights reserved.</p>
+
+        <div className="mt-8 border-t border-gray-200 pt-8 text-center text-gray-500">
+          <p>&copy; {new Date().getFullYear()} {APP_NAME}. All rights reserved.</p>
         </div>
       </div>
     </footer>

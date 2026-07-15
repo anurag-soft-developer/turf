@@ -13,6 +13,7 @@ import {
 import type { HostEvent } from "@/modules/host/types/event";
 import type { EventBookingStatus } from "@/modules/host/types/owner-event-booking";
 import { format } from "date-fns";
+import { CalendarDays } from "lucide-react";
 import { useCallback, useState } from "react";
 
 export { ALL_FILTER } from "@/app/host/_components/booking-filters/constants";
@@ -116,6 +117,7 @@ export function EventBookingsFilters({
         showClear={Boolean(selectedEventId)}
         onClear={() => onEventChange("")}
         clearLabel="Clear event filter"
+        startIcon={CalendarDays}
         className="max-w-[260px]"
       >
         <EventSearchField value={selectedEventId} onChange={onEventChange} />

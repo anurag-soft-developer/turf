@@ -8,7 +8,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
@@ -16,8 +16,8 @@ import {
   useSendVerificationEmail,
   useVerifyEmail,
 } from "@/lib/hooks/auth";
-import { ROUTE_POINT } from "@/lib/constants/route-point";
-import { CheckCircle, Mail, Loader2, AlertCircle } from "lucide-react";
+import { getDefaultHomeRoute } from "@/lib/constants/app-type";
+import { CheckCircle, KeyRound, Mail, Loader2, AlertCircle } from "lucide-react";
 
 const Page = () => {
   const [otp, setOtp] = useState("");
@@ -87,7 +87,7 @@ const Page = () => {
   // Phone-only accounts have no email to verify — send them onward.
   if (!isProfileLoading && user && !email) {
     if (typeof window !== "undefined") {
-      window.location.href = ROUTE_POINT.events;
+      window.location.href = getDefaultHomeRoute();
     }
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -135,10 +135,10 @@ const Page = () => {
           </CardHeader>
           <CardContent>
             <Button
-              onClick={() => (window.location.href = ROUTE_POINT.events)}
+              onClick={() => (window.location.href = getDefaultHomeRoute())}
               className="w-full"
             >
-              Go to Events
+              Continue
             </Button>
           </CardContent>
         </Card>
@@ -201,8 +201,9 @@ const Page = () => {
                 <Label className="pb-2" htmlFor="otp">
                   Verification Code
                 </Label>
-                <Input
+                <InputWithIcon
                   id="otp"
+                  icon={KeyRound}
                   type="text"
                   placeholder="Enter 6-digit code"
                   value={otp}

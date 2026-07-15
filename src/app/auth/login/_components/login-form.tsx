@@ -3,7 +3,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import {
   Card,
@@ -27,7 +27,7 @@ import {
 } from "@/types/auth";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, KeyRound, Lock, User } from "lucide-react";
 import Link from "next/link";
 import GoogleLoginButton from "@/components/auth/GoogleLoginButton";
 import { getErrorMessage } from "@/lib/utils";
@@ -109,8 +109,9 @@ export default function LoginForm() {
             </p>
             <div className="space-y-2">
               <Label htmlFor="otp">Verification code</Label>
-              <Input
+              <InputWithIcon
                 id="otp"
+                icon={KeyRound}
                 type="text"
                 inputMode="numeric"
                 maxLength={6}
@@ -155,8 +156,9 @@ export default function LoginForm() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="identifier">Email or phone</Label>
-                <Input
+                <InputWithIcon
                   id="identifier"
+                  icon={User}
                   type="text"
                   placeholder="you@email.com or +919876543210"
                   autoComplete="username"
@@ -171,27 +173,28 @@ export default function LoginForm() {
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    placeholder="Enter your password"
-                    {...register("password")}
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-2 top-1 h-6 w-6 p-0"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
-                </div>
+                <InputWithIcon
+                  id="password"
+                  icon={Lock}
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Enter your password"
+                  endAdornment={
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="h-6 w-6 p-0"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
+                  }
+                  {...register("password")}
+                />
                 {errors.password && (
                   <p className="text-sm text-red-600">{errors.password.message}</p>
                 )}

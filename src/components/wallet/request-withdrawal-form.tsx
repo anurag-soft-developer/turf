@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import { formatInr } from "@/lib/utils/currency";
 import { useWallet } from "@/modules/host/hooks/use-wallet";
@@ -14,7 +14,7 @@ import {
 } from "@/modules/host/schemas/wallet-form";
 import { getAvailableBalanceForLane, type WalletType } from "@/types/wallet";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2 } from "lucide-react";
+import { IndianRupee, Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { isAxiosError } from "axios";
 
@@ -74,8 +74,9 @@ export default function RequestWithdrawalForm({
         <form onSubmit={onSubmit} className="flex flex-wrap items-end gap-4">
           <div className="min-w-[200px] flex-1 space-y-2">
             <Label htmlFor="amount">Amount (INR)</Label>
-            <Input
+            <InputWithIcon
               id="amount"
+              icon={IndianRupee}
               type="number"
               min={1}
               step={1}

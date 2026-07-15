@@ -29,6 +29,7 @@ import {
   setRefreshToken,
 } from "../utils/auth.util";
 import { ROUTE_POINT } from "../constants/route-point";
+import { getDefaultHomeRoute } from "../constants/app-type";
 
 export const AUTH_QUERY_KEYS = {
   profile: ["auth", "profile"],
@@ -67,7 +68,7 @@ export const useLogin = (redirectTo?: string) => {
         user: data.user,
       });
       persistSession(data.accessToken, data.refreshToken);
-      router.push(redirectTo || ROUTE_POINT.events);
+      router.push(redirectTo || getDefaultHomeRoute());
       router.refresh();
     },
   });
@@ -86,7 +87,7 @@ export const useVerifyLoginOtp = (redirectTo?: string) => {
         user: data.user,
       });
       persistSession(data.accessToken, data.refreshToken);
-      router.push(redirectTo || ROUTE_POINT.events);
+      router.push(redirectTo || getDefaultHomeRoute());
       router.refresh();
     },
   });
@@ -102,7 +103,7 @@ export const useRegister = () => {
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEYS.profile, data.user);
       persistSession(data.accessToken, data.refreshToken);
-      router.push(ROUTE_POINT.events);
+      router.push(getDefaultHomeRoute());
       router.refresh();
     },
   });
@@ -222,7 +223,7 @@ export const useVerifyEmail = () => {
     onSuccess: (data) => {
       persistSession(data.accessToken, data.refreshToken);
       queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.profile });
-      router.push(ROUTE_POINT.events);
+      router.push(getDefaultHomeRoute());
       router.refresh();
     },
   });

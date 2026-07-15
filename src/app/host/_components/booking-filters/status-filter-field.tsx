@@ -1,7 +1,8 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { ChevronDown } from "lucide-react";
+import type { LucideIcon } from "lucide-react";
+import { ChevronDown, ListFilter } from "lucide-react";
 import { ALL_FILTER, filterFieldInnerClass } from "./constants";
 import { FilterField } from "./filter-field";
 
@@ -16,6 +17,7 @@ export function StatusFilterField<T extends string>({
   options,
   onChange,
   clearLabel = "Clear status filter",
+  startIcon = ListFilter,
   className,
 }: {
   label?: string;
@@ -23,6 +25,7 @@ export function StatusFilterField<T extends string>({
   options: StatusOption<T>[];
   onChange: (value: string) => void;
   clearLabel?: string;
+  startIcon?: LucideIcon;
   className?: string;
 }) {
   return (
@@ -31,6 +34,7 @@ export function StatusFilterField<T extends string>({
       showClear={value !== ALL_FILTER}
       onClear={() => onChange(ALL_FILTER)}
       clearLabel={clearLabel}
+      startIcon={startIcon}
       className={className}
     >
       <div className="relative flex w-full items-center">

@@ -3,10 +3,11 @@
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { storageApi } from "@/lib/api/storage";
+import ENV_CONFIG from "@/config/env.config";
 import {
   eventFormSchema,
   eventFormToCreatePayload,
@@ -14,7 +15,17 @@ import {
 } from "@/modules/host/schemas/event-form";
 import type { HostEvent } from "@/modules/host/types/event";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { X } from "lucide-react";
+import {
+  Calendar,
+  Clock,
+  FileText,
+  ImageIcon,
+  IndianRupee,
+  MapPin,
+  Type,
+  Users,
+  X,
+} from "lucide-react";
 import { useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -53,7 +64,6 @@ function eventToDefaultValues(event?: HostEvent): EventFormValues {
       typeof event?.turf === "string"
         ? event.turf
         : (event?.turf?._id ?? ""),
-    registrationsPaused: event?.registrationsPaused ?? false,
   };
 }
 
@@ -75,7 +85,7 @@ export default function EventForm({
   const fileRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [discardDialogOpen, setDiscardDialogOpen] = useState(false);
-  const mapsError = !process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+  const mapsError = !ENV_CONFIG.GOOGLE_MAPS_API_KEY
     ? "Google Maps API key is not configured"
     : null;
 
@@ -138,141 +148,164 @@ export default function EventForm({
       className="-mx-4 flex min-h-full flex-col"
       onSubmit={handleSubmit((values) => onSubmit(eventFormToCreatePayload(values)))}
     >
-      <div className="space-y-8 px-4 py-4 pb-2">
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold">Basic info</h3>
-          <div className="space-y-2">
-            <Label htmlFor="title">Title</Label>
-            <Input id="title" {...register("title")} />
-            {errors.title ? (
-              <p className="text-sm text-destructive">{errors.title.message}</p>
-            ) : null}
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea id="description" rows={4} {...register("description")} />
-            {errors.description ? (
-              <p className="text-sm text-destructive">{errors.description.message}</p>
-            ) : null}
-          </div>
-        </section>
+      <div className="space-y-4 px-4 py-4 pb-2">
+        <div className="space-y-2">
+          <Label htmlFor="title" className="flex items-center gap-1.5">
+            <Type className="h-3.5 w-3.5 text-emerald-600" />
+            Title
+          </Label>
+          <InputWithIcon id="title" icon={Type} {...register("title")} />
+          {errors.title ? (
+            <p className="text-sm text-destructive">{errors.title.message}</p>
+          ) : null}
+        </div>
+        <div className="space-y-2">
+          <Label htmlFor="description" className="flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5 text-emerald-600" />
+            Description
+          </Label>
+          <Textarea id="description" rows={4} {...register("description")} />
+          {errors.description ? (
+            <p className="text-sm text-destructive">{errors.description.message}</p>
+          ) : null}
+        </div>
 
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold">Schedule</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div className="space-y-2">
+            <Label htmlFor="eventDate" className="flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5 text-emerald-600" />
+              Event date
+            </Label>
+            <InputWithIcon
+              id="eventDate"
+              icon={Calendar}
+              type="date"
+              min={minEventDate}
+              {...register("eventDate")}
+            />
+            {errors.eventDate ? (
+              <p className="text-sm text-destructive">{errors.eventDate.message}</p>
+            ) : null}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="reportingTime" className="flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5 text-emerald-600" />
+              Reporting time (optional)
+            </Label>
+            <InputWithIcon
+              id="reportingTime"
+              icon={Clock}
+              type="time"
+              {...register("reportingTime")}
+            />
+            {errors.reportingTime ? (
+              <p className="text-sm text-destructive">{errors.reportingTime.message}</p>
+            ) : null}
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="address" className="flex items-center gap-1.5">
+            <MapPin className="h-3.5 w-3.5 text-emerald-600" />
+            Address
+          </Label>
+          <PlacesAutocomplete
+            key={event?._id ?? "new"}
+            id="address"
+            value={address}
+            errorMessage={errors.address?.message}
+            helperText={!mapsError && (city || stateName) ? [city, stateName].filter(Boolean).join(", ") : undefined}
+            onAddressChange={(next) =>
+              setValue("address", next, { shouldValidate: true, shouldDirty: true })
+            }
+            onPlaceSelect={({
+              address: nextAddress,
+              latitude: lat,
+              longitude: lng,
+              city,
+              state,
+              zip,
+              country,
+            }) => {
+              setValue("address", nextAddress, { shouldValidate: true, shouldDirty: true });
+              setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
+              setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
+              setValue("city", city ?? "", { shouldDirty: true });
+              setValue("state", state ?? "", { shouldDirty: true });
+              setValue("zip", zip ?? "", { shouldDirty: true });
+              setValue("country", country ?? "", { shouldDirty: true });
+            }}
+          />
+        </div>
+        {mapsError ? (
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="eventDate">Event date</Label>
-              <Input id="eventDate" type="date" min={minEventDate} {...register("eventDate")} />
-              {errors.eventDate ? (
-                <p className="text-sm text-destructive">{errors.eventDate.message}</p>
-              ) : null}
+              <Label htmlFor="latitude">Latitude</Label>
+              <InputWithIcon
+                id="latitude"
+                icon={MapPin}
+                type="number"
+                step="any"
+                value={latitude}
+                onChange={(e) =>
+                  setValue("latitude", Number(e.target.value), {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="reportingTime">Reporting time (optional)</Label>
-              <Input id="reportingTime" type="time" {...register("reportingTime")} />
-              {errors.reportingTime ? (
-                <p className="text-sm text-destructive">{errors.reportingTime.message}</p>
-              ) : null}
+              <Label htmlFor="longitude">Longitude</Label>
+              <InputWithIcon
+                id="longitude"
+                icon={MapPin}
+                type="number"
+                step="any"
+                value={longitude}
+                onChange={(e) =>
+                  setValue("longitude", Number(e.target.value), {
+                    shouldValidate: true,
+                    shouldDirty: true,
+                  })
+                }
+              />
             </div>
           </div>
-        </section>
+        ) : null}
 
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold">Location</h3>
+        <div className="grid gap-4 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="address">Address</Label>
-            <PlacesAutocomplete
-              key={event?._id ?? "new"}
-              id="address"
-              value={address}
-              errorMessage={errors.address?.message}
-              helperText={!mapsError && (city || stateName) ? [city, stateName].filter(Boolean).join(", ") : undefined}
-              onAddressChange={(next) =>
-                setValue("address", next, { shouldValidate: true, shouldDirty: true })
-              }
-              onPlaceSelect={({
-                address: nextAddress,
-                latitude: lat,
-                longitude: lng,
-                city,
-                state,
-                zip,
-                country,
-              }) => {
-                setValue("address", nextAddress, { shouldValidate: true, shouldDirty: true });
-                setValue("latitude", lat, { shouldValidate: true, shouldDirty: true });
-                setValue("longitude", lng, { shouldValidate: true, shouldDirty: true });
-                setValue("city", city ?? "", { shouldDirty: true });
-                setValue("state", state ?? "", { shouldDirty: true });
-                setValue("zip", zip ?? "", { shouldDirty: true });
-                setValue("country", country ?? "", { shouldDirty: true });
-              }}
+            <Label htmlFor="price" className="flex items-center gap-1.5">
+              <IndianRupee className="h-3.5 w-3.5 text-emerald-600" />
+              Price
+            </Label>
+            <InputWithIcon
+              id="price"
+              icon={IndianRupee}
+              type="number"
+              {...register("price", { valueAsNumber: true })}
             />
           </div>
-          {mapsError ? (
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="latitude">Latitude</Label>
-                <Input
-                  id="latitude"
-                  type="number"
-                  step="any"
-                  value={latitude}
-                  onChange={(e) =>
-                    setValue("latitude", Number(e.target.value), {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
-                  }
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="longitude">Longitude</Label>
-                <Input
-                  id="longitude"
-                  type="number"
-                  step="any"
-                  value={longitude}
-                  onChange={(e) =>
-                    setValue("longitude", Number(e.target.value), {
-                      shouldValidate: true,
-                      shouldDirty: true,
-                    })
-                  }
-                />
-              </div>
-            </div>
-          ) : null}
-        </section>
-
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold">Pricing</h3>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="price">Price</Label>
-              <Input
-                id="price"
-                type="number"
-                {...register("price", { valueAsNumber: true })}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="maxParticipants">Max participants</Label>
-              <Input
-                id="maxParticipants"
-                type="number"
-                {...register("maxParticipants", { valueAsNumber: true })}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="maxParticipants" className="flex items-center gap-1.5">
+              <Users className="h-3.5 w-3.5 text-emerald-600" />
+              Max participants
+            </Label>
+            <InputWithIcon
+              id="maxParticipants"
+              icon={Users}
+              type="number"
+              {...register("maxParticipants", { valueAsNumber: true })}
+            />
           </div>
-          <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" {...register("registrationsPaused")} />
-            Pause registrations
-          </label>
-        </section>
+        </div>
 
-        <section className="space-y-4">
-          <h3 className="text-lg font-semibold">Cover Images</h3>
+        <div className="space-y-2">
+          <Label className="flex items-center gap-1.5">
+            <ImageIcon className="h-3.5 w-3.5 text-emerald-600" />
+            Cover images
+          </Label>
           <input
             ref={fileRef}
             type="file"
@@ -309,7 +342,7 @@ export default function EventForm({
               ))}
             </div>
           ) : null}
-        </section>
+        </div>
       </div>
 
       <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">

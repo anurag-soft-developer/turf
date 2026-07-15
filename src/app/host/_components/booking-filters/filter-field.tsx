@@ -2,6 +2,7 @@
 
 import { Label } from "@/components/ui/label";
 import { cn } from "@/lib/utils";
+import type { LucideIcon } from "lucide-react";
 import { X } from "lucide-react";
 import { filterFieldShellClass } from "./constants";
 
@@ -11,6 +12,7 @@ export function FilterField({
   onClear,
   showClear,
   clearLabel,
+  startIcon: StartIcon,
   className,
 }: {
   label: string;
@@ -18,12 +20,16 @@ export function FilterField({
   onClear: () => void;
   showClear: boolean;
   clearLabel: string;
+  startIcon?: LucideIcon;
   className?: string;
 }) {
   return (
     <div className={cn("min-w-[140px] flex-1 space-y-1", className)}>
       <Label className="text-xs font-medium text-muted-foreground">{label}</Label>
       <div className={filterFieldShellClass}>
+        {StartIcon ? (
+          <StartIcon className="ml-2.5 h-4 w-4 shrink-0 text-emerald-600" />
+        ) : null}
         <div className="min-w-0 flex-1">{children}</div>
         {showClear ? (
           <button

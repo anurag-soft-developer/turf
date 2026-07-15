@@ -6,6 +6,7 @@ import { StatusFilterField } from "@/app/host/_components/booking-filters/status
 import { TextSearchFilterField } from "@/app/host/_components/booking-filters/text-search-filter-field";
 import { turfStatusLabel } from "@/lib/utils/turf-display";
 import type { TurfStatus } from "@/types/turf";
+import { ListFilter, PauseCircle, Search } from "lucide-react";
 
 export { ALL_FILTER } from "@/app/host/_components/booking-filters/constants";
 
@@ -17,8 +18,8 @@ const STATUS_OPTIONS: { label: string; value: TurfStatus }[] = (
 }));
 
 const AVAILABILITY_OPTIONS = [
-  { label: "Available", value: "true" },
-  { label: "Unavailable", value: "false" },
+  { label: "Open for bookings", value: "true" },
+  { label: "Bookings on hold", value: "false" },
 ] as const;
 
 export interface TurvesFilterState {
@@ -54,6 +55,7 @@ export function TurvesFilters({
         value={selectedStatus}
         options={STATUS_OPTIONS}
         onChange={onStatusChange}
+        startIcon={ListFilter}
         className="max-w-[200px]"
       />
 
@@ -63,16 +65,18 @@ export function TurvesFilters({
         onChange={onSearchChange}
         placeholder="Search turfs…"
         clearLabel="Clear search filter"
+        startIcon={Search}
         className="max-w-[260px]"
       />
 
       <StatusFilterField
-        label="Availability"
+        label="Booking status"
         value={availability}
         options={[...AVAILABILITY_OPTIONS]}
         onChange={onAvailabilityChange}
-        clearLabel="Clear availability filter"
-        className="max-w-[180px]"
+        clearLabel="Clear booking status filter"
+        startIcon={PauseCircle}
+        className="max-w-[200px]"
       />
     </BookingFiltersBar>
   );

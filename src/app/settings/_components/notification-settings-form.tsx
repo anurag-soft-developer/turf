@@ -14,8 +14,9 @@ import {
   useProfile,
   useUpdateNotificationSettings,
 } from "@/lib/hooks/auth";
+import { APP_NAME } from "@/lib/constants/app-type";
 import { getErrorMessage } from "@/lib/utils";
-import { Bell, Loader2 } from "lucide-react";
+import { Bell, Loader2, Mail, MessageSquare } from "lucide-react";
 
 export default function NotificationSettingsForm() {
   const [emailEnabled, setEmailEnabled] = useState(true);
@@ -61,7 +62,7 @@ export default function NotificationSettingsForm() {
           Notifications
         </CardTitle>
         <CardDescription>
-          Choose how you want to receive updates from TurfBooking.
+          Choose how you want to receive updates from {APP_NAME}.
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -73,7 +74,10 @@ export default function NotificationSettingsForm() {
             onChange={(e) => setEmailEnabled(e.target.checked)}
           />
           <div>
-            <Label className="cursor-pointer">Email notifications</Label>
+            <Label className="flex cursor-pointer items-center gap-1.5">
+              <Mail className="h-3.5 w-3.5 text-muted-foreground" />
+              Email notifications
+            </Label>
             <p className="text-sm text-gray-500">
               Booking confirmations, reminders, and account alerts
             </p>
@@ -88,7 +92,10 @@ export default function NotificationSettingsForm() {
             onChange={(e) => setSmsEnabled(e.target.checked)}
           />
           <div>
-            <Label className="cursor-pointer">SMS notifications</Label>
+            <Label className="flex cursor-pointer items-center gap-1.5">
+              <MessageSquare className="h-3.5 w-3.5 text-muted-foreground" />
+              SMS notifications
+            </Label>
             <p className="text-sm text-gray-500">
               Text messages for urgent booking updates
             </p>

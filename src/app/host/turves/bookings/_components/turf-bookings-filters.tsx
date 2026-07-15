@@ -12,6 +12,7 @@ import {
 } from "@/modules/host/hooks/use-my-turfs";
 import type { TurfBookingStatus } from "@/modules/host/types/owner-booking";
 import type { Turf } from "@/modules/host/types/turf";
+import { MapPin } from "lucide-react";
 import { useCallback, useState } from "react";
 
 export { ALL_FILTER } from "@/app/host/_components/booking-filters/constants";
@@ -113,6 +114,7 @@ export function TurfBookingsFilters({
         showClear={Boolean(selectedTurfId)}
         onClear={() => onTurfChange("")}
         clearLabel="Clear turf filter"
+        startIcon={MapPin}
         className="max-w-[260px]"
       >
         <TurfSearchField value={selectedTurfId} onChange={onTurfChange} />

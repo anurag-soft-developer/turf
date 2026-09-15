@@ -4,10 +4,12 @@ import type { TurfStatus } from "@/types/turf";
 
 export type { TurfStatus } from "@/types/turf";
 
+export type DimensionUnit = "meters" | "feet";
+
 export interface TurfDimensions {
   length?: number;
   width?: number;
-  unit?: string;
+  unit?: DimensionUnit;
 }
 
 export interface TurfPricing {
@@ -33,8 +35,8 @@ export interface Turf {
   operatingHours?: TurfOperatingHours;
   isAvailable?: boolean;
   slotBufferMins?: number;
-  rating?: number;
-  reviewCount?: number;
+  averageRating?: number;
+  totalReviews?: number;
   status?: TurfStatus;
   rejectionReason?: string;
   submittedAt?: string;
@@ -61,8 +63,17 @@ export interface CreateTurfPayload {
 
 export type UpdateTurfPayload = Partial<CreateTurfPayload>;
 
+export interface TurfSportTypeStat {
+  _id: string | string[];
+  count: number;
+}
+
 export interface TurfStats {
-  totalTurfs?: number;
-  availableTurfs?: number;
-  [key: string]: unknown;
+  totalTurfs: number;
+  availableTurfs: number;
+  unavailableTurfs: number;
+  publishedTurfs: number;
+  pendingApprovalTurfs: number;
+  sportTypeStats: TurfSportTypeStat[];
+  averagePrice: number;
 }

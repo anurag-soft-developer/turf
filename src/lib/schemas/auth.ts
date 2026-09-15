@@ -3,6 +3,7 @@ import {
   resolveAuthIdentifier,
   validateAuthIdentifier,
 } from "@/lib/utils/phone.util";
+import { NOTIFICATION_MODULE_VALUES } from "@/types/auth";
 
 const passwordRegex =
   /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/;
@@ -110,6 +111,10 @@ export const updateProfileSchema = z.object({
 export const updateNotificationSettingsSchema = z.object({
   emailNotificationsEnabled: z.boolean().optional(),
   smsNotificationsEnabled: z.boolean().optional(),
+  notificationsEnabled: z.boolean().optional(),
+  notificationModules: z
+    .partialRecord(z.enum(NOTIFICATION_MODULE_VALUES), z.boolean())
+    .optional(),
 });
 
 export type RegisterFormData = z.infer<typeof registerSchema>;

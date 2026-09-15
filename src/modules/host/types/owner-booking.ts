@@ -7,6 +7,7 @@ export type TurfBookingStatus =
   | "completed";
 
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
+export type SlotHoldStatus = "active" | "released";
 
 export interface TimeSlot {
   startTime: string;
@@ -29,15 +30,33 @@ export interface OwnerBooking {
   totalAmount?: number;
   status: TurfBookingStatus;
   paymentStatus?: PaymentStatus;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
+  platformFeeAmount?: number;
+  ownerPayoutAmount?: number;
+  razorpayTransferId?: string;
+  paidAt?: string;
+  escrowCreditedAt?: string;
+  escrowReleasedAt?: string;
+  paymentExpiresAt?: string;
+  slotHoldStatus?: SlotHoldStatus;
+  refundId?: string;
+  refundedAt?: string;
+  refundAmount?: number;
   notes?: string;
   cancelReason?: string;
+  cancelledAt?: string;
+  confirmedAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
 
 export interface OwnerBookingsFilter {
   turf?: string;
+  bookedBy?: string;
   status?: TurfBookingStatus | TurfBookingStatus[];
+  paymentStatus?: PaymentStatus;
+  upcoming?: boolean;
   startDate?: string;
   endDate?: string;
   page?: number;
@@ -47,6 +66,11 @@ export interface OwnerBookingsFilter {
 }
 
 export interface UpdateOwnerBookingPayload {
+  timeSlots?: TimeSlot[];
+  playerCount?: number;
+  notes?: string;
   status?: TurfBookingStatus;
+  paymentStatus?: PaymentStatus;
+  razorpayPaymentId?: string;
   cancelReason?: string;
 }

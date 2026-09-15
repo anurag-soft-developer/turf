@@ -370,11 +370,11 @@ export default function TurfDetailPanel({
               value={dimensionsLabel}
             />
           ) : null}
-          {turf.rating != null ? (
+          {turf.averageRating != null ? (
             <TurfDetailStat
               icon={Star}
               label="Rating"
-              value={`${turf.rating}${turf.reviewCount != null ? ` (${turf.reviewCount} reviews)` : ""}`}
+              value={`${turf.averageRating}${turf.totalReviews != null ? ` (${turf.totalReviews} reviews)` : ""}`}
             />
           ) : null}
         </div>

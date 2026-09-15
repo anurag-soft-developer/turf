@@ -26,8 +26,24 @@ export interface OwnerEventBooking {
   totalAmount: number;
   status: EventBookingStatus;
   paymentStatus?: PaymentStatus;
+  razorpayPaymentId?: string;
+  razorpayOrderId?: string;
+  razorpayPaymentLinkId?: string;
+  razorpayPaymentLinkShortUrl?: string;
+  razorpayPaymentLinkCallbackUrl?: string;
+  platformFeeAmount?: number;
+  organizerPayoutAmount?: number;
   bookingId?: string;
+  paidAt?: string;
+  escrowCreditedAt?: string;
+  escrowReleasedAt?: string;
+  paymentExpiresAt?: string;
+  refundId?: string;
+  refundedAt?: string;
+  refundAmount?: number;
   cancelReason?: string;
+  cancelledAt?: string;
+  confirmedAt?: string;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -35,6 +51,7 @@ export interface OwnerEventBooking {
 export interface OwnerEventBookingsFilter {
   event?: string | string[];
   status?: EventBookingStatus | EventBookingStatus[];
+  paymentStatus?: PaymentStatus;
   startDate?: string;
   endDate?: string;
   page?: number;
@@ -44,5 +61,6 @@ export interface OwnerEventBookingsFilter {
 
 export interface UpdateOwnerEventBookingPayload {
   status?: EventBookingStatus;
+  paymentStatus?: PaymentStatus;
   cancelReason?: string;
 }

@@ -3,10 +3,17 @@ import type { HostEvent } from "@/modules/host/types/event";
 export type EventBookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";
 
+export interface BookedByUser {
+  _id: string;
+  fullName?: string;
+  email?: string;
+  phone?: string;
+}
+
 export interface EventBooking {
   _id: string;
   event: HostEvent | string;
-  bookedBy: string;
+  bookedBy: BookedByUser | string;
   fullName: string;
   contactNumber: string;
   notes?: string;
@@ -19,9 +26,18 @@ export interface EventBooking {
   razorpayPaymentLinkId?: string;
   razorpayPaymentLinkShortUrl?: string;
   razorpayPaymentLinkCallbackUrl?: string;
+  platformFeeAmount?: number;
+  organizerPayoutAmount?: number;
   bookingId?: string;
   paidAt?: string;
+  escrowCreditedAt?: string;
+  escrowReleasedAt?: string;
   paymentExpiresAt?: string;
+  refundId?: string;
+  refundedAt?: string;
+  refundAmount?: number;
+  cancelReason?: string;
+  cancelledAt?: string;
   confirmedAt?: string;
   createdAt?: string;
   updatedAt?: string;
@@ -55,7 +71,11 @@ export interface VerifyHostedPaymentPayload {
 }
 
 export interface MyEventBookingsFilter {
+  event?: string | string[];
   status?: EventBookingStatus;
+  paymentStatus?: PaymentStatus;
+  startDate?: string;
+  endDate?: string;
   page?: number;
   limit?: number;
   sortOrder?: "asc" | "desc";

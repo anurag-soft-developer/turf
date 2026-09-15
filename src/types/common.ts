@@ -6,14 +6,23 @@ export interface PaginatedResponse<T> {
   totalPages: number;
 }
 
+export interface GeoPoint {
+  type: "Point";
+  coordinates: [number, number];
+}
+
 export interface GeoLocation {
   address: string;
-  coordinates: {
-    type: "Point";
-    coordinates: [number, number];
-  };
+  coordinates: GeoPoint;
   city?: string;
   state?: string;
   zip?: string;
   country?: string;
+}
+
+/** Matches turf-services nearbyLocationQuerySchema. */
+export interface NearbyLocationQuery {
+  nearbyLat: number;
+  nearbyLng: number;
+  nearbyRadiusKm?: number;
 }

@@ -1,6 +1,6 @@
 import api from "@/lib/api/client";
 import { API_CONFIG } from "@/lib/constants/api";
-import type { PaginatedResponse } from "../../../types/common";
+import type { NearbyLocationQuery, PaginatedResponse } from "../../../types/common";
 import type {
   CreateTurfPayload,
   Turf,
@@ -15,6 +15,13 @@ export interface MyTurfsParams {
   globalSearchText?: string;
   status?: TurfStatus;
   isAvailable?: boolean;
+  sportTypes?: string | string[];
+  amenities?: string | string[];
+  location?: NearbyLocationQuery;
+  minRating?: number;
+  hasImages?: boolean;
+  operatingTime?: string;
+  sort?: string;
 }
 
 export const hostTurfApi = {

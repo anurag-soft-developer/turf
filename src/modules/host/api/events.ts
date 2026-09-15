@@ -1,6 +1,6 @@
 import api from "@/lib/api/client";
 import { API_CONFIG } from "@/lib/constants/api";
-import type { PaginatedResponse } from "@/types/common";
+import type { NearbyLocationQuery, PaginatedResponse } from "@/types/common";
 import type {
   CreateEventPayload,
   EventStatus,
@@ -13,12 +13,14 @@ export interface MyEventsParams {
   page?: number;
   limit?: number;
   globalSearchText?: string;
+  city?: string;
   status?: EventStatus;
   registrationsPaused?: boolean;
   startDate?: string;
   endDate?: string;
   minPrice?: number;
   maxPrice?: number;
+  location?: NearbyLocationQuery;
   sortBy?: string;
   sortOrder?: "asc" | "desc";
 }

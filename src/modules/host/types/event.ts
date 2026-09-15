@@ -48,6 +48,7 @@ export interface HostEvent {
   rejectionReason?: string;
   createdAt?: string;
   updatedAt?: string;
+  distance?: number;
 }
 
 export interface CreateEventPayload {

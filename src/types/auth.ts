@@ -1,3 +1,5 @@
+import type { GeoPoint } from "./common";
+
 /** Matches turf-services Profile (UsersService.sanitizeProfile). */
 export const UserRole = {
   PLATFORM_ADMIN: "platform_admin",
@@ -7,6 +9,52 @@ export const UserRole = {
 } as const;
 
 export type UserRoleType = (typeof UserRole)[keyof typeof UserRole];
+
+export const NotificationModule = {
+  TURF_BOOKING: "turfBooking",
+  MATCHMAKING: "matchmaking",
+  EVENT_BOOKING: "eventBooking",
+  TEAMS: "teams",
+  FOLLOWINGS: "followings",
+  WITHDRAWALS: "withdrawals",
+  TURF_APPROVAL: "turfApproval",
+} as const;
+
+export const NOTIFICATION_MODULE_VALUES = [
+  NotificationModule.TURF_BOOKING,
+  NotificationModule.MATCHMAKING,
+  NotificationModule.EVENT_BOOKING,
+  NotificationModule.TEAMS,
+  NotificationModule.FOLLOWINGS,
+  NotificationModule.WITHDRAWALS,
+  NotificationModule.TURF_APPROVAL,
+] as const;
+
+export type NotificationModuleType =
+  (typeof NotificationModule)[keyof typeof NotificationModule];
+
+export interface FcmTokenEntry {
+  deviceKey: string;
+  token: string;
+  platform?: string;
+  updatedAt?: string;
+}
+
+export interface PlayerSportEntry {
+  sportType: string;
+  stats: Record<string, unknown>;
+}
+
+export interface SportRankingPointsEntry {
+  sportType: string;
+  points: number;
+}
+
+export interface EarnedBadge {
+  badgeId: string;
+  earnedAt: string;
+  sportType?: string;
+}
 
 export interface User {
   _id: string;
@@ -23,7 +71,14 @@ export interface User {
   emailNotificationsEnabled?: boolean;
   smsNotificationsEnabled?: boolean;
   notificationsEnabled?: boolean;
-  notificationModules?: Record<string, boolean>;
+  notificationModules?: Partial<Record<NotificationModuleType, boolean>>;
+  fcmTokens?: FcmTokenEntry[];
+  playerSportStats?: PlayerSportEntry[];
+  sportRankingPoints?: SportRankingPointsEntry[];
+  badges?: EarnedBadge[];
+  followingCount?: number;
+  followerCount?: number;
+  lastLocation?: GeoPoint;
   isPasswordExists?: boolean;
   phone?: string;
   lastLogin?: string;

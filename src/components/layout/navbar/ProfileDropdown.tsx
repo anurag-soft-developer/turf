@@ -1,12 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { useLogout, useProfile } from "@/lib/hooks/auth";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
-import {
-  showEventsHost,
-  showEventsPublic,
-  showPlatformAdmin,
-  showTurfHost,
-} from "@/lib/constants/app-type";
+import { currentApp } from "@/config/apps";
 import { isPlatformAdmin } from "@/types/auth";
 import {
   User,
@@ -20,8 +15,17 @@ import {
   Ticket,
   CalendarCheck,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import Link from "next/link";
+
+const PROFILE_ICONS: Record<
+  (typeof currentApp.profileLinks)[number]["icon"],
+  ReactNode
+> = {
+  CalendarCheck: <CalendarCheck className="w-4 h-4" />,
+  BrickWall: <BrickWall className="w-4 h-4" />,
+  Ticket: <Ticket className="w-4 h-4" />,
+};
 
 const ProfileDropdown = () => {
   const { data, isLoading } = useProfile();
@@ -30,33 +34,11 @@ const ProfileDropdown = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const linkButtons = [
-    ...(showEventsPublic
-      ? [
-          {
-            href: ROUTE_POINT.myBookings,
-            icon: <CalendarCheck className="w-4 h-4" />,
-            label: "My bookings",
-          },
-        ]
-      : []),
-    ...(showTurfHost
-      ? [
-          {
-            href: ROUTE_POINT.host.turves.dashboard,
-            icon: <BrickWall className="w-4 h-4" />,
-            label: "Turf management",
-          },
-        ]
-      : []),
-    ...(showEventsHost
-      ? [
-          {
-            href: ROUTE_POINT.host.events.dashboard,
-            icon: <Ticket className="w-4 h-4" />,
-            label: "Event management",
-          },
-        ]
-      : []),
+    ...currentApp.profileLinks.map(({ href, label, icon }) => ({
+      href,
+      label,
+      icon: PROFILE_ICONS[icon],
+    })),
     {
       href: ROUTE_POINT.settings,
       icon: <Settings className="w-4 h-4" />,
@@ -67,7 +49,7 @@ const ProfileDropdown = () => {
       icon: <Bell className="w-4 h-4" />,
       label: "Notifications",
     },
-    ...(showPlatformAdmin && isPlatformAdmin(data)
+    ...(currentApp.features.platformAdmin && isPlatformAdmin(data)
       ? [
           {
             href: ROUTE_POINT.platformAdmin.home,

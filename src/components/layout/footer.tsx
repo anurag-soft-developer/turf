@@ -2,22 +2,12 @@
 
 import Link from "next/link";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
-import {
-  APP_NAME,
-  getDefaultHomeRoute,
-  showEventsHost,
-  showEventsPublic,
-  showTurfHost,
-} from "@/lib/constants/app-type";
+import { APP_NAME } from "@/lib/constants/app-type";
+import { currentApp } from "@/config/apps";
 import { useProfile } from "@/lib/hooks/auth";
 
-const HOME_HREF = getDefaultHomeRoute();
-
-const TAGLINE = showTurfHost
-  ? "The host platform for turf owners. Publish your venue, manage bookings, and grow your sports business."
-  : showEventsPublic
-    ? "Discover and book sports events near you."
-    : "Create and manage sports events, bookings, and payouts from one place.";
+const HOME_HREF = currentApp.homeRoute;
+const TAGLINE = currentApp.footerTagline;
 
 export default function Footer() {
   const { data: user } = useProfile();
@@ -25,21 +15,9 @@ export default function Footer() {
   const quickLinks = [
     { href: HOME_HREF, label: "Home" },
     ...(user
-      ? showTurfHost
-        ? [{ href: ROUTE_POINT.host.turves.dashboard, label: "Dashboard" }]
-        : showEventsHost
-          ? [{ href: ROUTE_POINT.host.events.dashboard, label: "Dashboard" }]
-          : showEventsPublic
-            ? [{ href: ROUTE_POINT.events, label: "Events" }]
-            : []
+      ? currentApp.footerQuickLinks.authenticated
       : [
-          ...(showTurfHost
-            ? [{ href: ROUTE_POINT.auth.register, label: "List Your Turf" }]
-            : showEventsHost
-              ? [{ href: ROUTE_POINT.auth.register, label: "Get Started" }]
-              : showEventsPublic
-                ? [{ href: ROUTE_POINT.events, label: "Events" }]
-                : []),
+          ...currentApp.footerQuickLinks.anonymous,
           { href: ROUTE_POINT.auth.login, label: "Sign In" },
         ]),
   ];

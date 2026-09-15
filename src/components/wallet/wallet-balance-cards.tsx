@@ -2,7 +2,7 @@
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatInr } from "@/lib/utils/currency";
-import { useWallet } from "@/modules/host/hooks/use-wallet";
+import { useWallet } from "@/modules/wallet/hooks/use-wallet";
 import {
   getAvailableBalanceForLane,
   type Wallet,

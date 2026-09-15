@@ -5,13 +5,13 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
 import { formatInr } from "@/lib/utils/currency";
-import { useWallet } from "@/modules/host/hooks/use-wallet";
-import { useCreateWithdrawal } from "@/modules/host/hooks/use-withdrawals";
+import { useWallet } from "@/modules/wallet/hooks/use-wallet";
+import { useCreateWithdrawal } from "@/modules/wallet/hooks/use-withdrawals";
 import {
   hasCompletePayoutDetails,
   withdrawalRequestFormSchema,
   type WithdrawalRequestFormData,
-} from "@/modules/host/schemas/wallet-form";
+} from "@/modules/wallet/schemas/wallet-form";
 import { getAvailableBalanceForLane, type WalletType } from "@/types/wallet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IndianRupee, Loader2 } from "lucide-react";

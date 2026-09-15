@@ -2,30 +2,14 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { ROUTE_POINT } from "@/lib/constants/route-point";
-import {
-  APP_NAME,
-  getDefaultHomeRoute,
-  showEventsHost,
-  showEventsPublic,
-  showTurfHost,
-} from "@/lib/constants/app-type";
+import { APP_NAME } from "@/lib/constants/app-type";
+import { currentApp } from "@/config/apps";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
 import ProfileDropdown from "./ProfileDropdown";
 
-const HOME_HREF = getDefaultHomeRoute();
-
-const NAV_LINKS = showTurfHost
-  ? [
-      { label: "How it works", href: "/#how-it-works" },
-      { label: "Features", href: "/#features" },
-    ]
-  : showEventsPublic
-    ? [{ label: "Events", href: ROUTE_POINT.events }]
-    : showEventsHost
-      ? [{ label: "Dashboard", href: ROUTE_POINT.host.events.dashboard }]
-      : [];
+const HOME_HREF = currentApp.homeRoute;
+const NAV_LINKS = currentApp.navLinks;
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);

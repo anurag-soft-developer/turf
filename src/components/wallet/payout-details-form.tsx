@@ -7,12 +7,12 @@ import { Label } from "@/components/ui/label";
 import {
   useWallet,
   useUpdatePayoutDetails,
-} from "@/modules/host/hooks/use-wallet";
+} from "@/modules/wallet/hooks/use-wallet";
 import {
   payoutDetailsFormSchema,
   resolvePrimaryMethod,
   type PayoutDetailsFormData,
-} from "@/modules/host/schemas/wallet-form";
+} from "@/modules/wallet/schemas/wallet-form";
 import type { PayoutMethod } from "@/types/wallet";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Landmark, Loader2, Smartphone, User } from "lucide-react";

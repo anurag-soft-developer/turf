@@ -1,7 +1,7 @@
 import api from "@/lib/api/client";
 import { API_CONFIG } from "@/lib/constants/api";
 import type { PaginatedResponse } from "@/types/common";
-import type { HostEvent, ReviewEventPayload } from "@/modules/host/types/event";
+import type { HostEvent, ReviewEventPayload } from "@/types/event";
 
 export interface PendingEventsParams {
   page?: number;

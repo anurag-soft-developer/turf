@@ -1,6 +1,6 @@
 import api from "@/lib/api/client";
 import { API_CONFIG } from "@/lib/constants/api";
-import type { HostEvent } from "@/modules/host/types/event";
+import type { HostEvent } from "@/types/event";
 import type { NearbyLocationQuery, PaginatedResponse } from "@/types/common";
 
 export interface PublicEventsParams {

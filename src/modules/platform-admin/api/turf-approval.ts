@@ -1,6 +1,6 @@
 import api from "@/lib/api/client";
 import { API_CONFIG } from "@/lib/constants/api";
-import type { Turf } from "@/modules/host/types/turf";
+import type { Turf } from "@/modules/turf-host/types/turf";
 import type { PaginatedResponse } from "@/types/common";
 import type { ReviewTurfPayload } from "@/types/turf";
 

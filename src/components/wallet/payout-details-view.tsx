@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   useUpdatePayoutDetails,
   useWallet,
-} from "@/modules/host/hooks/use-wallet";
+} from "@/modules/wallet/hooks/use-wallet";
 import {
   hasBankData,
   hasCompleteBankDetails,
@@ -15,7 +15,7 @@ import {
   hasUpiData,
   payoutMethodLabel,
   resolvePrimaryMethod,
-} from "@/modules/host/schemas/wallet-form";
+} from "@/modules/wallet/schemas/wallet-form";
 import type { PayoutMethod } from "@/types/wallet";
 import { Loader2 } from "lucide-react";
 

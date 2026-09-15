@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatInr } from "@/lib/utils/currency";
 import { userDisplayName, withdrawalStatusVariant } from "@/lib/utils/withdrawal-display";
-import { useWithdrawal } from "@/modules/host/hooks/use-withdrawals";
+import { useWithdrawal } from "@/modules/wallet/hooks/use-withdrawals";
 import { format } from "date-fns";
 import { Loader2 } from "lucide-react";
 

@@ -1,4 +1,4 @@
-import type { HostEvent } from "@/modules/host/types/event";
+import type { HostEvent } from "@/types/event";
 
 export type EventBookingStatus = "pending" | "confirmed" | "cancelled" | "completed";
 export type PaymentStatus = "pending" | "paid" | "failed" | "refunded";

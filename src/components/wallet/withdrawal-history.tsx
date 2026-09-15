@@ -12,7 +12,7 @@ import { withdrawalStatusVariant } from "@/lib/utils/withdrawal-display";
 import {
   useCancelWithdrawal,
   useInfiniteMyWithdrawals,
-} from "@/modules/host/hooks/use-withdrawals";
+} from "@/modules/wallet/hooks/use-withdrawals";
 import type { WalletType } from "@/types/wallet";
 import type { Withdrawal, WithdrawalStatus } from "@/types/withdrawal";
 import { format } from "date-fns";

@@ -13,7 +13,7 @@ import {
   type PendingEventsParams,
 } from "../api/event-approval";
 import { PLATFORM_ADMIN_QUERY_KEYS } from "../constants/query-keys";
-import type { ReviewEventPayload } from "@/modules/host/types/event";
+import type { ReviewEventPayload } from "@/types/event";
 
 const DEFAULT_PENDING_EVENTS_LIMIT = 20;
 

@@ -5,6 +5,7 @@ import Navbar from "@/components/layout/navbar/navbar";
 import QueryProvider from "@/lib/providers/query-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { APP_NAME } from "@/lib/constants/app-type";
+import { currentApp } from "@/config/apps";
 import "./globals.css";
 
 const plusJakarta = Plus_Jakarta_Sans({
@@ -18,9 +19,8 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} - List Your Turf & Take Bookings`,
-  description:
-    "Publish your sports turf, manage bookings, and grow your venue business. Built for turf owners.",
+  title: `${APP_NAME} - ${currentApp.metadata.titleSuffix}`,
+  description: currentApp.metadata.description,
 };
 
 export default function RootLayout({

@@ -1,4 +1,4 @@
-import type { EventStatus } from "@/modules/host/types/event";
+import type { EventStatus } from "@/types/event";
 import { cn } from "@/lib/utils";
 
 export function eventStatusLabel(status: EventStatus | undefined): string {

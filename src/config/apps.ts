@@ -46,6 +46,7 @@ export const APPS: Record<AppType, AppManifest> = {
     allowedPrefixes: [
       "/host/turves",
       "/platform-admin/withdrawals",
+      "/platform-admin/support",
       "/platform-admin/turves",
     ],
     navLinks: [
@@ -116,6 +117,7 @@ export const APPS: Record<AppType, AppManifest> = {
     allowedPrefixes: [
       "/host/events",
       "/platform-admin/withdrawals",
+      "/platform-admin/support",
       "/platform-admin/events",
     ],
     navLinks: [

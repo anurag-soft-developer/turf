@@ -10,7 +10,14 @@ import {
 import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { currentApp } from "@/config/apps";
 import { cn } from "@/lib/utils";
-import { Banknote, CalendarCheck2, LayoutDashboard, MapPin, Menu } from "lucide-react";
+import {
+  Banknote,
+  CalendarCheck2,
+  LayoutDashboard,
+  LifeBuoy,
+  MapPin,
+  Menu,
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -35,6 +42,11 @@ function AdminSidebarLinks({
       href: ROUTE_POINT.platformAdmin.withdrawals,
       label: "Withdrawals",
       icon: Banknote,
+    },
+    {
+      href: ROUTE_POINT.platformAdmin.support,
+      label: "Support",
+      icon: LifeBuoy,
     },
     ...(currentApp.features.turfHost
       ? [

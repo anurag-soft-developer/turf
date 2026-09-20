@@ -9,4 +9,8 @@ export const PLATFORM_ADMIN_QUERY_KEYS = {
   adminPendingEvents: (params?: object) =>
     ["platform-admin", "pending-events", params] as const,
   adminEvent: (id: string) => ["platform-admin", "event", id] as const,
+  adminSupportQueries: (params?: object) =>
+    ["platform-admin", "support-queries", params] as const,
+  adminSupportQuery: (id: string) =>
+    ["platform-admin", "support-query", id] as const,
 } as const;

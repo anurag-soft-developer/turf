@@ -80,6 +80,15 @@ export const API_CONFIG = {
       COMMENTS: (id: string) => `/withdrawals/${id}/comments`,
       ATTACHMENTS: (id: string) => `/withdrawals/${id}/attachments`,
     },
+    SUPPORT: {
+      QUERIES: "/support/queries",
+      MINE: "/support/queries/mine",
+      BY_ID: (id: string) => `/support/queries/${id}`,
+      REPLIES: (id: string) => `/support/queries/${id}/replies`,
+      INTERNAL_NOTES: (id: string) => `/support/queries/${id}/internal-notes`,
+      ADMIN_QUERIES: "/support/admin/queries",
+      ADMIN_STATUS: (id: string) => `/support/admin/queries/${id}/status`,
+    },
   },
 } as const;
 

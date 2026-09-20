@@ -37,6 +37,7 @@ export const ROUTE_POINT = {
     turves: "/platform-admin/turves",
     events: "/platform-admin/events",
     withdrawals: "/platform-admin/withdrawals",
+    support: "/platform-admin/support",
   },
 } as const;
 

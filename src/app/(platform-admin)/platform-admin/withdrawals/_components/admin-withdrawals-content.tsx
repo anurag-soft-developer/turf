@@ -7,7 +7,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { storageApi } from "@/lib/api/storage";
-import { toastError, toastSuccess } from "@/lib/toast";
+import { toastError } from "@/lib/toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { formatInr } from "@/lib/utils/currency";
 import {
@@ -386,7 +387,7 @@ function AdminActivitySection({
         payload: { message: comment.trim() },
       });
       setComment("");
-      toastSuccess("Comment added");
+      toast.success("Comment added");
     } catch (error) {
       toastError(error, "Failed to add comment");
     }
@@ -408,7 +409,7 @@ function AdminActivitySection({
         id: withdrawal._id,
         payload: { attachments: [url] },
       });
-      toastSuccess("Attachment added");
+      toast.success("Attachment added");
     } catch (error) {
       toastError(error, "Failed to upload attachment");
     } finally {
@@ -598,7 +599,7 @@ export function AdminWithdrawalDetailPanel({ id }: { id: string }) {
       setSelectedStatus("");
       setRejectionReason("");
       setPaidViaMethod("");
-      toastSuccess("Status updated");
+      toast.success("Status updated");
     } catch (error) {
       toastError(error, "Failed to update status");
     }

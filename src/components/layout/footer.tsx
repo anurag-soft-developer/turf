@@ -20,6 +20,7 @@ export default function Footer() {
           ...currentApp.footerQuickLinks.anonymous,
           { href: ROUTE_POINT.auth.login, label: "Sign In" },
         ]),
+    { href: ROUTE_POINT.terms, label: "Terms and conditions" },
   ];
 
   return (

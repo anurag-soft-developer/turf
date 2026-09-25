@@ -28,6 +28,7 @@ import { format } from "date-fns";
 import axios from "axios";
 import {
   Clock,
+  Copy,
   IndianRupee,
   Loader2,
   MapPin,
@@ -43,6 +44,8 @@ import {
 import { useState } from "react";
 import type { GeoLocation } from "@/types/common";
 import { getGoogleMapsUrl } from "@/lib/maps/google-maps-url";
+import { toastError } from "@/lib/toast";
+import { toast } from "sonner";
 
 interface TurfDetailPanelProps {
   id: string;
@@ -483,7 +486,7 @@ export default function TurfDetailPanel({
         }
         confirmDisabled={!canConfirmSubmit}
         loading={submitMutation.isPending}
-        contentClassName={needsAcceptance ? "max-w-lg" : undefined}
+        contentClassName={needsAcceptance ? "max-w-3xl" : undefined}
         onConfirm={() =>
           submitMutation.mutate(
             {
@@ -503,13 +506,44 @@ export default function TurfDetailPanel({
       >
         {needsAcceptance && currentTerms ? (
           <div className="space-y-3">
-            <div className="max-h-64 space-y-2 overflow-y-auto rounded-lg border bg-muted/40 p-3">
-              <p className="text-sm font-semibold text-foreground">
-                {currentTerms.title}
-              </p>
-              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                {currentTerms.content}
-              </p>
+            <div className="mt-3 overflow-hidden rounded-lg border bg-muted/40">
+              <div className="flex items-start justify-between gap-2 border-b px-3 py-2">
+                <p className="text-sm font-semibold text-foreground">
+                  {currentTerms.title}
+                </p>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon-sm"
+                  aria-label="Copy terms"
+                  onClick={async () => {
+                    try {
+                      await navigator.clipboard.writeText(
+                        [currentTerms.title, currentTerms.content]
+                          .filter(Boolean)
+                          .join("\n\n"),
+                      );
+                      toast.success("Copied");
+                    } catch (error) {
+                      toastError(error, "Could not copy terms");
+                    }
+                  }}
+                >
+                  <Copy className="h-4 w-4" />
+                </Button>
+              </div>
+              <div
+                className="max-h-[min(60vh,32rem)] overflow-y-auto p-3"
+                onWheel={(event) => {
+                  const delta =
+                    event.deltaMode === 1 ? event.deltaY * 16 : event.deltaY;
+                  event.currentTarget.scrollTop += delta;
+                }}
+              >
+                <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                  {currentTerms.content}
+                </p>
+              </div>
             </div>
             <label className="flex items-start gap-2 text-sm">
               <input

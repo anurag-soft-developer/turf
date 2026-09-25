@@ -1,6 +1,10 @@
 "use client";
 
 import { MyDrawer } from "@/components/my-drawer";
+import {
+  TermsAndConditionsKind,
+  type TermsAndConditionsKindType,
+} from "@/types/terms-and-conditions";
 import { useState } from "react";
 import {
   AdminTermsDetailPanel,
@@ -9,6 +13,9 @@ import {
 } from "./_components/admin-terms-content";
 
 export default function PlatformAdminTermsPage() {
+  const [kind, setKind] = useState<TermsAndConditionsKindType>(
+    TermsAndConditionsKind.TURF_OWNER,
+  );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [creating, setCreating] = useState(false);
   const [drawerOpen, setDrawerOpen] = useState(false);
@@ -33,7 +40,12 @@ export default function PlatformAdminTermsPage() {
 
   return (
     <>
-      <AdminTermsList onSelect={openVersion} onCreate={openCreate} />
+      <AdminTermsList
+        kind={kind}
+        onKindChange={setKind}
+        onSelect={openVersion}
+        onCreate={openCreate}
+      />
 
       <MyDrawer
         open={drawerOpen}
@@ -43,11 +55,13 @@ export default function PlatformAdminTermsPage() {
       >
         {creating ? (
           <AdminTermsDraftForm
+            kind={kind}
+            onKindChange={setKind}
             onCancel={handleDrawerClose}
             onSaved={handleDrawerClose}
           />
         ) : selectedId ? (
-          <AdminTermsDetailPanel id={selectedId} />
+          <AdminTermsDetailPanel id={selectedId} kind={kind} />
         ) : null}
       </MyDrawer>
     </>

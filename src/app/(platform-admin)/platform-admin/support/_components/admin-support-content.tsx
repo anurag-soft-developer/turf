@@ -8,7 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { InfiniteScrollSentinel } from "@/components/infinite-scroll/infinite-scroll-sentinel";
 import { ScrollableListPanel } from "@/components/infinite-scroll/scrollable-list-panel";
 import { flattenPaginatedPages } from "@/lib/query/paginated-infinite";
-import { toastError, toastSuccess } from "@/lib/toast";
+import { toastError } from "@/lib/toast";
+import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { userDisplayName } from "@/lib/utils/withdrawal-display";
 import {
@@ -220,7 +221,7 @@ function AdminSupportThread({ query }: { query: SupportQuery }) {
   const handleReply = async (body: string) => {
     try {
       await addReply.mutateAsync({ id: query._id, payload: { body } });
-      toastSuccess("Reply sent");
+      toast.success("Reply sent");
     } catch (error) {
       toastError(error, "Failed to send reply");
     }
@@ -306,7 +307,7 @@ function AdminSupportNotes({ query }: { query: SupportQuery }) {
   const handleNote = async (body: string) => {
     try {
       await addNote.mutateAsync({ id: query._id, payload: { body } });
-      toastSuccess("Internal note added");
+      toast.success("Internal note added");
     } catch (error) {
       toastError(error, "Failed to add note");
     }
@@ -392,7 +393,7 @@ export function AdminSupportDetailPanel({ id }: { id: string }) {
         payload: { status: selectedStatus },
       });
       setSelectedStatus("");
-      toastSuccess("Status updated");
+      toast.success("Status updated");
     } catch (error) {
       toastError(error, "Failed to update status");
     }

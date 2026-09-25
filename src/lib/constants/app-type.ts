@@ -1,6 +1,10 @@
 import ENV_CONFIG from "@/config/env.config";
 import { currentApp } from "@/config/apps";
 import type { AppType } from "@/config/env.config";
+import {
+  TermsAndConditionsKind,
+  type TermsAndConditionsKindType,
+} from "@/types/terms-and-conditions";
 
 export type { AppType };
 
@@ -9,6 +13,16 @@ export const APP_NAME = ENV_CONFIG.APP_NAME;
 
 export function getDefaultHomeRoute(): string {
   return currentApp.homeRoute;
+}
+
+/** Published terms kind for this app. Null until that app has terms. */
+export function termsKindForApp(
+  appType: AppType = APP_TYPE,
+): TermsAndConditionsKindType | null {
+  if (appType === "turfmanagement") return TermsAndConditionsKind.TURF_OWNER;
+  if (appType === "events") return TermsAndConditionsKind.EVENT_BOOKING;
+  if (appType === "eventsmanagement") return TermsAndConditionsKind.EVENT_HOST;
+  return null;
 }
 
 function matchesPrefix(pathname: string, prefix: string): boolean {
@@ -29,7 +43,8 @@ export function isPathAllowed(pathname: string): boolean {
   if (
     matchesPrefix(path, "/auth") ||
     matchesPrefix(path, "/settings") ||
-    matchesPrefix(path, "/notifications")
+    matchesPrefix(path, "/notifications") ||
+    matchesPrefix(path, "/terms")
   ) {
     return true;
   }

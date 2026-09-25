@@ -8,6 +8,7 @@ export const ROUTE_POINT = {
   paymentsRazorpayCallback: "/payments/razorpay/callback",
   notifications: "/notifications",
   settings: "/settings",
+  terms: "/terms",
   auth: {
     base: "/auth",
     login: "/auth/login",

@@ -9,7 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { toastSuccess } from "@/lib/toast";
+import { toast } from "sonner";
 import { userDisplayName } from "@/lib/utils/withdrawal-display";
 import {
   useAdminTerms,
@@ -18,8 +18,10 @@ import {
   useUpdateTermsDraft,
 } from "@/modules/platform-admin/hooks/use-admin-terms";
 import {
-  TermsAndConditionsKind,
+  TERMS_KIND_OPTIONS,
+  termsKindLabel,
   type TermsAndConditions,
+  type TermsAndConditionsKindType,
 } from "@/types/terms-and-conditions";
 import { format } from "date-fns";
 import {
@@ -31,8 +33,6 @@ import {
   Send,
 } from "lucide-react";
 import { useMemo, useState } from "react";
-
-const KIND = TermsAndConditionsKind.TURF_OWNER;
 
 const emptyForm = {
   version: "",
@@ -58,18 +58,24 @@ function actorLabel(actor: TermsAndConditions["createdBy"] | undefined) {
 }
 
 function TermsDraftForm({
+  kind,
+  onKindChange,
+  lockKind = false,
   editingId,
   initial = emptyForm,
   onCancel,
   onSaved,
 }: {
+  kind: TermsAndConditionsKindType;
+  onKindChange?: (kind: TermsAndConditionsKindType) => void;
+  lockKind?: boolean;
   editingId?: string;
   initial?: { version: string; title: string; content: string };
   onCancel?: () => void;
   onSaved: () => void;
 }) {
-  const createDraft = useCreateTermsDraft(KIND);
-  const updateDraft = useUpdateTermsDraft(KIND);
+  const createDraft = useCreateTermsDraft(kind);
+  const updateDraft = useUpdateTermsDraft(kind);
   const [form, setForm] = useState(initial);
   const saving = createDraft.isPending || updateDraft.isPending;
   const formReady =
@@ -90,7 +96,7 @@ function TermsDraftForm({
         { id: editingId, payload },
         {
           onSuccess: () => {
-            toastSuccess("Draft updated.");
+            toast.success("Draft updated.");
             onSaved();
           },
         },
@@ -99,10 +105,10 @@ function TermsDraftForm({
     }
 
     createDraft.mutate(
-      { kind: KIND, ...payload },
+      { kind, ...payload },
       {
         onSuccess: () => {
-          toastSuccess("Draft saved.");
+          toast.success("Draft saved.");
           onSaved();
         },
       },
@@ -117,11 +123,18 @@ function TermsDraftForm({
             <Label htmlFor="terms-kind">Audience</Label>
             <select
               id="terms-kind"
-              value={KIND}
-              disabled
+              value={kind}
+              disabled={lockKind}
+              onChange={(event) =>
+                onKindChange?.(event.target.value as TermsAndConditionsKindType)
+              }
               className="h-8 w-full rounded-lg border border-input bg-transparent px-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-70"
             >
-              <option value={KIND}>Turf owner</option>
+              {TERMS_KIND_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
             </select>
           </div>
           <div className="space-y-1.5">
@@ -199,18 +212,35 @@ function TermsDraftForm({
 }
 
 export function AdminTermsDraftForm({
+  kind,
+  onKindChange,
   onCancel,
   onSaved,
 }: {
+  kind: TermsAndConditionsKindType;
+  onKindChange: (kind: TermsAndConditionsKindType) => void;
   onCancel: () => void;
   onSaved: () => void;
 }) {
-  return <TermsDraftForm onCancel={onCancel} onSaved={onSaved} />;
+  return (
+    <TermsDraftForm
+      kind={kind}
+      onKindChange={onKindChange}
+      onCancel={onCancel}
+      onSaved={onSaved}
+    />
+  );
 }
 
-export function AdminTermsDetailPanel({ id }: { id: string }) {
-  const { data: documents = [], isLoading } = useAdminTerms(KIND);
-  const publishTerms = usePublishTerms(KIND);
+export function AdminTermsDetailPanel({
+  id,
+  kind,
+}: {
+  id: string;
+  kind: TermsAndConditionsKindType;
+}) {
+  const { data: documents = [], isLoading } = useAdminTerms(kind);
+  const publishTerms = usePublishTerms(kind);
   const [editing, setEditing] = useState(false);
   const [publishOpen, setPublishOpen] = useState(false);
   const doc = documents.find((item) => item._id === id);
@@ -231,6 +261,8 @@ export function AdminTermsDetailPanel({ id }: { id: string }) {
     return (
       <TermsDraftForm
         editingId={doc._id}
+        kind={doc.kind}
+        lockKind
         initial={{
           version: doc.version,
           title: doc.title,
@@ -301,13 +333,13 @@ export function AdminTermsDetailPanel({ id }: { id: string }) {
         open={publishOpen}
         onOpenChange={setPublishOpen}
         title="Publish this version?"
-        description={`${doc.title} (${doc.version}) will become the current turf owner terms. Published text cannot be edited.`}
+        description={`${doc.title} (${doc.version}) will become the current ${termsKindLabel(doc.kind).toLowerCase()} terms. Published text cannot be edited.`}
         confirmLabel={publishTerms.isPending ? "Publishing…" : "Publish"}
         loading={publishTerms.isPending}
         onConfirm={() => {
           publishTerms.mutate(doc._id, {
             onSuccess: () => {
-              toastSuccess("Terms published.");
+              toast.success("Terms published.");
               setPublishOpen(false);
             },
           });
@@ -366,13 +398,17 @@ function AdminTermsRow({
 }
 
 export default function AdminTermsList({
+  kind,
+  onKindChange,
   onSelect,
   onCreate,
 }: {
+  kind: TermsAndConditionsKindType;
+  onKindChange: (kind: TermsAndConditionsKindType) => void;
   onSelect: (id: string) => void;
   onCreate: () => void;
 }) {
-  const { data: documents = [], isLoading, isError, refetch } = useAdminTerms(KIND);
+  const { data: documents = [], isLoading, isError, refetch } = useAdminTerms(kind);
   const currentId = useMemo(() => latestPublishedId(documents), [documents]);
 
   return (
@@ -383,8 +419,22 @@ export default function AdminTermsList({
             Terms and conditions
           </h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Draft and publish the terms turf owners accept.
+            Draft and publish terms for each audience.
           </p>
+          <select
+            aria-label="Audience"
+            value={kind}
+            onChange={(event) =>
+              onKindChange(event.target.value as TermsAndConditionsKindType)
+            }
+            className="mt-3 h-8 rounded-lg border border-input bg-transparent px-2.5 text-sm"
+          >
+            {TERMS_KIND_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
         </div>
         <Button type="button" onClick={onCreate} className="shrink-0 gap-1.5">
           <Plus className="h-4 w-4" />
@@ -417,7 +467,7 @@ export default function AdminTermsList({
               <div>
                 <p className="font-semibold text-gray-900">No terms yet</p>
                 <p className="text-sm text-muted-foreground">
-                  Save a draft, then publish it for turf owners.
+                  Save a draft, then publish it for this audience.
                 </p>
               </div>
             </CardContent>

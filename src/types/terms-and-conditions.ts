@@ -1,9 +1,26 @@
 export const TermsAndConditionsKind = {
   TURF_OWNER: "turf_owner",
+  EVENT_BOOKING: "event_booking",
+  EVENT_HOST: "event_host",
 } as const;
 
 export type TermsAndConditionsKindType =
   (typeof TermsAndConditionsKind)[keyof typeof TermsAndConditionsKind];
+
+export const TERMS_KIND_OPTIONS: {
+  value: TermsAndConditionsKindType;
+  label: string;
+}[] = [
+  { value: TermsAndConditionsKind.TURF_OWNER, label: "Turf owner" },
+  { value: TermsAndConditionsKind.EVENT_BOOKING, label: "Event booking" },
+  { value: TermsAndConditionsKind.EVENT_HOST, label: "Event host" },
+];
+
+export function termsKindLabel(kind: TermsAndConditionsKindType) {
+  return (
+    TERMS_KIND_OPTIONS.find((option) => option.value === kind)?.label ?? kind
+  );
+}
 
 export type TermsAndConditionsStatus = "draft" | "published";
 

@@ -65,6 +65,8 @@ export function isSportTypeValue(value: string): value is SportTypeValue {
   return (SPORT_TYPE_VALUES as readonly string[]).includes(value);
 }
 
+export const MAX_COVER_IMAGES = 5;
+
 export const turfFormSchema = z
   .object({
     name: z.string().min(1, "Name is required"),
@@ -80,7 +82,10 @@ export const turfFormSchema = z
       .array(z.enum(SPORT_TYPE_VALUES))
       .min(1, "Select at least one sport"),
     amenities: z.array(z.string()).optional(),
-    images: z.array(z.string()).optional(),
+    images: z
+      .array(z.string())
+      .max(MAX_COVER_IMAGES, `You can add up to ${MAX_COVER_IMAGES} cover photos`)
+      .optional(),
     basePricePerHour: z.number().min(0, "Price must be 0 or more"),
     weekendSurge: z.number().min(0).max(1),
     openTime: z.string().regex(timeRegex, "Use HH:MM format"),

@@ -111,8 +111,8 @@ function TermsDraftForm({
 
   return (
     <>
-      <div className="space-y-4">
-        <div className="grid gap-4 sm:grid-cols-2">
+      <div className="space-y-8">
+        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
           <div className="space-y-1.5">
             <Label htmlFor="terms-kind">Audience</Label>
             <select

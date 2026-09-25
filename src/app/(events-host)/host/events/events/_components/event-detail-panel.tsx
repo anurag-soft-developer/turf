@@ -270,7 +270,7 @@ export default function EventDetailPanel({
         </div>
       </DrawerFooter>
 
-      <ConfirmDialog>
+      <ConfirmDialog
         open={submitDialogOpen}
         onOpenChange={setSubmitDialogOpen}
         title={resolvedStatus === "rejected" ? "Resubmit for approval?" : "Submit for approval?"}

@@ -3,6 +3,8 @@ import type { CreateEventPayload } from "../types/event";
 
 const timeRegex = /^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/;
 
+export const MAX_COVER_IMAGES = 5;
+
 export const eventFormSchema = z
   .object({
     title: z.string().min(1, "Title is required").max(200),
@@ -21,7 +23,10 @@ export const eventFormSchema = z
     price: z.number().min(0, "Price must be 0 or more"),
     currency: z.string().length(3, "Use 3-letter currency code"),
     maxParticipants: z.number().int().min(1, "At least 1 participant required"),
-    coverImages: z.array(z.string()).optional(),
+    coverImages: z
+      .array(z.string())
+      .max(MAX_COVER_IMAGES, `You can add up to ${MAX_COVER_IMAGES} cover photos`)
+      .optional(),
     turfId: z.string().optional(),
   })
   .refine((data) => !(data.latitude === 0 && data.longitude === 0), {

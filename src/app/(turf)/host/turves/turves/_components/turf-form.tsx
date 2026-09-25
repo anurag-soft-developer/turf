@@ -4,6 +4,7 @@ import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DrawerFooter } from "@/components/my-drawer";
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
 import { SearchMultiSelect } from "@/components/search-multi-select";
+import { CoverImageCarousel } from "@/components/shared/cover-image-carousel";
 import { Button } from "@/components/ui/button";
 import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
@@ -14,6 +15,7 @@ import ENV_CONFIG from "@/config/env.config";
 import {
   AMENITY_OPTIONS,
   isSportTypeValue,
+  MAX_COVER_IMAGES,
   SPORT_TYPE_OPTIONS,
   turfFormSchema,
   turfFormToCreatePayload,
@@ -21,22 +23,21 @@ import {
 } from "@/modules/turf-host/schemas/turf-form";
 import type { Turf } from "@/modules/turf-host/types/turf";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
 import {
   Clock,
   FileText,
-  ImageIcon,
+  ImagePlus,
   IndianRupee,
   MapPin,
   Percent,
   Search,
   Trophy,
   Type,
-  X,
 } from "lucide-react";
 import { useRef, useState } from "react";
 
 const turfHostFormId = "turf-host-form";
-import { useForm } from "react-hook-form";
 
 function turfToDefaultValues(turf?: Turf): TurfFormValues {
   return {
@@ -116,7 +117,7 @@ export default function TurfForm({
 
   const onImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || images.length >= MAX_COVER_IMAGES) return;
     setUploading(true);
     try {
       const url = await storageApi.uploadFile(file, "turfMedia");
@@ -143,7 +144,7 @@ export default function TurfForm({
     <>
     <form
       id={turfHostFormId}
-      className="space-y-4"
+      className="space-y-8"
       onSubmit={handleSubmit((values) => onSubmit(turfFormToCreatePayload(values)))}
     >
         <div className="space-y-2">
@@ -203,7 +204,7 @@ export default function TurfForm({
           />
         </div>
         {mapsError ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="latitude">Latitude</Label>
               <InputWithIcon
@@ -283,7 +284,7 @@ export default function TurfForm({
           />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="basePricePerHour" className="flex items-center gap-1.5">
               <IndianRupee className="h-3.5 w-3.5 text-emerald-600" />
@@ -345,8 +346,8 @@ export default function TurfForm({
 
         <div className="space-y-2">
           <Label className="flex items-center gap-1.5">
-            <ImageIcon className="h-3.5 w-3.5 text-emerald-600" />
-            Images
+            <ImagePlus className="h-3.5 w-3.5 text-emerald-600" />
+            Cover images
           </Label>
           <input
             ref={fileRef}
@@ -355,34 +356,15 @@ export default function TurfForm({
             className="hidden"
             onChange={onImageUpload}
           />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading…" : "Upload image"}
-          </Button>
-          {images.length > 0 ? (
-            <div className="flex flex-wrap gap-3">
-              {images.map((url, index) => (
-                <div key={`${url}-${index}`} className="relative">
-                  <img
-                    src={url}
-                    alt=""
-                    className="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImage(index)}
-                    aria-label="Remove image"
-                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900/85 text-white hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
+          <CoverImageCarousel
+            images={images}
+            uploading={uploading}
+            maxImages={MAX_COVER_IMAGES}
+            onAdd={() => fileRef.current?.click()}
+            onRemove={removeImage}
+          />
+          {errors.images?.message ? (
+            <p className="text-sm text-destructive">{errors.images.message}</p>
           ) : null}
         </div>
     </form>

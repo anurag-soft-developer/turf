@@ -49,6 +49,7 @@ export const APPS: Record<AppType, AppManifest> = {
       "/platform-admin/support",
       "/platform-admin/turves",
       "/platform-admin/terms-and-conditions",
+      "/platform-admin/events",
     ],
     navLinks: [
       { label: "How it works", href: "/#how-it-works" },
@@ -119,6 +120,8 @@ export const APPS: Record<AppType, AppManifest> = {
       "/host/events",
       "/platform-admin/withdrawals",
       "/platform-admin/support",
+      "/platform-admin/turves",
+      "/platform-admin/terms-and-conditions",
       "/platform-admin/events",
     ],
     navLinks: [

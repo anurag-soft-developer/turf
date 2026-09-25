@@ -8,7 +8,6 @@ import {
   DrawerTitle,
 } from "@/components/ui/drawer";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
-import { currentApp } from "@/config/apps";
 import { cn } from "@/lib/utils";
 import {
   Banknote,
@@ -40,6 +39,16 @@ function AdminSidebarLinks({
       exact: true,
     },
     {
+      href: ROUTE_POINT.platformAdmin.turves,
+      label: "Turf approvals",
+      icon: MapPin,
+    },
+    {
+      href: ROUTE_POINT.platformAdmin.events,
+      label: "Event approvals",
+      icon: CalendarCheck2,
+    },
+    {
       href: ROUTE_POINT.platformAdmin.withdrawals,
       label: "Withdrawals",
       icon: Banknote,
@@ -49,29 +58,12 @@ function AdminSidebarLinks({
       label: "Support",
       icon: LifeBuoy,
     },
-    ...(currentApp.features.turfHost
-      ? [
-          {
-            href: ROUTE_POINT.platformAdmin.turves,
-            label: "Turf approvals",
-            icon: MapPin,
-          },
-          {
-            href: ROUTE_POINT.platformAdmin.termsAndConditions,
-            label: "Terms and conditions",
-            icon: FileText,
-          },
-        ]
-      : []),
-    ...(currentApp.features.eventsHost
-      ? [
-          {
-            href: ROUTE_POINT.platformAdmin.events,
-            label: "Event approvals",
-            icon: CalendarCheck2,
-          },
-        ]
-      : []),
+    {
+      href: ROUTE_POINT.platformAdmin.termsAndConditions,
+      label: "Terms and conditions",
+      icon: FileText,
+    },
+
   ];
 
   return (

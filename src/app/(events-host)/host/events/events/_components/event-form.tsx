@@ -3,6 +3,7 @@
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { DrawerFooter } from "@/components/my-drawer";
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
+import { CoverImageCarousel } from "@/components/shared/cover-image-carousel";
 import { Button } from "@/components/ui/button";
 import { InputWithIcon } from "@/components/ui/input-with-icon";
 import { Label } from "@/components/ui/label";
@@ -12,6 +13,7 @@ import ENV_CONFIG from "@/config/env.config";
 import {
   eventFormSchema,
   eventFormToCreatePayload,
+  MAX_COVER_IMAGES,
   type EventFormValues,
 } from "@/modules/event-host/schemas/event-form";
 import type { HostEvent } from "@/types/event";
@@ -20,12 +22,11 @@ import {
   Calendar,
   Clock,
   FileText,
-  ImageIcon,
+  ImagePlus,
   IndianRupee,
   MapPin,
   Type,
   Users,
-  X,
 } from "lucide-react";
 import { useRef, useState } from "react";
 
@@ -123,7 +124,7 @@ export default function EventForm({
 
   const onImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file) return;
+    if (!file || coverImages.length >= MAX_COVER_IMAGES) return;
     setUploading(true);
     try {
       const url = await storageApi.uploadFile(file, "turfMedia");
@@ -150,7 +151,7 @@ export default function EventForm({
     <>
     <form
       id={eventHostFormId}
-      className="space-y-4"
+      className="space-y-8"
       onSubmit={handleSubmit((values) => onSubmit(eventFormToCreatePayload(values)))}
     >
         <div className="space-y-2">
@@ -174,7 +175,7 @@ export default function EventForm({
           ) : null}
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="eventDate" className="flex items-center gap-1.5">
               <Calendar className="h-3.5 w-3.5 text-emerald-600" />
@@ -242,7 +243,7 @@ export default function EventForm({
           />
         </div>
         {mapsError ? (
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="latitude">Latitude</Label>
               <InputWithIcon
@@ -278,7 +279,7 @@ export default function EventForm({
           </div>
         ) : null}
 
-        <div className="grid gap-4 sm:grid-cols-2">
+        <div className="grid gap-x-6 gap-y-8 sm:grid-cols-2">
           <div className="space-y-2">
             <Label htmlFor="price" className="flex items-center gap-1.5">
               <IndianRupee className="h-3.5 w-3.5 text-emerald-600" />
@@ -307,7 +308,7 @@ export default function EventForm({
 
         <div className="space-y-2">
           <Label className="flex items-center gap-1.5">
-            <ImageIcon className="h-3.5 w-3.5 text-emerald-600" />
+            <ImagePlus className="h-3.5 w-3.5 text-emerald-600" />
             Cover images
           </Label>
           <input
@@ -317,34 +318,15 @@ export default function EventForm({
             className="hidden"
             onChange={onImageUpload}
           />
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => fileRef.current?.click()}
-            disabled={uploading}
-          >
-            {uploading ? "Uploading..." : "Upload image"}
-          </Button>
-          {coverImages.length > 0 ? (
-            <div className="flex flex-wrap gap-3">
-              {coverImages.map((url, index) => (
-                <div key={`${url}-${index}`} className="relative">
-                  <img
-                    src={url}
-                    alt=""
-                    className="h-20 w-20 rounded-lg object-cover ring-1 ring-gray-200"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeCoverImage(index)}
-                    aria-label="Remove cover image"
-                    className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-gray-900/85 text-white hover:bg-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
+          <CoverImageCarousel
+            images={coverImages}
+            uploading={uploading}
+            maxImages={MAX_COVER_IMAGES}
+            onAdd={() => fileRef.current?.click()}
+            onRemove={removeCoverImage}
+          />
+          {errors.coverImages?.message ? (
+            <p className="text-sm text-destructive">{errors.coverImages.message}</p>
           ) : null}
         </div>
     </form>

@@ -1,6 +1,7 @@
 "use client";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { DrawerFooter } from "@/components/my-drawer";
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
 import { SearchMultiSelect } from "@/components/search-multi-select";
 import { Button } from "@/components/ui/button";
@@ -33,6 +34,8 @@ import {
   X,
 } from "lucide-react";
 import { useRef, useState } from "react";
+
+const turfHostFormId = "turf-host-form";
 import { useForm } from "react-hook-form";
 
 function turfToDefaultValues(turf?: Turf): TurfFormValues {
@@ -137,11 +140,12 @@ export default function TurfForm({
   };
 
   return (
+    <>
     <form
-      className="-mx-4 flex min-h-full flex-col"
+      id={turfHostFormId}
+      className="space-y-4"
       onSubmit={handleSubmit((values) => onSubmit(turfFormToCreatePayload(values)))}
     >
-      <div className="space-y-4 px-4 py-4 pb-2">
         <div className="space-y-2">
           <Label htmlFor="name" className="flex items-center gap-1.5">
             <Type className="h-3.5 w-3.5 text-emerald-600" />
@@ -381,9 +385,8 @@ export default function TurfForm({
             </div>
           ) : null}
         </div>
-      </div>
-
-      <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
+    </form>
+      <DrawerFooter>
         <div className="flex justify-end gap-2">
           {onCancel ? (
             <Button
@@ -398,6 +401,7 @@ export default function TurfForm({
           ) : null}
           <Button
             type="submit"
+            form={turfHostFormId}
             size="sm"
             disabled={isSubmitting || uploading}
             className="bg-emerald-600 hover:bg-emerald-700"
@@ -405,7 +409,7 @@ export default function TurfForm({
             {isSubmitting ? "Saving…" : submitLabel}
           </Button>
         </div>
-      </div>
+      </DrawerFooter>
 
       <ConfirmDialog
         open={discardDialogOpen}
@@ -419,6 +423,6 @@ export default function TurfForm({
           onCancel?.();
         }}
       />
-    </form>
+    </>
   );
 }

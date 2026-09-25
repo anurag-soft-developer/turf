@@ -2,7 +2,7 @@ import Link from "next/link";
 import { Card, CardContent } from "@/components/ui/card";
 import { ROUTE_POINT } from "@/lib/constants/route-point";
 import { currentApp } from "@/config/apps";
-import { Banknote, CalendarCheck2, MapPin } from "lucide-react";
+import { Banknote, CalendarCheck2, FileText, MapPin } from "lucide-react";
 
 const adminSections = [
   {
@@ -18,6 +18,12 @@ const adminSections = [
           title: "Turf approvals",
           description: "Approve or reject turf listings submitted by hosts",
           icon: MapPin,
+        },
+        {
+          href: ROUTE_POINT.platformAdmin.termsAndConditions,
+          title: "Terms and conditions",
+          description: "Draft and publish the terms turf owners accept",
+          icon: FileText,
         },
       ]
     : []),

@@ -3,13 +3,17 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { DrawerFooter } from "@/components/my-drawer";
 import { useHostTurf } from "@/modules/turf-host/hooks/use-my-turfs";
 import {
+  useCurrentTurfOwnerTerms,
   useDeleteTurf,
   useSubmitTurfForApproval,
   useToggleTurfAvailability,
   useWithdrawTurfSubmission,
 } from "@/modules/turf-host/hooks/use-turf-mutations";
+import { useProfile } from "@/lib/hooks/auth";
+import { TermsAndConditionsKind } from "@/types/terms-and-conditions";
 import type { TurfStatus } from "@/modules/turf-host/types/turf";
 import { cn } from "@/lib/utils";
 import {
@@ -21,6 +25,7 @@ import {
   turfStatusVariant,
 } from "@/lib/utils/turf-display";
 import { format } from "date-fns";
+import axios from "axios";
 import {
   Clock,
   IndianRupee,
@@ -194,8 +199,11 @@ export default function TurfDetailPanel({
   const submitMutation = useSubmitTurfForApproval();
   const withdrawMutation = useWithdrawTurfSubmission();
   const toggleAvailability = useToggleTurfAvailability();
+  const { data: profile, isLoading: profileLoading } = useProfile();
+  const currentTermsQuery = useCurrentTurfOwnerTerms();
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [submitDialogOpen, setSubmitDialogOpen] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
   const [withdrawDialogOpen, setWithdrawDialogOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
@@ -220,6 +228,27 @@ export default function TurfDetailPanel({
   const hasImages = images.length > 0;
   const heroImage = hasImages ? images[activeImage] : null;
   const isAvailable = isTurfOpenForBookings(turf.isAvailable);
+  const currentTerms = currentTermsQuery.data;
+  const alreadyAccepted = Boolean(
+    currentTerms &&
+      profile?.acceptedTermsAndConditions?.some(
+        (entry) =>
+          entry.kind === TermsAndConditionsKind.TURF_OWNER &&
+          entry.termsAndConditions === currentTerms._id,
+      ),
+  );
+  const needsAcceptance = Boolean(currentTerms) && !alreadyAccepted;
+  const termsReady = !currentTermsQuery.isLoading && !profileLoading;
+  const termsMissing =
+    currentTermsQuery.isError &&
+    axios.isAxiosError(currentTermsQuery.error) &&
+    currentTermsQuery.error.response?.status === 404;
+  const termsFailed = currentTermsQuery.isError && !termsMissing;
+  const canConfirmSubmit =
+    termsReady &&
+    !termsFailed &&
+    Boolean(currentTerms) &&
+    (alreadyAccepted || acceptedTerms);
 
   const dimensionsLabel =
     turf.dimensions?.length && turf.dimensions?.width
@@ -227,8 +256,8 @@ export default function TurfDetailPanel({
       : null;
 
   return (
-    <div className="-mx-4 flex min-h-full flex-col">
-      <div className="space-y-5 px-4 py-4 pb-2">
+    <>
+      <div className="space-y-5">
         {/* Hero image */}
         <div className="-mx-4 overflow-hidden">
           {heroImage ? (
@@ -403,7 +432,7 @@ export default function TurfDetailPanel({
           </div>
         ) : null}
       </div>
-      <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
+      <DrawerFooter>
         <TurfDetailActions
           status={turf.status}
           isAvailable={isAvailable}
@@ -421,25 +450,79 @@ export default function TurfDetailPanel({
           isWithdrawing={withdrawMutation.isPending}
           isTogglingAvailability={toggleAvailability.isPending}
         />
-      </div>
+      </DrawerFooter>
 
       <ConfirmDialog
         open={submitDialogOpen}
-        onOpenChange={setSubmitDialogOpen}
+        onOpenChange={(open) => {
+          setSubmitDialogOpen(open);
+          if (!open) setAcceptedTerms(false);
+        }}
         title={
           turf.status === "rejected"
             ? "Resubmit for approval?"
             : "Submit for approval?"
         }
-        description="Your turf will be sent to platform admins for review. You will not be able to publish it publicly until it is approved."
-        confirmLabel={submitMutation.isPending ? "Submitting…" : "Yes, submit"}
-        loading={submitMutation.isPending}
-        onConfirm={() =>
-          submitMutation.mutate(id, {
-            onSuccess: () => setSubmitDialogOpen(false),
-          })
+        description={
+          !termsReady
+            ? "Loading the current turf owner terms."
+            : termsFailed
+              ? "Could not load the current turf owner terms. Try again in a moment."
+              : !currentTerms
+                ? "Turf owner terms are not published yet. An admin must publish them before you can submit."
+                : needsAcceptance
+                ? "Accept the current terms to send this turf for review."
+                : "Your turf will be sent to platform admins for review. You will not be able to publish it publicly until it is approved."
         }
-      />
+        confirmLabel={
+          submitMutation.isPending
+            ? "Submitting…"
+            : needsAcceptance
+              ? "Accept and submit"
+              : "Yes, submit"
+        }
+        confirmDisabled={!canConfirmSubmit}
+        loading={submitMutation.isPending}
+        contentClassName={needsAcceptance ? "max-w-lg" : undefined}
+        onConfirm={() =>
+          submitMutation.mutate(
+            {
+              id,
+              termsAndConditionsId: needsAcceptance
+                ? currentTerms?._id
+                : undefined,
+            },
+            {
+              onSuccess: () => {
+                setSubmitDialogOpen(false);
+                setAcceptedTerms(false);
+              },
+            },
+          )
+        }
+      >
+        {needsAcceptance && currentTerms ? (
+          <div className="space-y-3">
+            <div className="max-h-64 space-y-2 overflow-y-auto rounded-lg border bg-muted/40 p-3">
+              <p className="text-sm font-semibold text-foreground">
+                {currentTerms.title}
+              </p>
+              <p className="whitespace-pre-wrap text-sm text-muted-foreground">
+                {currentTerms.content}
+              </p>
+            </div>
+            <label className="flex items-start gap-2 text-sm">
+              <input
+                type="checkbox"
+                className="mt-0.5 h-4 w-4 rounded border-gray-300"
+                checked={acceptedTerms}
+                onChange={(event) => setAcceptedTerms(event.target.checked)}
+              />
+              <span>I accept these turf owner terms.</span>
+            </label>
+          </div>
+        ) : null}
+      </ConfirmDialog>
 
       <ConfirmDialog
         open={withdrawDialogOpen}
@@ -474,6 +557,6 @@ export default function TurfDetailPanel({
           })
         }
       />
-    </div>
+    </>
   );
 }

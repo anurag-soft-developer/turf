@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { DrawerFooter } from "@/components/my-drawer";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { userDisplayName } from "@/lib/utils/withdrawal-display";
@@ -197,7 +198,7 @@ export function AdminTurfApprovalDetailPanel({
         </div>
       ) : null}
 
-      <div className="sticky bottom-0 space-y-3 border-t bg-background pt-4">
+      <DrawerFooter>
         {showRejectForm ? (
           <div className="space-y-3">
             <div>
@@ -284,7 +285,7 @@ export function AdminTurfApprovalDetailPanel({
             </Button>
           </div>
         )}
-      </div>
+      </DrawerFooter>
 
       <ConfirmDialog
         open={approveDialogOpen}

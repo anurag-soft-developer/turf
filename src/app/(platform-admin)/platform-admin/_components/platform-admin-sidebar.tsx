@@ -13,6 +13,7 @@ import { cn } from "@/lib/utils";
 import {
   Banknote,
   CalendarCheck2,
+  FileText,
   LayoutDashboard,
   LifeBuoy,
   MapPin,
@@ -54,6 +55,11 @@ function AdminSidebarLinks({
             href: ROUTE_POINT.platformAdmin.turves,
             label: "Turf approvals",
             icon: MapPin,
+          },
+          {
+            href: ROUTE_POINT.platformAdmin.termsAndConditions,
+            label: "Terms and conditions",
+            icon: FileText,
           },
         ]
       : []),

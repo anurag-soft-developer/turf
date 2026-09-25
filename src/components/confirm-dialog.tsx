@@ -21,7 +21,9 @@ export interface ConfirmDialogProps {
   confirmLabel?: string;
   onConfirm?: () => void;
   loading?: boolean;
+  confirmDisabled?: boolean;
   destructive?: boolean;
+  contentClassName?: string;
   children?: React.ReactNode;
 }
 
@@ -34,7 +36,9 @@ export function ConfirmDialog({
   confirmLabel = "Confirm",
   onConfirm,
   loading = false,
+  confirmDisabled = false,
   destructive = false,
+  contentClassName,
   children,
 }: ConfirmDialogProps) {
   return (
@@ -43,7 +47,7 @@ export function ConfirmDialog({
       onOpenChange={onOpenChange}
       disablePointerDismissal={loading}
     >
-      <DialogContent>
+      <DialogContent className={contentClassName}>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
           {description ? (
@@ -54,7 +58,7 @@ export function ConfirmDialog({
         <DialogFooter>
           <DialogClose disabled={loading}>{cancelLabel}</DialogClose>
           <Button
-            disabled={loading}
+            disabled={loading || confirmDisabled}
             onClick={onConfirm}
             className={cn(
               destructive

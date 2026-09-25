@@ -1,5 +1,6 @@
 "use client";
 
+import { DrawerFooter } from "@/components/my-drawer";
 import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -93,8 +94,8 @@ export default function MyEventBookingDetailPanel({
     booking.status === "pending" && Boolean(booking.razorpayPaymentLinkShortUrl);
 
   return (
-    <div className="-mx-4 flex min-h-full flex-col">
-      <div className="space-y-5 px-4 py-4 pb-2">
+    <>
+      <div className="space-y-5">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
             <Badge
@@ -174,7 +175,7 @@ export default function MyEventBookingDetailPanel({
         ) : null}
       </div>
 
-      <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
+      <DrawerFooter>
         <div className="flex flex-wrap justify-end gap-2">
           {showContinuePayment ? (
             <Button
@@ -198,7 +199,7 @@ export default function MyEventBookingDetailPanel({
             </Link>
           ) : null}
         </div>
-      </div>
-    </div>
+      </DrawerFooter>
+    </>
   );
 }

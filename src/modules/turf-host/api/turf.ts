@@ -8,6 +8,10 @@ import type {
   UpdateTurfPayload,
 } from "../types/turf";
 import type { TurfStatus } from "@/types/turf";
+import {
+  TermsAndConditionsKind,
+  type TermsAndConditions,
+} from "@/types/terms-and-conditions";
 
 export interface MyTurfsParams {
   page?: number;
@@ -69,9 +73,21 @@ export const hostTurfApi = {
     await api.delete(API_CONFIG.ENDPOINTS.TURF.BY_ID(id));
   },
 
-  submitForApproval: async (id: string): Promise<Turf> => {
+  getCurrentOwnerTerms: async (): Promise<TermsAndConditions> => {
+    const response = await api.get<TermsAndConditions>(
+      API_CONFIG.ENDPOINTS.TERMS_AND_CONDITIONS.CURRENT,
+      { params: { kind: TermsAndConditionsKind.TURF_OWNER } },
+    );
+    return response.data;
+  },
+
+  submitForApproval: async (
+    id: string,
+    termsAndConditionsId?: string,
+  ): Promise<Turf> => {
     const response = await api.post<Turf>(
       API_CONFIG.ENDPOINTS.TURF.SUBMIT(id),
+      termsAndConditionsId ? { termsAndConditionsId } : {},
     );
     return response.data;
   },

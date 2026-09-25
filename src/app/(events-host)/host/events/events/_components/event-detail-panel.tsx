@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { DrawerFooter } from "@/components/my-drawer";
 import { cn } from "@/lib/utils";
 import {
   eventRegistrationHoldActionLabel,
@@ -112,8 +113,8 @@ export default function EventDetailPanel({
   const registrationsOpen = isEventOpenForRegistrations(event.registrationsPaused);
 
   return (
-    <div className="-mx-4 flex min-h-full flex-col">
-      <div className="space-y-5 px-4 py-4 pb-2">
+    <>
+      <div className="space-y-5">
         <div className="space-y-2">
           <h2 className="text-xl font-bold tracking-tight text-gray-900">{event.title}</h2>
           <div className="flex flex-wrap items-center gap-2">
@@ -175,7 +176,7 @@ export default function EventDetailPanel({
         ) : null}
       </div>
 
-      <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
+      <DrawerFooter>
         <div className="flex flex-wrap justify-end gap-2">
           {showSubmit ? (
             <Button
@@ -267,9 +268,9 @@ export default function EventDetailPanel({
             Delete
           </Button>
         </div>
-      </div>
+      </DrawerFooter>
 
-      <ConfirmDialog
+      <ConfirmDialog>
         open={submitDialogOpen}
         onOpenChange={setSubmitDialogOpen}
         title={resolvedStatus === "rejected" ? "Resubmit for approval?" : "Submit for approval?"}
@@ -328,6 +329,6 @@ export default function EventDetailPanel({
           })
         }
       />
-    </div>
+    </>
   );
 }

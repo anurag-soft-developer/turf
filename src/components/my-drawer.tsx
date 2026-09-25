@@ -10,7 +10,23 @@ import {
 } from "@/components/ui/drawer";
 import { cn } from "@/lib/utils";
 import { X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
+
+const DrawerFooterSlotContext = createContext<HTMLDivElement | null>(null);
+
+export function DrawerFooter({ children }: { children: ReactNode }) {
+  const slot = useContext(DrawerFooterSlotContext);
+  if (!slot) return null;
+  return createPortal(children, slot);
+}
 
 interface MyDrawerProps {
   open: boolean;
@@ -32,6 +48,7 @@ export function MyDrawer({
   className,
 }: MyDrawerProps) {
   const canDismissRef = useRef(false);
+  const [footerSlot, setFooterSlot] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
     if (!open) {
@@ -81,12 +98,18 @@ export function MyDrawer({
             <X className="h-4 w-4" />
           </Button>
         </DrawerHeader>
-        <div
-          className="min-h-0 flex-1 overflow-y-auto px-4 py-4 select-text"
-          data-vaul-no-drag
-        >
-          {children}
-        </div>
+        <DrawerFooterSlotContext.Provider value={footerSlot}>
+          <div
+            className="min-h-0 flex-1 overflow-y-auto px-4 py-4 select-text"
+            data-vaul-no-drag
+          >
+            {children}
+          </div>
+          <div
+            ref={setFooterSlot}
+            className="shrink-0 border-t bg-background px-4 py-3 empty:hidden"
+          />
+        </DrawerFooterSlotContext.Provider>
       </DrawerContent>
     </Drawer>
   );

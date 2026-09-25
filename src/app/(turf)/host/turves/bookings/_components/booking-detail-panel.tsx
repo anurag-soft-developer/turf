@@ -1,5 +1,6 @@
 "use client";
 
+import { DrawerFooter } from "@/components/my-drawer";
 import BookingActions from "./booking-action-dialogs";
 import { Badge } from "@/components/ui/badge";
 import { formatInr } from "@/lib/utils/currency";
@@ -141,8 +142,8 @@ export default function BookingDetailPanel({ id }: BookingDetailPanelProps) {
     : "—";
 
   return (
-    <div className="-mx-4 flex min-h-full flex-col">
-      <div className="space-y-5 px-4 py-4 pb-2">
+    <>
+      <div className="space-y-5">
         {/* Header */}
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
@@ -290,9 +291,9 @@ export default function BookingDetailPanel({ id }: BookingDetailPanelProps) {
         ) : null}
       </div>
 
-      <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
+      <DrawerFooter>
         <BookingActions booking={booking} />
-      </div>
-    </div>
+      </DrawerFooter>
+    </>
   );
 }

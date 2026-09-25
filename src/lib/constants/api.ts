@@ -80,6 +80,13 @@ export const API_CONFIG = {
       COMMENTS: (id: string) => `/withdrawals/${id}/comments`,
       ATTACHMENTS: (id: string) => `/withdrawals/${id}/attachments`,
     },
+    TERMS_AND_CONDITIONS: {
+      CURRENT: "/terms-and-conditions/current",
+      ADMIN: "/terms-and-conditions/admin",
+      BASE: "/terms-and-conditions",
+      BY_ID: (id: string) => `/terms-and-conditions/${id}`,
+      PUBLISH: (id: string) => `/terms-and-conditions/${id}/publish`,
+    },
     SUPPORT: {
       QUERIES: "/support/queries",
       MINE: "/support/queries/mine",

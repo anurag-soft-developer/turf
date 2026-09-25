@@ -1,6 +1,7 @@
 "use client";
 
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { DrawerFooter } from "@/components/my-drawer";
 import { PlacesAutocomplete } from "@/components/places-autocomplete";
 import { Button } from "@/components/ui/button";
 import { InputWithIcon } from "@/components/ui/input-with-icon";
@@ -27,6 +28,8 @@ import {
   X,
 } from "lucide-react";
 import { useRef, useState } from "react";
+
+const eventHostFormId = "event-host-form";
 import { useForm } from "react-hook-form";
 
 function toDateInputValue(value?: string) {
@@ -144,11 +147,12 @@ export default function EventForm({
   };
 
   return (
+    <>
     <form
-      className="-mx-4 flex min-h-full flex-col"
+      id={eventHostFormId}
+      className="space-y-4"
       onSubmit={handleSubmit((values) => onSubmit(eventFormToCreatePayload(values)))}
     >
-      <div className="space-y-4 px-4 py-4 pb-2">
         <div className="space-y-2">
           <Label htmlFor="title" className="flex items-center gap-1.5">
             <Type className="h-3.5 w-3.5 text-emerald-600" />
@@ -343,9 +347,8 @@ export default function EventForm({
             </div>
           ) : null}
         </div>
-      </div>
-
-      <div className="sticky bottom-0 z-10 shrink-0 border-t bg-background px-4 py-3">
+    </form>
+      <DrawerFooter>
         <div className="flex justify-end gap-2">
           {onCancel ? (
             <Button
@@ -360,6 +363,7 @@ export default function EventForm({
           ) : null}
           <Button
             type="submit"
+            form={eventHostFormId}
             size="sm"
             disabled={isSubmitting || uploading}
             className="bg-emerald-600 hover:bg-emerald-700"
@@ -367,7 +371,7 @@ export default function EventForm({
             {isSubmitting ? "Saving..." : submitLabel}
           </Button>
         </div>
-      </div>
+      </DrawerFooter>
 
       <ConfirmDialog
         open={discardDialogOpen}
@@ -381,6 +385,6 @@ export default function EventForm({
           onCancel?.();
         }}
       />
-    </form>
+    </>
   );
 }

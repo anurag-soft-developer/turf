@@ -18,6 +18,7 @@ export const NotificationModule = {
   FOLLOWINGS: "followings",
   WITHDRAWALS: "withdrawals",
   TURF_APPROVAL: "turfApproval",
+  SUPPORT: "support",
 } as const;
 
 export const NOTIFICATION_MODULE_VALUES = [
@@ -28,6 +29,7 @@ export const NOTIFICATION_MODULE_VALUES = [
   NotificationModule.FOLLOWINGS,
   NotificationModule.WITHDRAWALS,
   NotificationModule.TURF_APPROVAL,
+  NotificationModule.SUPPORT,
 ] as const;
 
 export type NotificationModuleType =
@@ -56,6 +58,12 @@ export interface EarnedBadge {
   sportType?: string;
 }
 
+export interface AcceptedTermsAndConditions {
+  termsAndConditions: string;
+  kind: string;
+  acceptedAt: string;
+}
+
 export interface User {
   _id: string;
   email?: string;
@@ -82,6 +90,7 @@ export interface User {
   isPasswordExists?: boolean;
   phone?: string;
   lastLogin?: string;
+  acceptedTermsAndConditions?: AcceptedTermsAndConditions[];
   createdAt: string;
   updatedAt: string;
 }

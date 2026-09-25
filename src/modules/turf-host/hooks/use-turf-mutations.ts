@@ -1,7 +1,8 @@
 "use client";
 
+import { AUTH_QUERY_KEYS } from "@/lib/hooks/auth";
 import { toastError } from "@/lib/toast";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { hostTurfApi } from "../api/turf";
 import { TURF_HOST_QUERY_KEYS } from "../constants/query-keys";
 import type { CreateTurfPayload, UpdateTurfPayload } from "../types/turf";
@@ -78,13 +79,28 @@ function invalidateHostTurfQueries(
   }
 }
 
+export function useCurrentTurfOwnerTerms() {
+  return useQuery({
+    queryKey: TURF_HOST_QUERY_KEYS.currentOwnerTerms,
+    queryFn: () => hostTurfApi.getCurrentOwnerTerms(),
+    retry: false,
+  });
+}
+
 export function useSubmitTurfForApproval() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (id: string) => hostTurfApi.submitForApproval(id),
-    onSuccess: (_, id) => {
+    mutationFn: ({
+      id,
+      termsAndConditionsId,
+    }: {
+      id: string;
+      termsAndConditionsId?: string;
+    }) => hostTurfApi.submitForApproval(id, termsAndConditionsId),
+    onSuccess: (_, { id }) => {
       invalidateHostTurfQueries(queryClient, id);
+      queryClient.invalidateQueries({ queryKey: AUTH_QUERY_KEYS.profile });
     },
     onError: (error) =>
       toastError(error, "Failed to submit turf for approval."),

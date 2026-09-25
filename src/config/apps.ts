@@ -48,6 +48,7 @@ export const APPS: Record<AppType, AppManifest> = {
       "/platform-admin/withdrawals",
       "/platform-admin/support",
       "/platform-admin/turves",
+      "/platform-admin/terms-and-conditions",
     ],
     navLinks: [
       { label: "How it works", href: "/#how-it-works" },

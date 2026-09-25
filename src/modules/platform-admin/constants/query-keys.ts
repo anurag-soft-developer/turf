@@ -13,4 +13,6 @@ export const PLATFORM_ADMIN_QUERY_KEYS = {
     ["platform-admin", "support-queries", params] as const,
   adminSupportQuery: (id: string) =>
     ["platform-admin", "support-query", id] as const,
+  adminTerms: (kind: string) =>
+    ["platform-admin", "terms-and-conditions", kind] as const,
 } as const;

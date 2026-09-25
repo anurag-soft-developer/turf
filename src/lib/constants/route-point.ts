@@ -38,6 +38,7 @@ export const ROUTE_POINT = {
     events: "/platform-admin/events",
     withdrawals: "/platform-admin/withdrawals",
     support: "/platform-admin/support",
+    termsAndConditions: "/platform-admin/terms-and-conditions",
   },
 } as const;
 
